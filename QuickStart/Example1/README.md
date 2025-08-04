@@ -73,4 +73,19 @@ In output folder, you can find following files.
 | Tumor.scmutrace.clean.vcf | output of scMutrace with all annotations |
 | Tumor.final.vcf | final result of scMutrace |
 
-# 
+# You can check all SNVs using IGV tool
+17_1549588_G_A
+
+![17_1549588_G_A](../../Figures/Example1/17_1549588_G_A.png)
+
+17_7951909_G_A
+
+![17_7951909_G_A](../../Figures/Example1/17_7951909_G_A.png)
+
+17_40169488_C_T
+
+![17_40169488_C_T](../../Figures/Example1/17_40169488_C_T.png)
+
+17_65688765_C_T
+
+![17_65688765_C_T](../../Figures/Example1/17_65688765_C_T.png)
