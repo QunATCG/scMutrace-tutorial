@@ -72,3 +72,5 @@ In output folder, you can find following files.
 | Tumor_scmutrace.vcf | all SNPs |
 | Tumor.scmutrace.clean.vcf | output of scMutrace with all annotations |
 | Tumor.final.vcf | final result of scMutrace |
+
+# 
