@@ -57,15 +57,18 @@ echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
 ## Step 4: Check output files
 In output folder, you can find following files.
 
-| Name    | Annotation |
+| Name | Description |
 | -------- | ------- |
-| barcodeList.txt | all cellbarcode used for filter bam reads |
-| ExcludeBG_Tumor.picard_dup_metrics.txt | output of picard(mark duplicated reads) |
-| ExcludeBG_Tumor.sort.bam | generated bam files using cell barcode file |
+| barcodeList.txt | List of all cell barcodes used to filter BAM reads |
+| ExcludeBG_Tumor.picard_dup_metrics.txt | Metrics file from Picard marking duplicated reads |
+| ExcludeBG_Tumor.sort.bam | Filtered BAM file based on the cell barcode list |
 | ExcludeBG_Tumor.sort.bam.bai | index file of ExcludeBG_Tumor.sort.bam |
-| ExcludeBG_Tumor.sort.rmdupicard.bam | removed duplicated reads using picard |
+| ExcludeBG_Tumor.sort.rmdupicard.bam | BAM file after removing duplicated reads using Picard |
 | ExcludeBG_Tumor.sort.rmdupicard.bam.bai | index file of ExcludeBG_Tumor.sort.rmdupicard.bam |
-| filterVCF folder | filter SNPs using scMutrace |
-| tmp folder |  |
-| tmpVCF folder |  |
-| VCFPOS folder |  |
+| filterVCF folder | Folder containing filtered SNPs produced by scMutrace |
+| tmp folder | Temporary working directory |
+| tmpVCF folder | Temporary files related to VCF generation |
+| VCFPOS folder | Temporary files related to VCF generation |
+| Tumor_scmutrace.vcf | all SNPs |
+| Tumor.scmutrace.clean.vcf | output of scMutrace with all annotations |
+| Tumor.final.vcf | final result of scMutrace |
