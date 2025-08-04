@@ -16,6 +16,36 @@ https://github.com/QunATCG/scMutrace#installation
 
 ## Step 2: Download example data
 1. Download bam files from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example1/Data).
-2. Download fasta file from [here](), or this [repository]()
+2. Download fasta file from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example1/Meta)
+3. Download population database from [here]()
 
-## 
+## Step 3: Run scMutrace with one-step mode
+```bash
+#!/bin/bash
+set -euo pipefail
+
+# Define inputs
+tumor_bam="path/to/Example_tumor_scRNA.bam"
+reference_use="path/to/chr17.fa"
+cellbarcode="path/to/Example.barcode"
+sampleID="Example_tumor_scRNA"
+contig_references="path/to/chr17.contig"
+removeItems="path/to/excludeitems.txt"
+includeItems="path/to/includeitems.txt"
+outDir="directory/to/OutPut/"
+
+mkdir -p "${outDir}"
+
+echo "[INFO] Running scMutrace..."
+path/to/scMutrace.sh -b "${tumor_bam}" -f "${reference_use}" \
+  -c "${cellbarcode}" -s "${sampleID}" -g "${contig_references}" \
+  -r "${removeItems}" -i "${includeItems}" \
+  -d 5 -D 2 -n 5 -N 2 -l 20 -L 2 \
+  -q 20 -Q 255 -p 4 -O "${outDir}"
+
+echo "[INFO] Filtering variants..."
+awk '!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repeat|rnaedit|segdup|PoN|fisherLB|NLB|sequencing|noisyClusterBackground|noisyClusterSameGT)/ && /not_in_cluster/ && /Strong/' \
+  "${outDir}/${sampleID}.scmutrace.clean.vcf" > "${outDir}/${sampleID}.final.vcf"
+
+echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
+```
