@@ -75,10 +75,10 @@ In output folder, you can find following files.
 
 # You can check all SNVs using IGV tool
 - Four somatic mutations:
-    - [17_1549588_G_A](../../Figures/Example1/17_1549588_G_A.png)
-    - [17_7951909_G_A](../../Figures/Example1/17_7951909_G_A.png)
-    - [17_40169488_C_T](../../Figures/Example1/17_40169488_C_T.png)
-    - [17_65688765_C_T](../../Figures/Example1/17_65688765_C_T.png)
+    - scRNA specific [17_1549588_G_A](../../Figures/Example1/17_1549588_G_A.png)
+    - both scRNA and WES [17_7951909_G_A](../../Figures/Example1/17_7951909_G_A.png)
+    - both scRNA and WES [17_40169488_C_T](../../Figures/Example1/17_40169488_C_T.png)
+    - both scRNA and WES [17_65688765_C_T](../../Figures/Example1/17_65688765_C_T.png)
 
 - Other noisy mutation:
     - [17_4475803_C_A](../../Figures/Example1/17_4475803_C_A.png)
