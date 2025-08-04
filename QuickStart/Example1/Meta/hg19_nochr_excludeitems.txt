@@ -1,0 +1,7 @@
+/Users/liqun/reference/database/commonSNP/hg19_snp151Common.txt	commonSNP
+/Users/liqun/reference/database/gapRegion/hg19_gap.txt	gap
+/Users/liqun/reference/database/gnomAD/hg19_haf.txt	gnomAD
+/Users/liqun/reference/database/problematicRegion/hg19_problematicRegion.txt	problem
+/Users/liqun/reference/database/repeatMask/hg19_repeatMasker.txt	repeat
+/Users/liqun/reference/database/rnaEditing/hg19_RNAedit.txt	rnaedit
+/Users/liqun/reference/database/segmentalDup/hg19_SegmentalDup.txt	segdup
