@@ -1,4 +1,4 @@
-# Example 1: Identify somatic mutations without control sample
+# Example 1: Identify somatic mutations without control sample and celltype annotation
 
 > Example BAM files from same sample (Data folder) were derived from 10x Genomics single-cell sequencing data, and contain a small region of human chromosome 17 (hg19), which harbors four somatic mutations. 
 
@@ -74,18 +74,13 @@ In output folder, you can find following files.
 | Tumor.final.vcf | final result of scMutrace |
 
 # You can check all SNVs using IGV tool
-17_1549588_G_A
+- Four somatic mutations:
+    - [17_1549588_G_A](../../Figures/Example1/17_1549588_G_A.png)
+    - [17_7951909_G_A](../../Figures/Example1/17_7951909_G_A.png)
+    - [17_40169488_C_T](../../Figures/Example1/17_40169488_C_T.png)
+    - [17_65688765_C_T](../../Figures/Example1/17_65688765_C_T.png)
 
-![17_1549588_G_A](../../Figures/Example1/17_1549588_G_A.png)
-
-17_7951909_G_A
-
-![17_7951909_G_A](../../Figures/Example1/17_7951909_G_A.png)
-
-17_40169488_C_T
-
-![17_40169488_C_T](../../Figures/Example1/17_40169488_C_T.png)
-
-17_65688765_C_T
-
-![17_65688765_C_T](../../Figures/Example1/17_65688765_C_T.png)
+- Other noisy mutation:
+    - [17_4475803_C_A](../../Figures/Example1/17_4475803_C_A.png)
+    - [17_59147579_C_G](../../Figures/Example1/17_59147579_C_G.png)
+    - [17_17772276_C_T](../../Figures/Example1/17_17772276_C_T.png)
