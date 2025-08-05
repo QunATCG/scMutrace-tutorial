@@ -1,0 +1,260 @@
+[INFO] Running scMutrace...
+###################################################
+             scMutrace Version 1.0                 
+                OneStep Process                    
+###################################################
+Your input parameters:
+BAMFILE: /Users/liqun/Desktop/scMutraceReproducibility/Example/Data/Example_tumor_scRNA.bam
+REF: /Users/liqun/reference/hg19/GRCh37/chr17.fa
+CELLBARCODECheck: true
+CELLBARCODE: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/P4_cSCC.barcode
+CELLBARCODETAG: CB
+ncut: 10
+SAMPLEID: Tumor
+nprocs: 4
+OUTPUT: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+CONTIG: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/chr17.contig
+removeitem: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/hg19_nochr_excludeitems.txt
+includeitem: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/hg19_nochr_includeitems.txt
+minbq: 20
+minmq: 255
+mincellnumber: 5
+minaltcellnumber: 2
+maxmismatch: 4
+minsequencingdepth: 5
+minaltsequencingdepth: 2
+iteration: 1000
+backp: 0.05
+errorp: 0.006
+binsize: 20
+clustersize: 2
+lowBaseCutoff: 20
+UMI: CB
+ratioUser: 0.005
+
+
+Barcode file header and format are correct.
+making the output directory..Tumor
+running step0_excludeBGCell.sh
+###################################################
+             scMutrace Version 1.0                 
+             Step0 exclude BG cell                 
+###################################################
+Your input parameters:
+BAMFILE: /Users/liqun/Desktop/scMutraceReproducibility/Example/Data/Example_tumor_scRNA.bam
+REF: /Users/liqun/reference/hg19/GRCh37/chr17.fa
+barcode check: true
+CELLBARCODE: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/P4_cSCC.barcode
+CELLBARCODETAG: CB
+ContigFile: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/chr17.contig
+UMITAG: CB
+ncut: 10
+SAMPLEID: Tumor
+nprocs: 4
+OUTPUT: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+
+making the output directory..Tumor
+Exclude background cells and trim reads..Tumor
+/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/ already exists
+Directory created: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+True
+Parent process 50212.
+Your cores is 4
+Waiting for all subprocesses done...
+###########################################
+Split SMT
+Creating tmp bam files in /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/Tumor_17_1_81195210.tmp.SMT.bam
+###########################################
+Indexing bam --- /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/Tumor_17_1_81195210.tmp.SMT.bam
+Split bam ###---### Done!
+All subprocesses done.
+All processes done.
+Computation time: 3 seconds
+samtools merge bam files..Tumor
+samtools sort..Tumor
+[bam_sort_core] merging from 0 files and 4 in-memory blocks...
+samtools index..Tumor
+picard rmdup..Tumor
+10:01:14.074 INFO  NativeLibraryLoader - Loading libgkl_compression.dylib from jar:file:/Users/liqun/Desktop/scMutrace/software/picard.jar!/com/intel/gkl/native/libgkl_compression.dylib
+10:01:14.087 WARN  NativeLibraryLoader - Unable to load libgkl_compression.dylib from native/libgkl_compression.dylib (Can't load library: /var/folders/yx/vkjdxytj10n2fwzdpmn014bc0000gp/T/liqun/libgkl_compression6870650905479380670.dylib)
+10:01:14.087 INFO  NativeLibraryLoader - Loading libgkl_compression.dylib from jar:file:/Users/liqun/Desktop/scMutrace/software/picard.jar!/com/intel/gkl/native/libgkl_compression.dylib
+10:01:14.088 WARN  NativeLibraryLoader - Unable to load libgkl_compression.dylib from native/libgkl_compression.dylib (Can't load library: /var/folders/yx/vkjdxytj10n2fwzdpmn014bc0000gp/T/liqun/libgkl_compression3154071799660998914.dylib)
+[Tue Aug 05 10:01:14 CEST 2025] MarkDuplicates --BARCODE_TAG CB --INPUT /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//ExcludeBG_Tumor.sort.reCB.bam --OUTPUT /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/ExcludeBG_Tumor.sort.rmdupicard.bam --METRICS_FILE /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/ExcludeBG_Tumor.picard_dup_metrics.txt --REMOVE_DUPLICATES true --MAX_SEQUENCES_FOR_DISK_READ_ENDS_MAP 50000 --MAX_FILE_HANDLES_FOR_READ_ENDS_MAP 8000 --SORTING_COLLECTION_SIZE_RATIO 0.25 --TAG_DUPLICATE_SET_MEMBERS false --REMOVE_SEQUENCING_DUPLICATES false --TAGGING_POLICY DontTag --CLEAR_DT true --DUPLEX_UMI false --ADD_PG_TAG_TO_READS true --ASSUME_SORTED false --DUPLICATE_SCORING_STRATEGY SUM_OF_BASE_QUALITIES --PROGRAM_RECORD_ID MarkDuplicates --PROGRAM_GROUP_NAME MarkDuplicates --READ_NAME_REGEX <optimized capture of last three ':' separated fields as numeric values> --OPTICAL_DUPLICATE_PIXEL_DISTANCE 100 --MAX_OPTICAL_DUPLICATE_SET_SIZE 300000 --VERBOSITY INFO --QUIET false --VALIDATION_STRINGENCY STRICT --COMPRESSION_LEVEL 5 --MAX_RECORDS_IN_RAM 500000 --CREATE_INDEX false --CREATE_MD5_FILE false --GA4GH_CLIENT_SECRETS client_secrets.json --help false --version false --showHidden false --USE_JDK_DEFLATER false --USE_JDK_INFLATER false
+[Tue Aug 05 10:01:14 CEST 2025] Executing as liqun@qunlmbp on Mac OS X 15.5 aarch64; Java HotSpot(TM) 64-Bit Server VM 1.8.0_461-b11; Deflater: Jdk; Inflater: Jdk; Provider GCS is not available; Picard version: Version:2.27.3
+INFO	2025-08-05 10:01:14	MarkDuplicates	Start of doWork freeMemory: 563781896; totalMemory: 578813952; maxMemory: 8589934592
+INFO	2025-08-05 10:01:14	MarkDuplicates	Reading input file and constructing read end information.
+INFO	2025-08-05 10:01:14	MarkDuplicates	Will retain up to 26512143 data points before spilling to disk.
+10:01:14.119 WARN  IntelInflaterFactory - IntelInflater is not supported, using Java.util.zip.Inflater
+INFO	2025-08-05 10:01:14	MarkDuplicates	Read 66606 records. 0 pairs never matched.
+INFO	2025-08-05 10:01:14	MarkDuplicates	After buildSortedReadEndLists freeMemory: 507113672; totalMemory: 729808896; maxMemory: 8589934592
+INFO	2025-08-05 10:01:14	MarkDuplicates	Will retain up to 268435456 duplicate indices before spilling to disk.
+INFO	2025-08-05 10:01:14	MarkDuplicates	Traversing read pair information and detecting duplicates.
+INFO	2025-08-05 10:01:14	MarkDuplicates	Traversing fragment information and detecting duplicates.
+INFO	2025-08-05 10:01:14	MarkDuplicates	Sorting list of duplicate records.
+INFO	2025-08-05 10:01:14	MarkDuplicates	After generateDuplicateIndexes freeMemory: 720047560; totalMemory: 2877816832; maxMemory: 8589934592
+INFO	2025-08-05 10:01:14	MarkDuplicates	Marking 0 records as duplicates.
+INFO	2025-08-05 10:01:14	MarkDuplicates	Found 0 optical duplicate clusters.
+10:01:14.729 WARN  IntelInflaterFactory - IntelInflater is not supported, using Java.util.zip.Inflater
+INFO	2025-08-05 10:01:14	MarkDuplicates	Reads are assumed to be ordered by: coordinate
+10:01:14.734 WARN  IntelDeflaterFactory - Intel Deflater not supported, using Java.util.zip.Deflater
+INFO	2025-08-05 10:01:15	MarkDuplicates	Writing complete. Closing input iterator.
+INFO	2025-08-05 10:01:15	MarkDuplicates	Duplicate Index cleanup.
+INFO	2025-08-05 10:01:15	MarkDuplicates	Getting Memory Stats.
+INFO	2025-08-05 10:01:15	MarkDuplicates	Before output close freeMemory: 2867131632; totalMemory: 2877816832; maxMemory: 8589934592
+INFO	2025-08-05 10:01:15	MarkDuplicates	Closed outputs. Getting more Memory Stats.
+INFO	2025-08-05 10:01:15	MarkDuplicates	After output close freeMemory: 2867507288; totalMemory: 2877816832; maxMemory: 8589934592
+[Tue Aug 05 10:01:15 CEST 2025] picard.sam.markduplicates.MarkDuplicates done. Elapsed time: 0.02 minutes.
+Runtime.totalMemory()=2877816832
+samtools index rmdup..Tumor
+Done!Tumor
+running step1_extractSNP.sh
+###################################################
+             scMutrace Version 1.0                 
+               Step1 extract SNPs                  
+###################################################
+Your input parameters:
+BAMFILE: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//ExcludeBG_Tumor.sort.rmdupicard.bam
+REF: /Users/liqun/reference/hg19/GRCh37/chr17.fa
+CELLBARCODETAG: CB
+CONTIG: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/chr17.contig
+SAMPLEID: Tumor
+nprocs: 4
+ratioUser: 0.005
+minbq: 20
+minmq: 255
+mincellnumber: 5
+minaltcellnumber: 2
+maxmismatch: 4
+minsequencingdepth: 5
+minaltsequencingdepth: 2
+OUTPUT: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+
+
+Extracting SNPs for 17_1_81195210
+/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/ already exists
+Directory created: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+Directory created: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/tmpVCF
+Directory created: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/VCFPOS
+Processing /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//ExcludeBG_Tumor.sort.rmdupicard.bam
+Parent process 50236.
+Your cores is 4
+Waiting for all subprocesses done...
+Run task 50238...
+Run task 50239...
+Run task 50240...
+Run task 50241...
+Processed 500000 reads
+Processed 1000000 reads
+count_mut_information ###---### sub task was done: 17_40597605_60896407
+Run task 50240...
+count_mut_information ###---### sub task was done: 17_81195209_81195210
+Processed 500000 reads
+count_mut_information ###---### sub task was done: 17_60896407_81195209
+Processed 500000 reads
+Processed 500000 reads
+Processed 1000000 reads
+count_mut_information ###---### sub task was done: 17_20298803_40597605
+Processed 1500000 reads
+Processed 2000000 reads
+Processed 2500000 reads
+Processed 3000000 reads
+count_mut_information ###---### sub task was done: 17_1_20298803
+All subprocesses done.
+Merging... /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//ExcludeBG_Tumor.sort.rmdupicard.bam of Chromosome: 17
+All processes done.
+Computation time: 15 seconds
+running step2_filterSNPModel.sh
+###################################################
+             scMutrace Version 1.0                 
+               Step2 filter SNPs                   
+###################################################
+Your input parameters:
+VCFDIR: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/
+SAMPLEID: Tumor
+nprocs: 4
+iteration: 1000
+backp: 0.05
+errorp: 0.006
+outdir: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+
+
+Directory created: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/filterVCF/
+Splitting files...
+['/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfaa', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfae', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfab', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfac', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfad']
+['/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/filterVCF/Tumor_17.vcfaa_filter.vcf', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/filterVCF/Tumor_17.vcfae_filter.vcf', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/filterVCF/Tumor_17.vcfab_filter.vcf', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/filterVCF/Tumor_17.vcfac_filter.vcf', '/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/filterVCF/Tumor_17.vcfad_filter.vcf']
+Parent process 50260.
+Your cores is 4
+Waiting for all subprocesses done...
+Done for /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfae
+Done for /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfaa
+Done for /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfac
+Done for /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfab
+Done for /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//VCFPOS/splitVcf_VCF_Tumor_17.vcfad
+None
+None
+None
+None
+None
+All subprocesses done.
+Merging vcf files...
+All processes done.
+Computation time: 2 seconds
+running step3_filterPopulation.sh
+###################################################
+             scMutrace Version 1.0                 
+          Step3 filter public databases            
+###################################################
+Your input parameters:
+OUTPUT: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+VCF: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//filterVCF/
+SAMPLEID: Tumor
+ExcludeItems: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/hg19_nochr_excludeitems.txt
+IncludeItems: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/hg19_nochr_includeitems.txt
+nprocs: 1
+
+
+/Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/ already exists
+Directory created: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/
+processing.. Tumor_17_filter.vcf
+commonSNP
+gap
+gnomAD
+problem
+repeat
+rnaedit
+segdup
+cosmic
+Merging files...
+cat /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/filter_Tumor_17.f1.vcf > /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut/Tumor_scmutrace.vcf
+All processes done.
+Computation time: 58 seconds
+running step4_filterNoisy.sh
+Barcode file header and format are correct.
+###################################################
+             scMutrace Version 1.0                 
+            Step4 filter noisy sites               
+###################################################
+Your input parameters:
+BAMFILE: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//ExcludeBG_Tumor.sort.rmdupicard.bam
+REF: /Users/liqun/reference/hg19/GRCh37/chr17.fa
+VCFPath: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//Tumor_scmutrace.vcf
+SAMPLEID: Tumor
+CELLBARCODEFILE: /Users/liqun/Desktop/scMutraceReproducibility/Example/Meta/P4_cSCC.barcode
+BINSIZE: 20
+CLUSTERSIZE: 2
+MINDP: 5
+MINALTDP: 2
+MINCELLNUM: 5
+MINALTCELLNUM: 2
+LOWBQ: 20
+OUTPUT: /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//
+
+
+Parent process 50335.
+Your cores is 4
+Waiting for all subprocesses done...
+All subprocesses done.
+All processes done.
+Computation time: 1 seconds
+[INFO] Filtering variants...
+[INFO] Done. Final variants saved to /Users/liqun/Desktop/scMutraceReproducibility/Example/OutPut//Tumor.final.vcf
