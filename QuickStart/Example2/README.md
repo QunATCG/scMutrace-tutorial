@@ -13,6 +13,6 @@ https://github.com/QunATCG/scMutrace#installation
 ## Step 2: Download example data and prerequisite files
 **make sure to place this in a location with plenty of space**
 1. Download bam files from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example2/Data).
-2. Download fasta file from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example2/Meta)
+2. Download meta file from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example2/Meta)
 3. Download scMutrace databases from [here](). (format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/Meta/excludeitems.txt))
 
