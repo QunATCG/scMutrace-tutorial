@@ -16,3 +16,8 @@ https://github.com/QunATCG/scMutrace#installation
 2. Download meta file from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example2/Meta)
 3. Download scMutrace databases from [here](). (format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/Meta/excludeitems.txt))
 
+## Step 3: Run scMutrace with one-step mode
+**Replace the default input path and output directory with your own file locations**.
+
+*This example is expected to complete in about 1 minute, using 36 GB of memory and 4 CPU cores.*
+

@@ -23,6 +23,8 @@ https://github.com/QunATCG/scMutrace#installation
 ## Step 3: Run scMutrace with one-step mode
 **Replace the default input path and output directory with your own file locations**.
 
+*This example is expected to complete in about 2 minutes, using 36 GB of memory and 4 CPU cores.*
+
 ```bash
 #!/bin/bash
 set -euo pipefail
