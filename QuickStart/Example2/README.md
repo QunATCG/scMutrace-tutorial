@@ -74,12 +74,12 @@ In output folder, you can find following files.
 
 **output of scMutrace**:
 
-example scMutrace output can be downloaded from [here]()
+example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example2/outputExample/scMutrace.vcf)
 
 ![scMutrace](../../Figures/Example2/scMutrace.png)
 
 **output of SComatic**:
 
-example SComatic output can be downloaded from [here]()
+example SComatic output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example2/outputExample/SComatic.tsv)
 
 ![scMutrace](../../Figures/Example2/SComatic.png)
