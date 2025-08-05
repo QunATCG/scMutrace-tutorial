@@ -1,6 +1,6 @@
 # Example 2: Identify somatic mutations without control sample and celltype annotation
 
-> Example BAM files from same sample (Data folder) were derived from SComatic 10x Genomics single-cell sequencing data, and contain a small region of human chromosome 10 (hg38), which harbors five somatic mutations.
+> Example BAM files from same sample (Data folder) were derived from SComatic 10x Genomics single-cell sequencing data, and contain a small region of human chromosome 10 (hg38), which harbors five somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
 
 
 - scRNA
