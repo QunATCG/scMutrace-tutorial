@@ -23,6 +23,11 @@ https://github.com/QunATCG/scMutrace#installation
 *This example is expected to complete in about 1 minute, using 36 GB of memory and 1 CPU cores.*
 
 ```bash
+# envs for scMutrace
+conda activate scMutrace
+```
+
+```bash
 #!/bin/bash
 set -euo pipefail
 
@@ -46,7 +51,7 @@ echo "[INFO] Running scMutrace..."
   -q 20 -Q 255 -p 1 -O "${outDir}"
 
 echo "[INFO] Filtering variants..."
-awk '!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repeat|rnaedit|segdup|PoN|fisherLB|NLB|sequencing)/ && /not_in_cluster/ && /Strong/' \
+awk 'NR==1 || (!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repeat|rnaedit|segdup|PoN|fisherLB|NLB|sequencing|noisyClusterBackground|noisyClusterSameGT)/ && /Strong/ && /not_in_cluster/)' \
   "${outDir}/${sampleID}.scmutrace.clean.vcf" > "${outDir}/${sampleID}.final.vcf"
 
 echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
