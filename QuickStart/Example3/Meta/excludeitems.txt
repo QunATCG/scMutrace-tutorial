@@ -1,0 +1,7 @@
+/Users/liqun/reference/database/commonSNP/hg38_snp151Common.txt	commonSNP
+/Users/liqun/reference/database/gapRegion/hg38_gap.txt	gap
+/Users/liqun/reference/database/gnomAD/hg38_haf.txt	gnomAD
+/Users/liqun/reference/database/problematicRegion/hg38_problematicRegion.txt	problem
+/Users/liqun/reference/database/repeatMask/hg38_repeatMasker.txt	repeat
+/Users/liqun/reference/database/rnaEditing/hg38_RNAedit.txt	rnaedit
+/Users/liqun/reference/database/segmentalDup/hg38_SegmentalDup.txt	segdup

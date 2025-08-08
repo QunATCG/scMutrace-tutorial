@@ -19,7 +19,7 @@ https://github.com/QunATCG/scMutrace#installation
 ## Step 3: Run scMutrace with one-step mode
 **Replace the default input path and output directory with your own file locations**.
 
-*This example is expected to complete in about 1 minute, using 36 GB of memory and 4 CPU cores.*
+*This example is expected to complete in about 15 minutes, using 36 GB of memory and 4 CPU cores.*
 
 ```bash
 # Activate conda environment if needed
@@ -83,12 +83,10 @@ example scMutrace output can be downloaded from [here](https://github.com/QunATC
 
 **output of Monopogen**:
 
+*This example is expected to complete in about 46 minutes when using Monopogen (using 36 GB of memory and 1 CPU core), Note, the option -t enables users to run mulitple chromosomes simultaneously. Set -t=1 if you are working on only one chromosome*
+
+
 example Monopogen output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)
-
-
-
-
-
 
 
 
