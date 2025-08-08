@@ -85,9 +85,12 @@ example scMutrace output can be downloaded from [here](https://github.com/QunATC
 
 *This example is expected to complete in about 46 minutes when using Monopogen (using 36 GB of memory and 1 CPU core), Note, the option -t enables users to run mulitple chromosomes simultaneously. Set -t=1 if you are working on only one chromosome*
 
+*Due to differences in the version of Monopogen and in the annotation files (imputation_panel and LDrefinement step), the results may vary substantially (~25% of the variants differ between versions). We recommend consulting the Monopogen documentation for details.*
+
+- [Monopogen Document](https://github.com/KChen-lab/Monopogen)
+
+- [Different somatic calls across Monopogen v.1.0 and v1.6.0 #58](https://github.com/KChen-lab/Monopogen/issues/58)
+
+- [Version issue backup](../../Figures/Example3/VersionIssue.pdf)
 
 example Monopogen output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)
-
-
-
-
