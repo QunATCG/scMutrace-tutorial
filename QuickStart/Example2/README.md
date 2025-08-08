@@ -34,7 +34,7 @@ set -euo pipefail
 # Define inputs
 tumor_bam="path/to/Example.scrnaseq.bam"
 reference_use="path/to/chr10.fa"
-cellbarcode="path/to/Example.cell_barcode_annotations.tsv"
+cellbarcode="path/to/CellBarcode.tsv"
 sampleID="Tumor"
 contig_references="path/to/chr10.contig"
 removeItems="path/to/excludeitems.txt"
