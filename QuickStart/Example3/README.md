@@ -1,10 +1,9 @@
 # Example 2: Identify somatic mutations without control sample and celltype annotation
 
-> Example BAM files from same sample (Data folder) were derived from SComatic example data (you can compare the differences between two methods), and contain a small region of human chromosome 10 (hg38), which harbors five somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
-
+> Example BAM files from same sample (Data folder) were derived from Monopogen example data (you can compare the differences between two methods), and contain a small region of human chromosome 20 (hg38), which harbors five somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
 
 - scRNA
-    - `Example.scrnaseq.bam`: scRNA sequencing tumor tissue (We only use this file in our script)
+    - `chr20.maester_scRNA_CB.bam`: scRNA sequencing tumor tissue (We only use this file in our script and we add CB tag for all reads using `setBarcode.py`)
 
 ## Step 1: Install scMutrace
 Install scMutrace following the instructions provided at:
@@ -13,14 +12,14 @@ https://github.com/QunATCG/scMutrace#installation
 
 ## Step 2: Download example data and prerequisite files
 **make sure to place this in a location with plenty of space**
-1. Download bam files from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example2/Data).
-2. Download meta file from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example2/Meta)
-3. Download scMutrace databases from [here](). (format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/Meta/excludeitems.txt))
+1. Download bam files from [here](https://drive.google.com/file/d/1tKAw8q70_7QnN5RxvKf2GfEngUP_xAXI/view?usp=drive_link).
+2. Download meta file from [here](), or this [repository](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example3/Meta)
+3. Download scMutrace databases from [here](). (format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example3/Meta/excludeitems.txt))
 
 ## Step 3: Run scMutrace with one-step mode
 **Replace the default input path and output directory with your own file locations**.
 
-*This example is expected to complete in about 1 minute, using 36 GB of memory and 1 CPU cores.*
+*This example is expected to complete in about 1 minute, using 36 GB of memory and 4 CPU cores.*
 
 ```bash
 # Activate conda environment if needed
@@ -32,23 +31,24 @@ conda activate scMutrace
 set -euo pipefail
 
 # Define inputs
-tumor_bam="path/to/Example.scrnaseq.bam"
-reference_use="path/to/chr10.fa"
+tumor_bam="path/to/chr20.maester_scRNA_CB.bam"
+reference_use="path/to/genome.20.fa"
 cellbarcode="path/to/CellBarcode.tsv"
 sampleID="Tumor"
-contig_references="path/to/chr10.contig"
+contig_references="path/to/chr20.contig"
 removeItems="path/to/excludeitems.txt"
-includeItems="path/to/includeitems.txt"
+includeItems="path/to/hg38_includeitems.txt"
 outDir="path/to/OutPut/"
 
 mkdir -p "${outDir}"
 
+# This bam file MAX MQ is 60
 echo "[INFO] Running scMutrace..."
 /Users/liqun/Desktop/scMutrace/scMutrace.sh -b "${tumor_bam}" -f "${reference_use}" \
   -c "${cellbarcode}" -s "${sampleID}" -g "${contig_references}" \
   -r "${removeItems}" -i "${includeItems}" \
-  -d 5 -D 2 -n 5 -N 2  -l 20 -L 2  \
-  -q 20 -Q 255 -p 1 -O "${outDir}"
+  -d 5 -D 2 -n 5 -N 2 -l 20 -L 2  \
+  -q 20 -Q 60 -p 4 -O "${outDir}"
 
 echo "[INFO] Filtering variants..."
 awk 'NR==1 || (!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repeat|rnaedit|segdup|PoN|fisherLB|NLB|sequencing|noisyClusterBackground|noisyClusterSameGT)/ && /Strong/ && /not_in_cluster/)' \
@@ -56,7 +56,6 @@ awk 'NR==1 || (!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repea
 
 echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
 ```
-
 ## Step 4: Check output files
 In output folder, you can find following files.
 
@@ -76,15 +75,21 @@ In output folder, you can find following files.
 | Tumor.scmutrace.clean.vcf | output of scMutrace with all annotations |
 | Tumor.final.vcf | final result of scMutrace |
 
-
 **output of scMutrace**:
 
-example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example2/outputExample/scMutrace.vcf)
+example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example3/outputExample/scMutrace.vcf)
 
-![scMutrace](../../Figures/Example2/scMutrace.png)
+![scMutrace](../../Figures/Example3/scMutrace.png)
 
-**output of SComatic**:
+**output of Monopogen**:
 
-example SComatic output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example2/outputExample/SComatic.tsv)
+example Monopogen output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)
 
-![SComatic](../../Figures/Example2/SComatic.png)
+
+
+
+
+
+
+
+
