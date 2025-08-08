@@ -1,6 +1,6 @@
 # Example 2: Identify somatic mutations without control sample and celltype annotation
 
-> Example BAM files from same sample (Data folder) were derived from SComatic 10x Genomics single-cell sequencing data, and contain a small region of human chromosome 10 (hg38), which harbors five somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
+> Example BAM files from same sample (Data folder) were derived from SComatic example data (you can compare the differences between two methods), and contain a small region of human chromosome 10 (hg38), which harbors five somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
 
 
 - scRNA
@@ -23,7 +23,7 @@ https://github.com/QunATCG/scMutrace#installation
 *This example is expected to complete in about 1 minute, using 36 GB of memory and 1 CPU cores.*
 
 ```bash
-# envs for scMutrace
+# Activate conda environment if needed
 conda activate scMutrace
 ```
 
