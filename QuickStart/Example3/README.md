@@ -1,6 +1,6 @@
 # Example 3: Identify somatic mutations without control sample and celltype annotation
 
-> Example BAM files from same sample (Data folder) were derived from Monopogen example data (you can compare the differences between two methods), and contain a small region of human chromosome 20 (hg38), which harbors five somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
+> Example BAM files from same sample (Data folder) were derived from Monopogen example data (you can compare the differences between two methods), and contain a small region of human chromosome 20 (hg38), which harbors five somatic mutations.
 
 - scRNA
     - `chr20.maester_scRNA_CB.bam`: scRNA sequencing tumor tissue (We only use this file in our script and we add CB tag for all reads using `setBarcode.py`)
