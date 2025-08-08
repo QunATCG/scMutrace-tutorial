@@ -1,9 +1,19 @@
-# Example 2: Identify somatic mutations without control sample and celltype annotation
+# Example 3: Identify somatic mutations without control sample and celltype annotation
 
 > Example BAM files from same sample (Data folder) were derived from Monopogen example data (you can compare the differences between two methods), and contain a small region of human chromosome 20 (hg38), which harbors five somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
 
 - scRNA
     - `chr20.maester_scRNA_CB.bam`: scRNA sequencing tumor tissue (We only use this file in our script and we add CB tag for all reads using `setBarcode.py`)
+
+```bash
+# Activate conda environment if needed
+conda activate scMutrace
+```
+
+```bash
+# setBarcode.py can be found in Meta folder
+python setBarcode.py --bam chr20.maester_scRNA.bam --outbam chr20.maester_scRNA_CB.bam --buffer_size 500000
+```
 
 ## Step 1: Install scMutrace
 Install scMutrace following the instructions provided at:
