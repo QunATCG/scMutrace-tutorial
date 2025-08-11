@@ -1,4 +1,4 @@
-# Shell Scripting Tutorial
+# scMutrace Tutorial
 A complete beginner’s guide to learning scMutrace from scratch, including both example and application projects.
 
 **Contents**
