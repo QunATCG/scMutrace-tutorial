@@ -1,5 +1,5 @@
 # scMutrace Tutorial
-A complete beginner’s guide to learning scMutrace from scratch, including both example and application projects.
+A complete beginner’s guide to learning [scMutrace](https://github.com/QunATCG/scMutrace) from scratch, including both example and application projects.
 
 **Contents**
 
