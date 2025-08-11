@@ -8,7 +8,7 @@ https://support.pdc.kth.se/doc/
 
 https://slurm.schedmd.com/documentation.html
 
-In code folder, you can find following benchmarking scripts:
+In `codes` folder, you can find following benchmarking scripts:
 
 - run_delly.slurm (https://github.com/dellytools/delly)
 - run_epiAneufinder.slurm (https://github.com/colomemaria/epiAneufinder)
