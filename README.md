@@ -3,7 +3,7 @@ A complete beginner’s guide to learning [scMutrace](https://github.com/QunATCG
 
 **Contents**
 
-- Example Projects (Step-by-step demonstrations to help you understand the basics)
+- Example Projects (`QuickStart` folder, Step-by-step demonstrations to help you understand the basics)
 - Application Projects (Practical use cases to apply what you’ve learned)
 - Advanced Functions (Explore extended features and customization options)
 
