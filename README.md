@@ -12,4 +12,6 @@ If you encounter coding issues along the way, you can refer to the shell script 
 
 https://github.com/QunATCG/shell-scripting-tutorial
 
+https://github.com/QunATCG/linux-command
+
 https://github.com/QunATCG/scMutrace
