@@ -18,6 +18,6 @@ https://github.com/QunATCG/scMutrace
 
 ### References
 
-> Muyas, F., Sauer, C.M., Valle-Inclán, J.E. et al. De novo detection of somatic mutations in high-throughput single-cell profiling data sets. Nat Biotechnol 42, 758–767 (2024)
+> Muyas F. et al. De novo detection of somatic mutations in high-throughput single-cell profiling data sets. Nature Biotechnology. (2024)
 
-> Dou, J., Tan, Y., Kock, K.H. et al. Single-nucleotide variant calling in single-cell sequencing data with Monopogen. Nat Biotechnol 42, 803–812 (2024).
+> Dou J. et al. Single-nucleotide variant calling in single-cell sequencing data with Monopogen. Nature Biotechnology. (2024).
