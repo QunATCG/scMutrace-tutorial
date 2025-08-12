@@ -14,6 +14,7 @@ In `codes` folder, you can find following benchmarking scripts:
 - run_epiAneufinder.slurm (https://github.com/colomemaria/epiAneufinder)
 - run_freebayes.slurm (https://github.com/freebayes/freebayes)
 - run_gatk_germline.slurm (https://github.com/broadinstitute/gatk)
+- run_gatk_somatic.slurm (https://github.com/broadinstitute/gatk)
 - run_manta.slurm (https://github.com/Illumina/manta)
 - run_Monopogen.slurm (https://github.com/KChen-lab/Monopogen)
 - run_SAMtools.slurm (https://github.com/samtools/bcftools)
