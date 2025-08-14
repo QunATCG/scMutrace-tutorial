@@ -66,6 +66,7 @@ awk 'NR==1 || (!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repea
 
 echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
 ```
+![scMutrace code](../../Figures/Example3/Example3_code.png)
 
 > awk is a powerful Unix command-line tool—best thought of as a mini programming language—designed for text processing and data extraction. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
 [sed, awk, vmstat and nestat commands](https://www.youtube.com/watch?v=4hJorSKg9E0)
