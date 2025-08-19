@@ -87,7 +87,7 @@ for region in regions:
             failed_regions.append(region)
 
     except requests.RequestException as e:
-        print(f"❌ Request exception, region: {region}, error message: {e}")
+        print(f" Request exception, region: {region}, error message: {e}")
         failed_regions.append(region)
 
 # merge all CSV files
