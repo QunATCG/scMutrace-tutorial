@@ -15,6 +15,7 @@
 This example (GRCh38)
 ![1kgenomeDatabase](./1kgenomeDatabase.png)
 
+Run with
 
 ```bash
 bash map1000genome.sh
