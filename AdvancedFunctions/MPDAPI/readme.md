@@ -3,6 +3,8 @@
 
 https://phenome.jax.org/about/api
 
+![MPG](./MPG.png)
+
 **Requirements**
 
 - Python 3.x
