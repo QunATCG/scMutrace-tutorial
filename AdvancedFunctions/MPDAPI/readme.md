@@ -17,7 +17,7 @@ Install dependencies with:
 pip install requests pandas
 ```
 
-Run with
+**Run with**
 
 ```bash
 python MPD_API.py
