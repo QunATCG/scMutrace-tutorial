@@ -17,6 +17,7 @@ vcf_header="./vcf_header.tmp"
 bcftools view -h "$kgenome_germline_ini" | grep "^#" > "$vcf_header"
 
 # Define BED files to process
+# These BED files were extracted from output of scMutrace
 bed_files=(
 "smartLungCancer_TH179.scmutrace.clean.vcf.germline.bed"
 "smartLungCancer_TH248.scmutrace.clean.vcf.germline.bed"

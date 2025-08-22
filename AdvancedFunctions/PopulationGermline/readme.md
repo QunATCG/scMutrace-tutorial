@@ -16,7 +16,10 @@ This example (GRCh38):
 
 ![1kgenomeDatabase](./1kgenomeDatabase.png)
 
-Run with
+**Run with**
+
+BED files in `map1000genome.sh` were extracted from output of scMutrace
+![BED files](./bed_input_codes.png)
 
 ```bash
 bash map1000genome.sh
