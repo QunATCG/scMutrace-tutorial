@@ -19,7 +19,7 @@ pip install requests pandas
 
 **Run with**
 
-replace input with your regions.txt in `MPD_API.py`
+Replace the region files in `MPD_API.py` with your own BED files, which were extracted from the output of scMutrace.
 
 ![regions](./regions_input_codes.png)
 

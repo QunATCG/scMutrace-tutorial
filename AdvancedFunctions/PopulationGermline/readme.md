@@ -18,7 +18,7 @@ This example (GRCh38):
 
 **Run with**
 
-replace BED input with your BED files in `map1000genome.sh`. These files were extracted from output of scMutrace
+Replace the BED files in `map1000genome.sh` with your own BED files, which were extracted from the output of scMutrace.
 
 ![BED files](./bed_input_codes.png)
 
