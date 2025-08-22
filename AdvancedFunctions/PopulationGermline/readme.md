@@ -18,7 +18,8 @@ This example (GRCh38):
 
 **Run with**
 
-BED files in `map1000genome.sh` were extracted from output of scMutrace
+replace BED input with your BED files in `map1000genome.sh`. These files were extracted from output of scMutrace
+
 ![BED files](./bed_input_codes.png)
 
 ```bash
