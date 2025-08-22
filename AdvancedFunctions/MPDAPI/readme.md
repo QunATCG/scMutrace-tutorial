@@ -19,6 +19,11 @@ pip install requests pandas
 
 **Run with**
 
+replace input with your regions.txt in `MPD_API.py`
+
+![regions](./regions_input_codes.png)
+
+
 ```bash
 python MPD_API.py
 ```
