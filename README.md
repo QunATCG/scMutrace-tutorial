@@ -16,6 +16,8 @@ https://github.com/QunATCG/linux-command
 
 https://github.com/QunATCG/scMutrace
 
+If you have any questions or encounter problems, please open an issue here: [scMutrace-tutorial Issues](https://github.com/QunATCG/scMutrace-tutorial/issues)
+
 Or contact us: qun.li@ki.se and claudia.kutter@ki.se
 
 # Resources
