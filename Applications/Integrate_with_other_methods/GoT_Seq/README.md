@@ -9,5 +9,5 @@
 > **Note:** The following script is intended to be run on a SLURM-managed cluster environment. Save the script to a file (e.g., `run_gCSM.slurm`) and submit it using the `sbatch` command: `sbatch run_gCSM.slurm`
 
 ### Downstream anaysis
-### run with R codes
+#### run with R codes
 
