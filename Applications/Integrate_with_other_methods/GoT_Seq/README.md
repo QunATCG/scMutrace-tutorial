@@ -1,4 +1,7 @@
 ## Application to GoT_Seq data
+### run scMutrace
+Example: https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart
+
 ### Mutation Analysis
 #### Step1. run scMutrace
 > **Note:** The following script is intended to be run on a SLURM-managed cluster environment. Save the script to a file (e.g., `run_scMutrace.slurm`) and submit it using the `sbatch` command: `sbatch run_scMutrace.slurm`

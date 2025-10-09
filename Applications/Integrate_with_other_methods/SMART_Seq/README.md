@@ -1,4 +1,7 @@
 ## Application to SMART_seq data
+### run scMutrace
+Example: https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart
+
 ### Mapping data
 > check fastq.gz files: `checkFQ.sh`
 

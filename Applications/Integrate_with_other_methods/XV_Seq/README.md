@@ -1,4 +1,7 @@
 ## Application to XV_seq data
+### run scMutrace
+Example: https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart
+
 #### Step1. run scMutrace (same to GoT_seq)
 > [GoT_seq](https://github.com/QunATCG/scMutrace-tutorial/tree/main/Applications/Integrate_with_other_methods/GoT_Seq)
 
