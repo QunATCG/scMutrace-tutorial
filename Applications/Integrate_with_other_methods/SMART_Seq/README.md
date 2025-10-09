@@ -6,10 +6,11 @@
 
 > Set cell barcodes: `set_cellBarcode.slurm`
 
-### run scMutrace
+### Run scMutrace
 
 > mutation calling: `run_scMutrace.slurm`
 
+> scMutrace can be found [here](https://github.com/QunATCG/scMutrace)
 
-### downstream analysis
+### Downstream analysis
 > R
