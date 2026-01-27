@@ -1,0 +1,1730 @@
+---
+title: accumulatedMutations_MEF
+author: Qun Li
+date: 19 Aug 2025 at 10:18:05
+output:
+  pdf_document: 
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Env
+```{r env}
+rm(list = ls())
+setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure4/")
+```
+
+# Libraries
+```{r libraries}
+library(FSA)
+library(ineq)
+library(vegan)
+library(dplyr)
+library(tidyr)
+library(ggpubr)
+library(Seurat)
+library(igraph)
+library(ggraph)
+library(webshot)
+library(ggplot2)
+library(ggpmisc)
+library(stringr)
+library(corrplot)
+library(pheatmap)
+library(reshape2)
+library(tidygraph)
+library(networkD3)
+library(tidyverse)
+library(patchwork)
+```
+
+# Def function
+```{r function}
+retriveCellsByLocation <- function(CSM, locList){
+  CSM$CellTag <- rownames(CSM)
+  CSM_tmp <- CSM[, c("CellTag",locList)]
+  data_MutPerCell_CSM_tmp <- data.frame(
+    CellTag = rownames(CSM_tmp),
+    MutNum = rowSums(CSM_tmp == "Mut"),
+    WTNum = rowSums(CSM_tmp == "WT")
+  )
+  cells_Total <- data_MutPerCell_CSM_tmp[rowSums(data_MutPerCell_CSM_tmp[,c("MutNum", "WTNum")]) > 0, ]$CellTag
+  cells_WT <-    data_MutPerCell_CSM_tmp[data_MutPerCell_CSM_tmp[,"WTNum"] > 0,]$CellTag
+  cells_Mut <-   data_MutPerCell_CSM_tmp[data_MutPerCell_CSM_tmp[,"MutNum"] > 0,]$CellTag
+  cells <- list(Total = cells_Total, Mut = cells_Mut, WT = cells_WT)
+  return(cells)
+}
+
+retriveLocsByCells <- function(CSM, cellList){
+  CSM$CellTag <- rownames(CSM)
+  CSM_tmp <- CSM[CSM$CellTag %in% cellList,]
+  data_CellPerMut_CSM_tmp <- data.frame(
+    Location = colnames(CSM_tmp),
+    CellMutNum = colSums(CSM_tmp == "Mut"),
+    CellWTNum = colSums(CSM_tmp == "WT")
+  )
+  pos_Total <- data_CellPerMut_CSM_tmp[rowSums(data_CellPerMut_CSM_tmp[, c("CellMutNum", "CellWTNum")]) > 0,]$Location
+  pos_Mut <- data_CellPerMut_CSM_tmp[data_CellPerMut_CSM_tmp[, "CellMutNum"] > 0 ,]$Location
+  pos_WT <- data_CellPerMut_CSM_tmp[data_CellPerMut_CSM_tmp[, "CellWTNum"] > 0 ,]$Location
+  pos <- list(Total = pos_Total, Mut = pos_Mut, WT = pos_WT)
+  return(pos)
+}
+
+cal_MultiSpe <- function(matrixData) {
+  
+  res <- data.frame(
+    Shannon = vegan::diversity(matrixData, index = "shannon"),
+    Simpson = vegan::diversity(matrixData, index = "simpson"),
+    Gini = apply(matrixData, 1, function(x) ineq(x + 0.00001, type = "Gini")),
+    sumMut = rowSums(matrixData),
+    Tau = NA
+  )
+  
+  # Tau = sum(1 - (x / max(x))) / (n - 1)
+  res$Tau <- apply(matrixData, 1, function(x) {
+    if (all(x == 0)) return(NA)
+    x <- x / max(x)
+    sum(1 - x) / (length(x) - 1)
+  })
+  
+  rownames(res) <- rownames(matrixData)
+  return(res)
+}
+
+cal_scMutScore <- function(data_cell_mut, data_mut_time, data_meta){
+  # data_cell_mut [cell * muts]
+  # data_mut_time [muts * tissues/celltype/days]
+  # data_meta [Cellbarcode, CellMutTag(tissues/celltype/days)]
+  # data_cell_time_matrix
+  replacement_map <- c("NoCall" = 0, "WT" = 0, "Mut" = 1)
+  
+  data_cell_mut_num <- as.data.frame(lapply(data_cell_mut, function(x) {
+    ifelse(x %in% names(replacement_map), replacement_map[x], x)
+  }))
+
+  rownames(data_cell_mut_num) <- rownames(data_cell_mut)
+  print(dim(data_cell_mut_num))
+  print(dim(data_mut_time))
+  
+  data_cell_time_matrix <- as.matrix(data_cell_mut_num) %*% as.matrix(data_mut_time)
+  rownames(data_cell_time_matrix) <- rownames(data_cell_mut)
+  colnames(data_cell_time_matrix) <- colnames(data_mut_time)
+  
+  muts_total <- unique(rownames(data_mut_time))
+
+  # get different tissues/time/celltype names
+  col_names_data <- colnames(data_cell_time_matrix)
+  
+  col_lenghth <- length(col_names_data)
+  
+  col_coefficient_fix <- setNames(
+    rep(1/col_lenghth, col_lenghth),
+    col_names_data
+  )
+
+  data_cell_time_matrix <- data_cell_time_matrix[,col_names_data]
+  
+  # Gini
+  res_index <- cal_MultiSpe(data_cell_time_matrix)
+  
+  res_diversity <- as.data.frame((data_cell_time_matrix > 1) * rep(col_coefficient_fix[colnames(data_cell_time_matrix)], each = nrow(data_cell_time_matrix)))
+  res_diversity$Diversity <- rowSums(res_diversity)
+
+  res_diversity$Diversity[is.na(res_diversity$Diversity)] <- 0.00001
+  
+  res_index$Gini[is.na(res_index$Gini)] <- 0.00001
+  res_index$Tau[is.na(res_index$Tau)] <- 0.00001
+
+  res_index$GiniTau <- res_index$Gini * res_index$Tau
+  res_index$scMutScore <- 2 / (
+    (1 / (0.1 * res_index$GiniTau + 0.00001)) + 
+    (1 / (0.9 * res_diversity$Diversity + 0.00001))
+  )
+  
+  res_index$Diversity <- res_diversity$Diversity
+  
+  res_index$sumMut_norm <- (res_index$sumMut - min(res_index$sumMut)) /
+                         (max(res_index$sumMut) - min(res_index$sumMut))
+
+  res_index$GiniTau_norm <- (res_index$GiniTau - min(res_index$GiniTau)) /
+                          (max(res_index$GiniTau) - min(res_index$GiniTau))
+
+  res_index$scMutScoreQun <- res_index$sumMut_norm 
+  
+  res_index$scMutScore <- scales::rescale(res_index$scMutScore, to = c(0, 1))
+  res_index$scMutScoreQun <- scales::rescale(res_index$scMutScoreQun, to = c(0, 1))
+  
+  res <- list(diversity = res_diversity, score = res_index, matrixD = data_cell_time_matrix)
+  return(res)
+}
+
+propagate_mutations <- function(data, time_points) {
+  for (i in 1:nrow(data)) {
+    mut_time <- which(data[i, time_points] == "Mut")
+    if (length(mut_time) > 0) {
+      first_mut <- min(mut_time)
+      data[i, time_points[first_mut:length(time_points)]] <- "Mut"
+    }
+  }
+  return(data)
+}
+```
+
+# Load Data
+```{r loadData}
+MEF_CSM <- readRDS("../Data/MEF/MEF_CSM.rds")
+MEF_CSM_hf1 <- MEF_CSM$hf1
+MEF_CSM_hf2 <- MEF_CSM$hf2
+
+MEF_SSM <- readRDS("../Data/MEF/MEF_SSM.rds")
+MEF_SSM_hf1 <- MEF_SSM$hf1
+MEF_SSM_hf2 <- MEF_SSM$hf2
+
+MEF_Meta <- readRDS("../Data/MEF/MEF_Meta.rds")
+MEF_Meta_hf1 <- MEF_Meta$hf1
+MEF_Meta_hf2 <- MEF_Meta$hf2
+
+MPG_data <- read.csv("../Data/MEF/MPG_combined.csv")
+```
+
+# Observed Accumulated Mutation Num
+```{r ObservedAccumulated Mutation Num}
+Reps_sequencing <- c("Rep1_all", "Rep2_all")
+Days_sequencing <- c("d6", "d9", "d12", "d15", "d21", "d28")
+
+col_hf1_names <- c("hf1.d0", "hf1.d3", "hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28")
+col_hf2_names <- c("hf2.d0", "hf2.d3", "hf2.d6", "hf2.d9", "hf2.d12", "hf2.d15", "hf2.d21", "hf2.d28")
+
+data_accMutNum_res <- as.data.frame(matrix(nrow = length(Days_sequencing), ncol = length(Reps_sequencing)))
+colnames(data_accMutNum_res) <- Reps_sequencing
+rownames(data_accMutNum_res) <- Days_sequencing
+
+for (i in rownames(data_accMutNum_res)){
+  data_accMutNum_res[i, "Rep1_all"] <- length(MEF_SSM_hf1[MEF_SSM_hf1[, paste0("hf1.", i)] == "Mut",]$mutPos)
+  data_accMutNum_res[i, "Rep2_all"] <- length(MEF_SSM_hf2[MEF_SSM_hf2[, paste0("hf2.", i)] == "Mut",]$mutPos)
+}
+
+data_accMutNum_res$Days <- rownames(data_accMutNum_res)
+data_accMutNum_res_plot <- melt(data_accMutNum_res)
+colnames(data_accMutNum_res_plot) <- c("Days", "Group", "MutNum")
+
+data_accMutNum_res_plot$Days <- factor(data_accMutNum_res_plot$Days, levels = c("d6", "d9", "d12", "d15", "d21", "d28"))
+
+p_reps_somaticNum <- ggplot(data_accMutNum_res_plot, aes(x = Days, y = MutNum, colour = Group, fill = Group)) +
+  geom_point(shape = 21, size = 3, stroke = 0.8) +
+  ylab("Number of somatic mutations") +
+  scale_colour_manual(values = c("#4d4d4d", "#b2182b")) +
+  scale_fill_manual(values = c("#4d4d4d", "#b2182b")) +
+  theme_classic()
+
+p_reps_somaticNum
+
+replacement_map <- c("NoCall" = 0, "WT" = 0, "Mut" = 1)
+
+MEF_SSM_hf1_hf2 <- merge(MEF_SSM_hf1[,c("mutPos", col_hf1_names)], MEF_SSM_hf2[,c("mutPos", col_hf2_names)], by = "mutPos", all = T)
+MEF_SSM_hf1_hf2[is.na(MEF_SSM_hf1_hf2)] <- "NoCall"
+
+MEF_SSM_hf1_hf2_num <- as.data.frame(lapply(MEF_SSM_hf1_hf2, function(x) {
+  ifelse(x %in% names(replacement_map), replacement_map[x], x)
+}))
+
+rownames(MEF_SSM_hf1_hf2_num) <- MEF_SSM_hf1_hf2$mutPos
+
+# propagate_mutations
+p_accSomaticMut_heatmap_observed <- pheatmap(MEF_SSM_hf1_hf2_num[,c(2:17)], show_rownames = F, color = c("#4d4d4d", "#b2182b"), cluster_cols = FALSE)
+p_accSomaticMut_heatmap_observed
+```
+
+# Imputated Accumulated Mutation Num
+```{r ImputatedAccumulatedMutationNum}
+color_settings <- c(d0 = "#FFDC91FF", d3 = "#7876B1FF", d6 = "#4575b4",
+                    d9 = "#91bfdb", d12 = "#e0f3f8", d15 = "#fee090",
+                    d21 = "#fc8d59", d28 = "#BC3C29FF")
+
+color_settings_2 <- c(Day_0 = "#FFDC91FF", Day_3 = "#7876B1FF", Day_6 = "#4575b4",
+                    Day_9 = "#91bfdb", Day_12 = "#e0f3f8", Day_15 = "#fee090",
+                    Day_21 = "#fc8d59", Day_28 = "#BC3C29FF")
+
+Reps_sequencing <- c("Rep1_all", "Rep2_all")
+Days_sequencing <- c("d0", "d3", "d6", "d9", "d12", "d15", "d21", "d28")
+
+col_hf1_names <- c("hf1.d0", "hf1.d3", "hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28")
+col_hf2_names <- c("hf2.d0", "hf2.d3", "hf2.d6", "hf2.d9", "hf2.d12", "hf2.d15", "hf2.d21", "hf2.d28")
+
+MEF_SSM_hf1_impute <- propagate_mutations(MEF_SSM_hf1, col_hf1_names)
+MEF_SSM_hf2_impute <- propagate_mutations(MEF_SSM_hf2, col_hf2_names)
+
+data_accMutNum_res <- as.data.frame(matrix(nrow = length(Days_sequencing), ncol = length(Reps_sequencing)))
+colnames(data_accMutNum_res) <- Reps_sequencing
+rownames(data_accMutNum_res) <- Days_sequencing
+
+for (i in rownames(data_accMutNum_res)){
+  data_accMutNum_res[i, "Rep1_all"] <- length(MEF_SSM_hf1_impute[MEF_SSM_hf1_impute[, paste0("hf1.", i)] == "Mut",]$mutPos)
+  data_accMutNum_res[i, "Rep2_all"] <- length(MEF_SSM_hf2_impute[MEF_SSM_hf2_impute[, paste0("hf2.", i)] == "Mut",]$mutPos)
+}
+
+data_accMutNum_res$Days <- rownames(data_accMutNum_res)
+data_accMutNum_res_plot <- melt(data_accMutNum_res)
+colnames(data_accMutNum_res_plot) <- c("Days", "Group", "MutNum")
+
+data_accMutNum_res_mean_plot <- aggregate(MutNum ~ Days, data = data_accMutNum_res_plot, FUN = mean)
+
+data_accMutNum_res_mean_plot$Days <- factor(data_accMutNum_res_mean_plot$Days, levels = c("d0", "d3", "d6", "d9", "d12", "d15", "d21", "d28"))
+
+p_reps_somaticNum <- ggplot(data_accMutNum_res_mean_plot, aes(x = Days, y = MutNum, fill = Days)) +
+  geom_col(position = "dodge") +
+  theme_minimal(base_size = 14) +
+  labs(title = "Mean Somatic mutations at different days",
+       x = "Day",
+       y = "Number of Somatic mutations") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_reps_somaticNum
+
+replacement_map <- c("NoCall" = 0, "WT" = 0, "Mut" = 1)
+
+MEF_SSM_hf1_hf2_impute <- merge(MEF_SSM_hf1_impute[,c("mutPos", col_hf1_names)], MEF_SSM_hf2_impute[,c("mutPos", col_hf2_names)], by = "mutPos", all = T)
+MEF_SSM_hf1_hf2_impute[is.na(MEF_SSM_hf1_hf2_impute)] <- "NoCall"
+
+MEF_SSM_hf1_hf2_impute_num <- as.data.frame(lapply(MEF_SSM_hf1_hf2_impute, function(x) {
+  ifelse(x %in% names(replacement_map), replacement_map[x], x)
+}))
+
+rownames(MEF_SSM_hf1_hf2_impute_num) <- MEF_SSM_hf1_hf2_impute$mutPos
+
+# propagate_mutations
+p_accSomaticMut_heatmap_impute <- pheatmap(MEF_SSM_hf1_hf2_impute_num[,c(2:17)], show_rownames = F, color = c("#4d4d4d", "#b2182b"), cluster_cols = FALSE)
+p_accSomaticMut_heatmap_impute
+
+pdf("../Figure/MEF/p_accSomaticMutNum_impute.pdf", width = 5.11, height = 4.51)
+p_reps_somaticNum
+dev.off()
+
+# cell number
+hf1_cellNum <- as.data.frame(table(MEF_Meta_hf1$Day)) %>%
+  mutate(Sample = "hf1")
+hf2_cellNum <- as.data.frame(table(MEF_Meta_hf2$Day)) %>%
+  mutate(Sample = "hf2")
+
+hf_cellNum <- bind_rows(hf1_cellNum, hf2_cellNum)
+colnames(hf_cellNum) <- c("Day", "Count", "Sample")
+
+hf_cellNum_dayMean <- aggregate(Count ~ Day, data = hf_cellNum, FUN = mean)
+
+days_order_row <- c("Day_0", "Day_3", "Day_6", "Day_9", "Day_12",
+                    "Day_15", "Day_21", "Day_28")
+
+hf_cellNum_dayMean <- hf_cellNum_dayMean %>% filter(Day %in% days_order_row)
+hf_cellNum_dayMean$Day <- factor(hf_cellNum_dayMean$Day, levels = days_order_row)
+
+color_settings_2 <- c(Day_0 = "#FFDC91FF", Day_3 = "#7876B1FF", Day_6 = "#4575b4",
+                    Day_9 = "#91bfdb", Day_12 = "#e0f3f8", Day_15 = "#fee090",
+                    Day_21 = "#fc8d59", Day_28 = "#BC3C29FF")
+
+p_hf_cellNum <- ggplot(hf_cellNum_dayMean, aes(x = Day, y = Count, fill = Day)) +
+  geom_col(position = "dodge") +
+  theme_minimal(base_size = 14) +
+  labs(title = "Mean Cell counts at different days",
+       x = "Day",
+       y = "Cell count") +
+  scale_fill_manual(values = color_settings_2) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_hf_cellNum
+
+#pdf("../Figure/MEF/p_hf_cellNum.pdf", width = 5.11, height = 4.51)
+#p_hf_cellNum
+#dev.off()
+```
+
+# Accumulated Mutation Num normalized by cell number
+```{r randomCells}
+color_settings_randomCells <- c(hf1.d3 = "#7876B1FF", hf1.d6 = "#4575b4", hf1.d9 = "#91bfdb", hf1.d12 = "#e0f3f8", hf1.d15 = "#fee090",  hf1.d21 = "#fc8d59", hf1.d28 = "#BC3C29FF",
+                                hf2.d3 = "#7876B1FF", hf2.d6 = "#4575b4", hf2.d9 = "#91bfdb", hf2.d12 = "#e0f3f8", hf2.d15 = "#fee090",  hf2.d21 = "#fc8d59", hf2.d28 = "#BC3C29FF")
+
+color_settings_randomCells_day <- c(d6 = "#4575b4", d9 = "#91bfdb", d12 = "#e0f3f8", d15 = "#fee090",  d21 = "#fc8d59", d28 = "#BC3C29FF")
+
+totalCells <- c(rownames(MEF_CSM_hf1), rownames(MEF_CSM_hf2))
+
+selectRandomNum <- c(1000, 2000, 3000, 4000, 5000)
+
+dataSelect <- c("hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28", 
+                "hf2.d6", "hf2.d9", "hf2.d12", "hf2.d15", "hf2.d21", "hf2.d28")
+
+days <- c("d6", "d9", "d12", "d15", "d21", "d28")
+reps <- 20
+data_random_counts <- as.data.frame(matrix(nrow = (length(selectRandomNum) * length(dataSelect) * reps), ncol = 4))
+colnames(data_random_counts) <- c("ID", "reps", "selectNum", "MutNum")
+
+set.seed(2025)
+t = 0
+for (i in dataSelect){
+  dataCells <- totalCells[grep(i, totalCells)]
+  selectNum <- selectRandomNum
+  for (j in 1:reps){
+    for (k in selectNum){
+      dataCells_random <- sample(dataCells, k, replace = TRUE)
+      hf1_selected <- dataCells_random[dataCells_random %in% rownames(MEF_CSM_hf1)]
+      hf2_selected <- dataCells_random[dataCells_random %in% rownames(MEF_CSM_hf2)]
+      
+      data_random_hf1 <- MEF_CSM_hf1[hf1_selected,]
+      data_random_hf2 <- MEF_CSM_hf2[hf2_selected,]
+      
+      num_hf1 <- sum(colSums(data_random_hf1 == "Mut") > 0)
+      num_hf2 <- sum(colSums(data_random_hf2 == "Mut") > 0)
+      t = t + 1
+      if(t %% 400 == 0){
+        print(paste0("processed ", t, " iterations"))
+      }
+      data_random_counts[t,]$ID <- i
+      data_random_counts[t,]$reps <- j
+      data_random_counts[t,]$selectNum <- k
+      data_random_counts[t,]$MutNum <- num_hf1 + num_hf2
+    }
+  }
+}
+
+data_random_counts <- separate(data_random_counts,col = "ID",into = c("Timecourse", "Day"), sep = "\\.")
+data_random_counts$ID <- paste(data_random_counts$Timecourse, data_random_counts$Day, sep = ".")
+data_random_counts$Day <- factor(data_random_counts$Day, levels = days)
+data_random_counts$ID <- factor(data_random_counts$ID, levels = dataSelect)
+
+#p_random_somaticNum <- ggplot(data_random_counts[data_random_counts$selectNum == 1000,],
+#                              aes(x = ID, y = MutNum, fill = ID)) + 
+#  geom_boxplot(outlier.shape = NA, alpha = 0.7) + 
+#  geom_jitter(width = 0.2, alpha = 0.4, size = 1) +
+#  ylab("Number of Somatic Mutations") +
+#  scale_fill_manual(values = color_settings_randomCells) +
+#  theme_classic(base_size = 14) +
+#  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_random_somaticNum <- ggplot(data_random_counts,
+       aes(x = Day, y = MutNum, color = factor(selectNum))) + 
+  geom_jitter(width = 0.2, alpha = 0.5, size = 1) +   
+  facet_wrap(~ Timecourse, ncol = 1, scales = "free_y") +
+  ylab("Number of Somatic Mutations") +
+  xlab("Day") +
+  labs(color = "SelectNum") +
+   scale_color_manual(values = c(
+    "1000" = "#4d4d4d",
+    "2000" = "#bababa",
+    "3000" = "#fddbc7",
+    "4000" = "#f4a582",
+    "5000" = "#b2182b"
+  )) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_random_somaticNum
+
+#pdf("../Figure/MEF/p_random_somaticNum.pdf", width = 5.11, height = 4.51)
+#p_random_somaticNum
+#dev.off()
+```
+# MPGgenotypecheck
+```{r checkMPGGenotype}
+# check position
+MPG_data <- read.csv("../Data/MEF/MPG_combined.csv")
+MEF_detected_pos <- unique(union(MEF_SSM_hf1$position_cor, MEF_SSM_hf2$position_cor))
+MEF_detected_pos[MEF_detected_pos %in% MPG_data$position_cor]
+
+MPG_data <- MPG_data[,c(3,8:44)]
+MPG_data[MPG_data == ""] <- NA
+
+MEF_SSM_refAlt <- rbind(MEF_SSM_hf1[,c("position_cor", "ref", "alt")], MEF_SSM_hf2[,c("position_cor", "ref", "alt")])
+MPG_data_refAlt <- merge(MEF_SSM_refAlt, MPG_data, by = "position_cor", all.x = T)
+MPG_data_refAlt[is.na(MPG_data_refAlt)] <- 0
+
+MPG_data_refAlt[ , 4:ncol(MPG_data_refAlt)] <- apply(MPG_data_refAlt[ , 4:ncol(MPG_data_refAlt)], 2, function(col) {
+  refCheck <- MPG_data_refAlt[,"ref"]
+  ifelse(col != 0 & col != refCheck, 1, 0)
+})
+
+MPG_data_refAlt <- MPG_data_refAlt[!duplicated(MPG_data_refAlt$position_cor),]
+rownames(MPG_data_refAlt) <- MPG_data_refAlt$position_cor
+
+MPG_data_refAlt$MutNum <- rowSums(MPG_data_refAlt[,4:40])
+MPG_data_refAlt_sorted <- MPG_data_refAlt[order(-MPG_data_refAlt$MutNum), ]
+
+colnames_order <- c("C57BL_6J", "C57BL_10J", "C57BL_6NJ", "C57BR_cdJ", "C57L_J",
+                    "AKR_J", "A_J", "BALB_cJ", "BTBRT_Itpr3_J", "BUB_BnJ", 
+                    "C3H_HeH", "C3H_HeJ", "C58_J", "CAST_EiJ", "CBA_J", 
+                    "DBA_1J", "DBA_2J", "FVB_NJ", "I_LnJ", "KK_HlJ", 
+                    "LEWES_EiJ", "LP_J", "MOLF_EiJ", 
+                    "NOD_ShiLtJ", "NZB_BlNJ", "NZO_HlLtJ", "NZW_LacJ", 
+                    "PWK_PhJ", "RF_J", "SEA_GnJ", "SPRET_EiJ", "ST_bJ", "WSB_EiJ", 
+                    "ZALENDE_EiJ", "X129P2_OlaHsd", "X129S1_SvImJ", "X129S5SvEv_Brd")
+
+colnames_order[!colnames_order %in% colnames(MPG_data_refAlt_sorted)]
+
+heatmap_data <- MPG_data_refAlt_sorted[, colnames_order]
+
+custom_colors <- c("#4d4d4d", "#b2182b")
+
+p_heatmapMPG <- pheatmap(heatmap_data, show_rownames = FALSE, cluster_rows = FALSE, cluster_cols = FALSE, color = custom_colors)
+p_heatmapMPG
+
+#pdf("../Figure/MEF/p_heatmapMPG.pdf", width = 5.11, height = 4.51)
+#p_heatmapMPG
+#dev.off()
+```
+
+
+# Calculationg mutations of each cell and cells of each mutation 
+```{r calculateMutPerCell}
+data_MutPerCell_hf1 <- data.frame(
+  CellTag = rownames(MEF_CSM_hf1),
+  MutNum_somatic = rowSums(MEF_CSM_hf1 == "Mut"),
+  WTNum_somatic = rowSums(MEF_CSM_hf1 == "WT")
+)
+
+data_CellPerMut_hf1 <- data.frame(
+  Location = colnames(MEF_CSM_hf1),
+  CellMutNum = colSums(MEF_CSM_hf1 == "Mut"),
+  CellWTNum = colSums(MEF_CSM_hf1 == "WT")
+)
+
+data_MutPerCell_hf2 <- data.frame(
+  CellTag = rownames(MEF_CSM_hf2),
+  MutNum_somatic = rowSums(MEF_CSM_hf2 == "Mut"),
+  WTNum_somatic = rowSums(MEF_CSM_hf2 == "WT")
+)
+
+data_CellPerMut_hf2 <- data.frame(
+  Location = colnames(MEF_CSM_hf2),
+  CellMutNum = colSums(MEF_CSM_hf2 == "Mut"),
+  CellWTNum = colSums(MEF_CSM_hf2 == "WT")
+)
+```
+
+# calMulti
+```{r calMulti}
+# [Cell * Time] = [Cell * Mut] * [Mut * Time]
+time_types <- c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28")
+cell_num = 1
+mut_num = 1
+
+# _hf1
+cells_candidate_hf1 <- data_MutPerCell_hf1[data_MutPerCell_hf1$MutNum_somatic >= cell_num,]$CellTag
+cells_candidate_hf1 <- cells_candidate_hf1[cells_candidate_hf1 %in% MEF_Meta_hf1$Cellbarcode]
+muts_candidate_hf1  <- data_CellPerMut_hf1[data_CellPerMut_hf1$CellMutNum >= mut_num,]$Location
+
+cell_time_num_hf1 <- sapply(col_hf1_names, function(i) sum(str_count(cells_candidate_hf1, i)))
+total_cells_hf1 <- sum(cell_time_num_hf1)
+cell_time_num_ratio_hf1 <- cell_time_num_hf1/total_cells_hf1 + 2
+
+# data_Cell_Mut
+data_cell_mut_raw_hf1 <- MEF_CSM_hf1[cells_candidate_hf1, muts_candidate_hf1]
+
+# data_Mut_Time
+data_mut_time_hf1 <- as.data.frame(matrix(nrow = length(muts_candidate_hf1), ncol = length(time_types)))
+rownames(data_mut_time_hf1) <- muts_candidate_hf1
+colnames(data_mut_time_hf1) <- time_types
+
+for (i in 1:nrow(data_mut_time_hf1)){
+  mut_tmp <- rownames(data_mut_time_hf1)[i]
+  cell_tmp <- retriveCellsByLocation(data_cell_mut_raw_hf1, mut_tmp)
+  selected_meta_tags <- MEF_Meta_hf1[MEF_Meta_hf1$Cellbarcode %in% cell_tmp$Mut,]$Day
+  data_mut_time_hf1[i,]$Day_6 <- sum(str_count(selected_meta_tags, "Day_6"))
+  data_mut_time_hf1[i,]$Day_9 <- sum(str_count(selected_meta_tags, "Day_9"))
+  data_mut_time_hf1[i,]$Day_12 <- sum(str_count(selected_meta_tags, "Day_12"))
+  data_mut_time_hf1[i,]$Day_15 <- sum(str_count(selected_meta_tags, "Day_15"))
+  data_mut_time_hf1[i,]$Day_21 <- sum(str_count(selected_meta_tags, "Day_21"))
+  data_mut_time_hf1[i,]$Day_28 <- sum(str_count(selected_meta_tags, "Day_28"))
+}
+
+data_mut_time_hf1_nor <- sweep(data_mut_time_hf1, 2, log2(cell_time_num_ratio_hf1[3:8]), "/")
+
+# _hf2
+cells_candidate_hf2 <- data_MutPerCell_hf2[data_MutPerCell_hf2$MutNum_somatic >= cell_num,]$CellTag
+cells_candidate_hf2 <- cells_candidate_hf2[cells_candidate_hf2 %in% MEF_Meta_hf2$Cellbarcode]
+muts_candidate_hf2  <- data_CellPerMut_hf2[data_CellPerMut_hf2$CellMutNum >= mut_num,]$Location
+
+cell_time_num_hf2 <- sapply(col_hf2_names, function(i) sum(str_count(cells_candidate_hf2, i)))
+total_cells_hf2 <- sum(cell_time_num_hf2)
+cell_time_num_ratio_hf2 <- cell_time_num_hf2/total_cells_hf2 + 2
+
+# data_Cell_Mut
+data_cell_mut_raw_hf2 <- MEF_CSM_hf2[cells_candidate_hf2, muts_candidate_hf2]
+
+# data_Mut_Time
+data_mut_time_hf2 <- as.data.frame(matrix(nrow = length(muts_candidate_hf2), ncol = length(time_types)))
+rownames(data_mut_time_hf2) <- muts_candidate_hf2
+colnames(data_mut_time_hf2) <- time_types
+
+for (i in 1:nrow(data_mut_time_hf2)){
+  mut_tmp <- rownames(data_mut_time_hf2)[i]
+  cell_tmp <- retriveCellsByLocation(data_cell_mut_raw_hf2, mut_tmp)
+  selected_meta_tags <- MEF_Meta_hf2[MEF_Meta_hf2$Cellbarcode %in% cell_tmp$Mut,]$Day
+  data_mut_time_hf2[i,]$Day_6 <- sum(str_count(selected_meta_tags, "Day_6"))
+  data_mut_time_hf2[i,]$Day_9 <- sum(str_count(selected_meta_tags, "Day_9"))
+  data_mut_time_hf2[i,]$Day_12 <- sum(str_count(selected_meta_tags, "Day_12"))
+  data_mut_time_hf2[i,]$Day_15 <- sum(str_count(selected_meta_tags, "Day_15"))
+  data_mut_time_hf2[i,]$Day_21 <- sum(str_count(selected_meta_tags, "Day_21"))
+  data_mut_time_hf2[i,]$Day_28 <- sum(str_count(selected_meta_tags, "Day_28"))
+}
+
+data_mut_time_hf2_nor <- sweep(data_mut_time_hf2, 2, log2(cell_time_num_ratio_hf2[3:8]), "/")
+```
+
+```{r computescMutScore}
+res_index_hf1 <- cal_scMutScore(data_cell_mut_raw_hf1, data_mut_time_hf1_nor, MEF_Meta_hf1)
+res_index_hf2 <- cal_scMutScore(data_cell_mut_raw_hf2, data_mut_time_hf2_nor, MEF_Meta_hf2)
+res_index <- rbind(res_index_hf1$score, res_index_hf2$score)
+
+res_index$cb <- rownames(res_index)
+res_index <- separate(res_index, col = "cb", into = c("celltype", "cell"), sep = "_")
+res_index$Tag <- res_index$celltype
+res_index <- separate(res_index, col = "celltype", into = c("rep", "Day"), sep = "\\.")
+
+res_index$Tag <- factor(res_index$Tag, levels = c("hf1.d0", "hf1.d3", "hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28",
+                                                  "hf2.d0", "hf2.d3", "hf2.d6", "hf2.d9", "hf2.d12", "hf2.d15", "hf2.d21", "hf2.d28"))
+
+res_index$Day <- factor(res_index$Day, levels = c("d0", "d3", "d6", "d9", "d12", "d15", "d21", "d28"))
+
+res_index <- res_index[res_index$Diversity > 0, ]
+```
+
+```{r checkIndex}
+color_settings <- c(d0 = "#FFDC91FF", d3 = "#7876B1FF", d6 = "#4575b4",
+                    d9 = "#91bfdb", d12 = "#e0f3f8", d15 = "#fee090",
+                    d21 = "#fc8d59", d28 = "#BC3C29FF")
+
+color_settings_2 <- c(Day_0 = "#FFDC91FF", Day_3 = "#7876B1FF", Day_6 = "#4575b4",
+                    Day_9 = "#91bfdb", Day_12 = "#e0f3f8", Day_15 = "#fee090",
+                    Day_21 = "#fc8d59", Day_28 = "#BC3C29FF")
+
+res_index <- res_index[!is.na(res_index$scMutScore),]
+
+ggplot(data = res_index, mapping = aes(x = Day, y = Gini, fill = Day)) +
+  geom_violin(trim = TRUE) + 
+  geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  labs(x = "", y = "Gini") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = Day, y = Tau, fill = Day)) +
+  geom_violin(trim = TRUE) + 
+  geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  labs(x = "", y = "Tau") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = Day, y = GiniTau, fill = Day)) +
+  geom_violin(trim = TRUE) + 
+  geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  labs(x = "", y = "GiniTau") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  geom_violin(trim = TRUE) + 
+  geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  labs(x = "", y = "scMutraceScore") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  geom_boxplot(outliers = FALSE) +
+  labs(x = "", y = "scMutraceScore") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = Day, y = scMutScoreQun, fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  geom_boxplot(outliers = FALSE) +
+  labs(x = "", y = "sumMut") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+
+res_index_long <- melt(res_index[,c("Gini","Tau", "scMutScore")])
+
+ggplot(res_index_long, aes(x=value, fill=variable)) +
+  geom_density(alpha=0.4) +
+  theme_classic() +
+  labs(x="Value", y="Density", title="Diversity Indices Distribution") +
+  scale_fill_brewer(palette="Set3")
+
+corrplot(cor(res_index[,c("Gini","Tau", "Shannon", "Simpson", "Diversity", "scMutScore", "sumMut")], use="pairwise.complete.obs"), 
+         method="circle", col = colorRampPalette(c("black", "white", "red"))(200), 
+         addCoef.col = "white", tl.col = "black", number.cex = 0.8)
+```
+
+# scMutScore Model Validation
+```{r scMutScoreModelValidation}
+set.seed(2025)
+
+# 1. init
+data_check_CM <- data_cell_mut_raw_hf1
+data_check_Meta <- MEF_Meta_hf1[MEF_Meta_hf1$Cellbarcode %in% rownames(data_check_CM),]
+col_check_names <- c("hf1.d0", "hf1.d3", "hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28")
+time_types <- c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28")
+
+cell_num <- 1
+mut_num <- 1
+mut_loss_ratio <- 0.5
+cell_loss_ratio <- 0.5
+iteration_times <- 100
+
+# list for save data
+data_scMutModel_list <- vector("list", iteration_times)
+
+num_cells <- nrow(data_check_CM)
+num_mutations <- ncol(data_check_CM)
+cells_all <- rownames(data_check_CM)
+muts_all <- colnames(data_check_CM)
+
+# 2. loop
+for (iter in seq_len(iteration_times)) {
+  
+  # 2.1 randomly loss info
+  loss_cell_indices <- sample(seq_len(num_cells), ceiling(cell_loss_ratio * num_cells))
+  loss_mut_indices <- sample(seq_len(num_mutations), ceiling(mut_loss_ratio * num_mutations))
+  
+  C_partial_missing <- data_check_CM
+  # new data
+  if(length(loss_cell_indices) > 0 && length(loss_mut_indices) > 0){
+    C_partial_missing[loss_cell_indices, loss_mut_indices] <- "NoCall"
+  }
+  
+  # 2.2 count cell/mut number
+  MutPerCell <- rowSums(C_partial_missing == "Mut")
+  CellPerMut <- colSums(C_partial_missing == "Mut")
+  
+  cells_candidate <- cells_all[MutPerCell >= cell_num & cells_all %in% data_check_Meta$Cellbarcode]
+  muts_candidate <- muts_all[CellPerMut >= mut_num]
+  
+  message(paste0("Iteration: ", iter, " loss_cell_indices: ", length(loss_cell_indices), " loss_mut_indices: ", length(loss_mut_indices)))
+  message(paste0("Iteration: ", iter, " cells_candidate: ", length(cells_candidate), " muts_candidate: ", length(muts_candidate)))
+  
+  data_cell_mut_raw_check <- C_partial_missing[cells_candidate, muts_candidate, drop = TRUE]
+  #data_cell_mut_raw_check <- C_partial_missing
+  #muts_candidate <- muts_all
+  
+  # 2.3 Mut × Time
+  cell_time_num <- sapply(col_check_names, function(i) sum(str_count(cells_candidate, i)))
+  total_cells <- sum(cell_time_num)
+  cell_time_ratio <- cell_time_num / total_cells + 2  # +2 Avoidance 0
+  
+  # init Mut × Time
+  M_partial_missing <- matrix(0, nrow = length(muts_candidate), ncol = length(time_types),
+                              dimnames = list(muts_candidate, time_types))
+  
+  # Calculate the number of each mutation at each time
+  for (t in seq_along(time_types)) {
+    time_label <- time_types[t]
+    # Find out in which cells each mutation occurs
+    mut_cell_list <- apply(data_cell_mut_raw_check, 2, function(x) which(x == "Mut"))
+    # Count the number of times each mutation occurs at that point in time
+    for (mut in muts_candidate) {
+      cells_with_mut <- rownames(data_cell_mut_raw_check)[data_cell_mut_raw_check[, mut] == "Mut"]
+      selected_days <- data_check_Meta$Day[data_check_Meta$Cellbarcode %in% cells_with_mut]
+      M_partial_missing[mut, t] <- sum(str_count(selected_days, time_label))
+    }
+  }
+  
+  # 2.4 normalized Mut × Time
+  M_partial_missing_norm <- sweep(M_partial_missing, 2, log2(cell_time_ratio[3:8]), "/")
+  
+  # 2.5 scMutScore
+  res_index_tmp <- cal_scMutScore(data_cell_mut_raw_check, M_partial_missing_norm, data_check_Meta)$score
+  res_index_tmp$iteration <- paste0("iter", iter)
+  res_index_tmp <- res_index_tmp[res_index_tmp$Diversity > 0, ]
+  
+  data_scMutModel_list[[iter]] <- res_index_tmp
+}
+
+# 3. merge res
+data_scMutModel_res <- do.call(rbind, data_scMutModel_list)
+
+# 4. column
+data_scMutModel_res$cb <- rownames(data_scMutModel_res)
+data_scMutModel_res <- separate(data_scMutModel_res, col = "cb", into = c("celltype", "cell"), sep = "_")
+data_scMutModel_res$Tag <- data_scMutModel_res$celltype
+data_scMutModel_res <- separate(data_scMutModel_res, col = "celltype", into = c("rep", "Day"), sep = "\\.")
+
+data_scMutModel_res$Tag <- factor(data_scMutModel_res$Tag, levels = col_check_names)
+data_scMutModel_res$Day <- factor(data_scMutModel_res$Day, levels = c("d0", "d3", "d6", "d9", "d12", "d15", "d21", "d28"))
+
+# 5. plot
+p_scMutModel_randomly <- ggplot(data = data_scMutModel_res, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  #geom_violin(trim = TRUE, alpha = 0.6) + 
+  geom_boxplot(outliers = FALSE) +
+  facet_wrap(~ iteration, nrow = 10, ncol = iteration_times / 10, scales = "free_y", labeller = label_both) +
+  labs(x = "", y = "scMutraceScore") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+
+#p_scMutModel_randomly
+
+#pdf("../Figure/MEF/p_scMutModel_randomly_assess.pdf", width = 10.90, height = 7.03)
+#p_scMutModel_randomly
+#dev.off()
+
+data_scMutModel_res_summary <- data_scMutModel_res %>%
+  dplyr::group_by(iteration, Day) %>%
+  dplyr::summarise(mean_scMutScore = mean(scMutScore, na.rm = TRUE)) %>%
+  dplyr::ungroup()
+
+data_scMutModel_res_summary_Qun <- data_scMutModel_res %>%
+  dplyr::group_by(iteration, Day) %>%
+  dplyr::summarise(mean_scMutScore = mean(scMutScoreQun, na.rm = TRUE)) %>%
+  dplyr::ungroup()
+
+pdf("../Figure/MEF/p_scMutModel_randomly_assess_merge.pdf", width = 5.40, height = 4.40)
+ggplot(data = data_scMutModel_res_summary, mapping = aes(x = Day, y = mean_scMutScore, fill = Day)) +
+  #geom_violin(trim = TRUE, alpha = 0.6) + 
+  geom_boxplot(outliers = FALSE)  +
+  labs(x = "", y = "scMutraceScore") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+dev.off()
+
+ggplot(data = data_scMutModel_res_summary, mapping = aes(x = Day, y = mean_scMutScore, fill = Day)) +
+  #geom_violin(trim = TRUE, alpha = 0.6) + 
+  geom_boxplot(outliers = FALSE) +
+  labs(x = "", y = "scMutraceScore") +
+  scale_fill_manual(values = color_settings) +
+  theme_classic()
+```
+
+
+
+# compareClonesScore
+```{r compareCellClonesScore}
+# generate data for comparision
+MEF_meta_hf1_hf2 <- rbind(MEF_Meta_hf1, MEF_Meta_hf2)
+res_index_scMut <- data.frame(Cellbarcode = rownames(res_index), scMutScore = res_index$scMutScore, Tag = res_index$Tag)
+
+res_index_scMut_meta <- merge(res_index_scMut, MEF_meta_hf1_hf2, by = "Cellbarcode")
+res_index_scMut_meta$Day <- factor(res_index_scMut_meta$Day, levels = c("Day_0", "Day_3", "Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"))
+res_index_scMut_meta <- res_index_scMut_meta[res_index_scMut_meta$Day %in% c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"),]
+
+colNames_data_clone_score <- c("D0_tag", "D3_tag", "D13_tag", "Day", "Mean_Day_score", "Mean_Day_pseudotime", "ID")
+data_clone_score <- as.data.frame(matrix(ncol = length(colNames_data_clone_score)))
+colnames(data_clone_score) <- colNames_data_clone_score
+d0_tags <- unique(MEF_meta_hf1_hf2$CellTagD0_48k)
+
+count_line = 0
+
+for (i in 1:length(d0_tags)){
+  d0_tag_tmp <- d0_tags[i]
+  d3_tags <- unique(MEF_meta_hf1_hf2[MEF_meta_hf1_hf2$CellTagD0_48k == d0_tag_tmp,]$CellTagD3_48k)
+  days_reprogramming <- unique(MEF_meta_hf1_hf2[MEF_meta_hf1_hf2$CellTagD0_48k == d0_tag_tmp,]$Day)
+  for (day in 1:length(days_reprogramming)){
+    if (length(d3_tags)  >= 1){
+    for (j in 1:length(d3_tags)){
+      d3_tag_tmp <- d3_tags[j]
+      d13_tags <- unique(MEF_meta_hf1_hf2[MEF_meta_hf1_hf2$CellTagD0_48k == d0_tag_tmp & MEF_meta_hf1_hf2$CellTagD3_48k == d3_tag_tmp,]$CellTagD13_48k)
+      if(length(d13_tags) >= 1){
+          for (k in 1:length(d13_tags)){
+            d13_tag_tmp <- d13_tags[k]
+            count_line = count_line + 1
+            data_clone_score[count_line,]$Day = days_reprogramming[day]
+            data_clone_score[count_line,]$D0_tag = d0_tag_tmp
+            data_clone_score[count_line,]$D3_tag = d3_tag_tmp
+            data_clone_score[count_line,]$D13_tag = d13_tag_tmp
+        }
+      }else{
+        count_line = count_line + 1
+        data_clone_score[count_line,]$Day = days_reprogramming[day]
+        data_clone_score[count_line,]$D0_tag = d0_tag_tmp
+        data_clone_score[count_line,]$D3_tag = d3_tag_tmp
+        data_clone_score[count_line,]$D13_tag = "NotAva"
+      }
+    }
+  }else{
+    count_line = count_line + 1
+    data_clone_score[count_line,]$Day = days_reprogramming[day]
+    data_clone_score[count_line,]$D0_tag = d0_tag_tmp
+    data_clone_score[count_line,]$D3_tag = "NotAva"
+    data_clone_score[count_line,]$D13_tag = "NotAva"
+  }
+  }
+}
+
+
+data_clone_score$ID <- paste(data_clone_score$D0_tag, data_clone_score$D3_tag, data_clone_score$D13_tag, sep = "_")
+data_clone_score <- data_clone_score[data_clone_score$ID != "NotAva_NotAva_NotAva",]
+
+for (i in 1:nrow(data_clone_score)){
+  
+  d0_tag_tmp <- data_clone_score[i,]$D0_tag
+  d3_tag_tmp <- data_clone_score[i,]$D3_tag
+  d13_tag_tmp <- data_clone_score[i,]$D13_tag
+  day_tmp <- data_clone_score[i,]$Day
+  
+  data_clone_score[i,]$Mean_Day_score <- "NotAva"
+  data_clone_score[i,]$Mean_Day_pseudotime <- "NotAva"
+  
+  id_check <- paste(d0_tag_tmp, d3_tag_tmp, d13_tag_tmp, sep = "_")
+  data_clone_score[i,]$ID <- id_check
+  
+  scMutscore_tmp <- res_index_scMut_meta[res_index_scMut_meta$cloneTimeTag == id_check & res_index_scMut_meta$Day == day_tmp,]$scMutScore
+  pseudotime_tmp <- res_index_scMut_meta[res_index_scMut_meta$cloneTimeTag == id_check & res_index_scMut_meta$Day == day_tmp,]$pseudotime
+  
+  scMutscore_tmp <- as.numeric(scMutscore_tmp[scMutscore_tmp != "NotAva"])
+  pseudotime_tmp <- as.numeric(pseudotime_tmp[pseudotime_tmp!= "NotAva"])
+  
+  data_clone_score[i,]$Mean_Day_score <- mean(scMutscore_tmp)
+  data_clone_score[i,]$Mean_Day_pseudotime <- mean(pseudotime_tmp)
+}
+
+# filter
+# clonetagDay
+data_clone_score_clonetagDay <- data_clone_score[data_clone_score$Mean_Day_score != "NaN" & data_clone_score$Mean_Day_pseudotime != "NaN", ]
+ID_counts <- table(data_clone_score_clonetagDay$ID)
+valid_IDs <- names(ID_counts[ID_counts >= 2])
+data_clone_score_clonetagDay <- subset(data_clone_score_clonetagDay, ID %in% valid_IDs)
+
+data_clone_score_clonetagDay$Mean_Day_score <- as.numeric(data_clone_score_clonetagDay$Mean_Day_score)
+data_clone_score_clonetagDay$Mean_Day_pseudotime <- as.numeric(data_clone_score_clonetagDay$Mean_Day_pseudotime)
+
+data_clone_score_clonetagDay$Day <- factor(data_clone_score_clonetagDay$Day, levels = c("Day_0", "Day_3", "Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"))
+
+
+# reprogramming Day
+p_clone_scMutraceScore <- ggplot(data_clone_score_clonetagDay, mapping = aes(x = as.factor(Day), y = Mean_Day_score, fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  #geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  geom_boxplot(outliers = TRUE) +
+  geom_line(aes(group = ID), color = "gray", alpha = 0.1) +
+  #geom_point(size = 1, shape = 21, color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "scMutraceScore") +
+  theme_classic()
+
+p_clone_pseudotime <- ggplot(data_clone_score_clonetagDay, aes(x = as.factor(Day), y = Mean_Day_pseudotime, fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  geom_boxplot(outliers = TRUE) +
+  geom_line(aes(group = ID), color = "gray", alpha = 0.1) +
+  #geom_point(size = 1, shape = 21, color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "Pseudotime") +
+  theme_classic()
+
+p_cell_scMutraceScore <- ggplot(data = res_index_scMut_meta, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  #geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  geom_boxplot(outliers = FALSE) +
+  #stat_summary(fun.data="mean_sdl", fun.args = list(mult=1),geom="pointrange", color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "scMutraceScore") +
+  theme_classic()
+
+p_cell_pseudotime <- ggplot(data = res_index_scMut_meta[res_index_scMut_meta$pseudotime != "NotAva",], mapping = aes(x = Day, y = as.numeric(pseudotime), fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  geom_boxplot(outliers = FALSE) +
+  #geom_boxplot(width = 0.1, fill = "black") +
+  #stat_summary(fun.data="mean_sdl", fun.args = list(mult=1),geom="pointrange", color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "pseudotime") +
+  theme_classic()
+
+res_index_scMut_meta_success <- res_index_scMut_meta[res_index_scMut_meta$Outcome == "Succesful",][,c("scMutScore", "pseudotime", "Day", "Outcome")]
+
+res_index_scMut_meta_deadend <- res_index_scMut_meta[res_index_scMut_meta$Outcome == "DeadEnd",][,c("scMutScore", "pseudotime", "Day", "Outcome")]
+
+res_index_scMut_meta_success_deadend <- rbind(res_index_scMut_meta_success, res_index_scMut_meta_deadend)
+
+# Outcome
+p_outcome_scMutraceScore <- ggplot(res_index_scMut_meta[res_index_scMut_meta$Outcome %in%c("DeadEnd", "Succesful"),], aes(x = as.factor(Outcome), y = scMutScore, fill = Outcome)) +
+  labs(x = "", y = "scMutScore") +
+  #geom_violin(trim = TRUE) +
+  geom_boxplot(outliers = FALSE) +
+  #geom_boxplot(width = 0.05, fill = "white", outlier.shape = NA) +
+  stat_compare_means(method = "t.test", method.args = list(alternative = "greater")) +
+  #geom_point(size = 1, shape = 21, color = "black") +
+  scale_fill_manual(values = c("#7876B1FF", "#FFDC91FF")) +
+  theme_classic()
+
+p_outcome_pseudotime <- ggplot(res_index_scMut_meta[res_index_scMut_meta$Outcome %in%c("DeadEnd", "Succesful"),], aes(x = as.factor(Outcome), y = as.numeric(pseudotime), fill = Outcome)) +
+  labs(x = "", y = "pseudotime") +
+  #geom_violin(trim = TRUE) +
+  geom_boxplot(outliers = FALSE) +
+  #geom_boxplot(width = 0.05, fill = "white", outlier.shape = NA) +
+  stat_compare_means(method = "t.test", method.args = list(alternative = "greater")) +
+  #geom_point(size = 1, shape = 21, color = "black") +
+  scale_fill_manual(values = c("#7876B1FF", "#FFDC91FF")) +
+  theme_classic()
+
+p_reprogramming_scMutraceScore <- ggplot(res_index_scMut_meta[res_index_scMut_meta$reprogramming %in%c("F_reprogramming", "T_reprogramming"),], aes(x = as.factor(reprogramming), y = scMutScore, fill = reprogramming)) +
+  labs(x = "", y = "scMutScore") +
+  #geom_violin(trim = TRUE) +
+  geom_boxplot(outliers = FALSE) +
+  #geom_boxplot(width = 0.1, fill = "white", outlier.shape = NA) +
+  stat_compare_means(method = "t.test", method.args = list(alternative = "greater")) +
+  #geom_point(size = 1, shape = 21, color = "black") +
+  scale_fill_manual(values = c("#7876B1FF", "#FFDC91FF")) +
+  theme_classic()
+
+p_reprogramming_pseudotime <- ggplot(res_index_scMut_meta[res_index_scMut_meta$reprogramming %in%c("F_reprogramming", "T_reprogramming"),], aes(x = as.factor(reprogramming), y = as.numeric(pseudotime), fill = reprogramming)) +
+  labs(x = "", y = "pseudotime") +
+  #geom_violin(trim = TRUE) +
+  geom_boxplot(outliers = FALSE) +
+  #geom_boxplot(width = 0.1, fill = "white", outlier.shape = NA) +
+  stat_compare_means(method = "t.test", method.args = list(alternative = "greater")) +
+  #geom_point(size = 1, shape = 21, color = "black") +
+  scale_fill_manual(values = c("#7876B1FF", "#FFDC91FF")) +
+  theme_classic()
+
+timepoint_color <- c(Day_6 = '#7D5188', Day_9 = '#7D71A5',  Day_12 = '#738DAF',  Day_15 = '#6EA5B0', Day_21 = '#70BDAA',  Day_28 = '#FDEF77')
+cluster_color <- c(c0 = '#D5393E', c1 = '#5A6B93',  c2 = '#519376',  c3 = '#6E8371', c4 = '#A55F7F',  c5 = '#E48648', c6 = "#F3E95B", c7 = "#BE9644", c8 = "#B26966", c9 = "#080908")
+outcom_color <- c(BAB = "lightgray", DeadEnd = "#7876B1FF", Succesful = "#FFDC91FF")
+reprogramming_colors <- c(F_reprogramming = '#7876B1FF', T_reprogramming = '#FFDC91FF', NotAva = "#d9d9d9")
+
+p_umap_reprogramming <- ggplot(data = res_index_scMut_meta[res_index_scMut_meta$reprogramming %in% c("F_reprogramming", "T_reprogramming"), ]) + geom_point(mapping =  aes(x = TSNE_1, y = TSNE_2, color = reprogramming), size = 2, show.legend = TRUE) +
+  scale_color_manual(values = reprogramming_colors) +
+  xlab("") + ylab("") +
+  theme_classic()
+
+p_umap_outcome <- ggplot(data = res_index_scMut_meta[res_index_scMut_meta$Outcome %in% c("DeadEnd", "Succesful"), ]) + geom_point(mapping =  aes(x = TSNE_1, y = TSNE_2, color = Outcome), size = 2, show.legend = TRUE) +
+  scale_color_manual(values = outcom_color) +
+  xlab("") + ylab("") +
+  theme_classic()
+
+p_umap_cell_day <- ggplot(data = res_index_scMut_meta) + geom_point(mapping =  aes(x = TSNE_1, y = TSNE_2, color = Day), size = 1.5, alpha = 0.7, show.legend = TRUE) +
+  scale_color_manual(values = color_settings_2) +
+  xlab("") + ylab("") +
+  theme_classic()
+
+res_index_scMut_meta$cluster <- paste0("c", res_index_scMut_meta$cluster)
+p_umap_cell_cluster <- ggplot(data = res_index_scMut_meta) + geom_point(mapping =  aes(x = TSNE_1, y = TSNE_2, color = cluster), size = 1.5, show.legend = TRUE) +
+  scale_color_manual(values = cluster_color) +
+  xlab("") + ylab("") +
+  theme_classic()
+
+p_umap_cell_Pseudotime <- ggplot(res_index_scMut_meta[res_index_scMut_meta$pseudotime != "NotAva",], aes(x = TSNE_1, y = TSNE_2, fill = as.numeric(pseudotime))) + 
+  geom_point(shape = 21, size = 2, alpha = 0.3) +
+  scale_fill_gradientn(colours = c("#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026")) +
+  #scale_fill_gradient2(mid = "#738DAF", low = "#7D5188", high = "#FDEF77", midpoint = 12.924) +
+  theme_classic() +
+  labs(fill = "Pseudotime")
+
+p_umap_cell_scMutScore <- ggplot(res_index_scMut_meta[res_index_scMut_meta$scMutScore != "NotAva",], aes(x = TSNE_1, y = TSNE_2, fill =  as.numeric(scMutScore))) + 
+  geom_point(shape = 21, size = 2, alpha = 0.3) +
+  scale_fill_gradientn(colours = c("#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026")) + 
+  #scale_fill_gradient2(mid = "#738DAF", low = "#7D5188", high = "#FDEF77", midpoint = 0.7065254, limits = c(0.2, 0.793)) +
+  theme_classic() +
+  labs(fill = "scMutScore")
+
+data_scMutScore_pseudotime <- res_index_scMut_meta[,c("scMutScore", "pseudotime")]
+data_scMutScore_pseudotime <- data_scMutScore_pseudotime[data_scMutScore_pseudotime$scMutScore != "NotAva" & data_scMutScore_pseudotime$pseudotime != "NotAva",]
+data_scMutScore_pseudotime$scMutScore <- as.numeric(data_scMutScore_pseudotime$scMutScore)
+data_scMutScore_pseudotime$pseudotime <- as.numeric(data_scMutScore_pseudotime$pseudotime)
+data_scMutScore_pseudotime$pseudotime_scale <- (data_scMutScore_pseudotime$pseudotime - min(data_scMutScore_pseudotime$pseudotime)) / (max(data_scMutScore_pseudotime$pseudotime) - min(data_scMutScore_pseudotime$pseudotime))
+
+p_cor_scMutScore_pseudotime <- ggplot(data_scMutScore_pseudotime, aes(x = scMutScore, y = pseudotime_scale)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") + 
+  stat_cor(method = "pearson", label.x = 0.5, label.y = 1) +
+  labs(x = "scMutScore", y = "Pseudotime") + 
+  theme_classic()
+
+p_cor_scMutScore_sumMut <- ggplot(res_index, aes(x = scMutScore, y = log2(sumMut))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") + 
+  stat_cor(method = "pearson", label.x = 0.5, label.y = 1) +
+  labs(x = "scMutScore", y = "sum of matrix") + 
+  theme_classic()
+
+cor.test(data_scMutScore_pseudotime$scMutScore, data_scMutScore_pseudotime$pseudotime_scale)
+cor.test(res_index$scMutScore, res_index$sumMut)
+```
+
+# compareClonesScore figures
+```{r figures}
+p_cell_scMutraceScore
+p_cell_pseudotime
+
+
+p_clone_scMutraceScore
+p_clone_pseudotime
+
+p_outcome_scMutraceScore
+p_outcome_pseudotime
+
+p_reprogramming_scMutraceScore
+p_reprogramming_pseudotime
+
+p_umap_reprogramming
+p_umap_outcome
+
+p_umap_cell_day
+p_umap_cell_cluster
+
+p_umap_cell_Pseudotime
+p_umap_cell_scMutScore
+
+p_cor_scMutScore_pseudotime
+p_cor_scMutScore_sumMut
+
+```
+# save figures
+```{r savefigures} 
+# save data
+pdf("../Figure/MEF/p_cell_scMutraceScore.pdf", width = 5.36, height = 3.42)
+p_cell_scMutraceScore
+dev.off()
+
+pdf("../Figure/MEF/p_cell_pseudotime.pdf", width = 5.36, height = 3.42)
+p_cell_pseudotime
+dev.off()
+
+pdf("../Figure/MEF/p_clone_scMutraceScore.pdf", width = 5.36, height = 3.42)
+p_clone_scMutraceScore
+dev.off()
+
+pdf("../Figure/MEF/p_clone_pseudotime.pdf", width = 5.36, height = 3.42)
+p_clone_pseudotime
+dev.off()
+
+pdf("../Figure/MEF/p_umap_cell_day.pdf", width = 5.36, height = 3.42)
+p_umap_cell_day
+dev.off()
+
+pdf("../Figure/MEF/p_umap_cell_scMutScore.pdf", width = 5.36, height = 3.42)
+p_umap_cell_scMutScore
+dev.off()
+
+pdf("../Figure/MEF/p_umap_cell_Pseudotime.pdf", width = 5.36, height = 3.42)
+p_umap_cell_Pseudotime
+dev.off()
+
+pdf("../Figure/MEF/p_success_faile_scMutraceScore.pdf", width = 5.36, height = 3.42)
+p_reprogramming_scMutraceScore
+dev.off()
+```
+
+
+# check randomly clone scMutScore
+```{r checkrandomlyclonescMutScore}
+selected_Days <- c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28")
+set.seed(2025)
+data_random_cells <- res_index_scMut_meta[sample(nrow(res_index_scMut_meta), 1000, replace = TRUE), c("scMutScore", "Day")]
+data_random_cells$Day <- "Day_6"
+
+for (i in 2:length(selected_Days)){
+  random_rows_1 <- res_index_scMut_meta[sample(nrow(res_index_scMut_meta), 50), c("scMutScore", "Day")]
+  random_rows_1$Day <- selected_Days[i]
+  data_random_cells <- rbind(data_random_cells, random_rows_1)
+}
+
+data_random_cells$Day <- factor(data_random_cells$Day, levels = c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"))
+
+p_random_cell_days <- ggplot(data = data_random_cells, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  geom_boxplot(outliers = TRUE) +
+  #stat_summary(fun.data="mean_sdl", fun.args = list(mult=1),geom="pointrange", color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "scMutraceScore") +
+  theme_classic()
+
+data_random_clones <- data_clone_score_clonetagDay[sample(nrow(data_clone_score_clonetagDay), 400, replace = TRUE), c("Mean_Day_score", "Day", "ID")]
+data_random_clones$Day <- "Day_6"
+
+for (i in 2:length(selected_Days)){
+  random_rows_1 <- data_clone_score_clonetagDay[sample(nrow(data_clone_score_clonetagDay), 50), c("Mean_Day_score", "Day", "ID")]
+  random_rows_1$Day <- selected_Days[i]
+  data_random_clones <- rbind(data_random_clones, random_rows_1)
+}
+
+data_random_clones$Day <- factor(data_random_clones$Day, levels = c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"))
+
+p_random_clone_days <- ggplot(data_random_clones, mapping = aes(x = as.factor(Day), y = Mean_Day_score, fill = Day)) +
+  #geom_violin(trim = TRUE) + 
+  geom_boxplot(outliers = TRUE) +
+  geom_line(aes(group = ID), color = "gray", alpha = 0.1) +
+  #geom_point(size = 1, shape = 21, color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "scMutraceScore") +
+  theme_classic()
+
+p_random_cell_days
+p_random_clone_days
+
+pdf("../Figure/MEF/p_random_cell_days.pdf", width = 5.36, height = 3.42)
+p_random_cell_days
+dev.off()
+
+pdf("../Figure/MEF/p_random_clone_days.pdf", width = 5.36, height = 3.42)
+p_random_clone_days
+dev.off()
+
+
+library(clinfun)
+# cells scMutscore
+res_index_selected <- res_index_scMut_meta[res_index_scMut_meta$Day %in% c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'),]
+res_index_selected$Day <- factor(res_index_selected$Day , levels = c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'), ordered = TRUE)
+jonckheere.test(x = res_index_selected$scMutScore, g = res_index_selected$Day, alternative = "increasing")
+  #JT = 10520356, p-value < 2.2e-16
+  #alternative hypothesis: increasing
+
+res_index_selected <- res_index_scMut_meta[res_index_scMut_meta$Day %in% c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'),]
+res_index_selected <- res_index_scMut_meta[res_index_scMut_meta$pseudotime != "NotAva",]
+res_index_selected$Day <- factor(res_index_selected$Day , levels = c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'), ordered = TRUE)
+jonckheere.test(x = as.numeric(res_index_selected$pseudotime), g = res_index_selected$Day, alternative = "increasing")
+  #JT = 6857494, p-value < 2.2e-16
+  #alternative hypothesis: increasing
+
+# clone scMutscore
+data_clone_score_clonetagDay_selected <- data_clone_score_clonetagDay[data_clone_score_clonetagDay$Day %in% c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'),]
+data_clone_score_clonetagDay_selected$Day <- factor(data_clone_score_clonetagDay_selected$Day , levels = c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'), ordered = TRUE)
+jonckheere.test(x = data_clone_score_clonetagDay_selected$Mean_Day_score, g = data_clone_score_clonetagDay_selected$Day, alternative = "increasing")
+  #JT = 31093, p-value = 8.216e-15
+  #alternative hypothesis: increasing
+jonckheere.test(x = as.numeric(data_clone_score_clonetagDay_selected$Mean_Day_pseudotime), g = data_clone_score_clonetagDay_selected$Day, alternative = "increasing")
+  #JT = 37857, p-value < 2.2e-16
+  #alternative hypothesis: increasing
+
+# data_random_cells
+data_random_cells$Day <- factor(data_random_cells$Day , levels = c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'), ordered = TRUE)
+jonckheere.test(x = data_random_cells$scMutScore, g = data_random_cells$Day, alternative = "increasing")
+  #JT = 135420, p-value = 0.657
+  #alternative hypothesis: increasing
+
+#data_random_clones
+data_random_clones$Day <- factor(data_random_clones$Day , levels = c('Day_6', 'Day_9', 'Day_12', 'Day_15', 'Day_21', 'Day_28'), ordered = TRUE)
+jonckheere.test(x = data_random_clones$Mean_Day_score, g = data_random_clones$Day, alternative = "increasing")
+  #JT = 58798, p-value = 0.9372
+  #alternative hypothesis: increasing
+```
+
+# tracing allClones
+```{r tracingallClones}
+res_index_scMut_meta_MEF <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k != "NotAva" & res_index_scMut_meta$CellTagD3_48k == "NotAva" & res_index_scMut_meta$CellTagD13_48k == "NotAva",]
+
+res_index_scMut_meta_D3  <- res_index_scMut_meta[res_index_scMut_meta$CellTagD3_48k != "NotAva" & res_index_scMut_meta$CellTagD13_48k == "NotAva",]
+
+res_index_scMut_meta_D13  <- res_index_scMut_meta[res_index_scMut_meta$CellTagD13_48k != "NotAva",]
+
+
+p_cell_MEF <- ggplot(data = res_index_scMut_meta_MEF, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  geom_violin(trim = TRUE) + coord_cartesian(ylim = c(0, 1)) +
+  geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "scMutraceScore") +
+  theme_classic()
+
+p_cell_D3 <- ggplot(data = res_index_scMut_meta_D3, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  geom_violin(trim = TRUE) + coord_cartesian(ylim = c(0, 1)) +
+  geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "scMutraceScore") +
+  theme_classic()
+
+p_cell_D13 <- ggplot(data = res_index_scMut_meta_D13, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  geom_violin(trim = TRUE) + coord_cartesian(ylim = c(0, 1)) +
+  geom_boxplot(width = 0.1, fill = "white", outliers = FALSE) +
+  #stat_summary(fun.data="mean_sdl", fun.args = list(mult=1),geom="pointrange", color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = "scMutraceScore") +
+  theme_classic()
+
+p_cell_MEF
+p_cell_D3
+p_cell_D13
+```
+
+# randomlySelectMut
+```{r randomlySelectMut}
+color_settings <- c(d0 = "#FFDC91FF", d3 = "#7876B1FF", d6 = "#4575b4",
+                    d9 = "#91bfdb", d12 = "#e0f3f8", d15 = "#fee090",
+                    d21 = "#fc8d59", d28 = "#BC3C29FF")
+
+color_settings_2 <- c(Day_0 = "#FFDC91FF", Day_3 = "#7876B1FF", Day_6 = "#4575b4",
+                    Day_9 = "#91bfdb", Day_12 = "#e0f3f8", Day_15 = "#fee090",
+                    Day_21 = "#fc8d59", Day_28 = "#BC3C29FF")
+
+col_names_days <- c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28", "sampleSize")
+reps_random <- 100
+row_names_reps <- paste("iter", c(1:reps_random), sep = "_")
+
+sample_num <- c(10, 30, 50, 100, 150)
+
+data_random_muts2cell_hf1 <- as.data.frame(matrix(nrow = reps_random * length(sample_num), ncol = length(col_names_days)))
+data_random_muts2cell_hf2 <- as.data.frame(matrix(nrow = reps_random * length(sample_num), ncol = length(col_names_days)))
+
+colnames(data_random_muts2cell_hf1) <- col_names_days
+colnames(data_random_muts2cell_hf2) <- col_names_days
+
+#rownames(data_random_muts2cell_hf1) <- row_names_reps
+#rownames(data_random_muts2cell_hf2) <- row_names_reps
+
+hf1_muts <- data_CellPerMut_hf1$Location
+hf2_muts <- data_CellPerMut_hf2$Location
+
+set.seed(2025)
+line_count <- 0
+for (i in 1:reps_random){
+  
+  for (j in sample_num){
+    
+    line_count <- line_count + 1
+    hf1_muts_tmp <- sample(hf1_muts, j, replace = TRUE)
+    hf2_muts_tmp <- sample(hf2_muts, j, replace = TRUE)
+    
+    hf1_cells <- retriveCellsByLocation(MEF_CSM_hf1, hf1_muts_tmp)$Mut
+    hf2_cells <- retriveCellsByLocation(MEF_CSM_hf2, hf2_muts_tmp)$Mut
+    
+    data_random_muts2cell_hf1[line_count, "Day_6"] <- sum(str_count(hf1_cells, "hf1.d6"))
+    data_random_muts2cell_hf1[line_count, "Day_9"] <- sum(str_count(hf1_cells, "hf1.d9"))
+    data_random_muts2cell_hf1[line_count, "Day_12"] <- sum(str_count(hf1_cells, "hf1.d12"))
+    data_random_muts2cell_hf1[line_count, "Day_15"] <- sum(str_count(hf1_cells, "hf1.d15"))
+    data_random_muts2cell_hf1[line_count, "Day_21"] <- sum(str_count(hf1_cells, "hf1.d21"))
+    data_random_muts2cell_hf1[line_count, "Day_28"] <- sum(str_count(hf1_cells, "hf1.d28"))
+    data_random_muts2cell_hf1[line_count, "sampleSize"] <- j
+    
+    data_random_muts2cell_hf2[line_count, "Day_6"] <- sum(str_count(hf2_cells, "hf2.d6"))
+    data_random_muts2cell_hf2[line_count, "Day_9"] <- sum(str_count(hf2_cells, "hf2.d9"))
+    data_random_muts2cell_hf2[line_count, "Day_12"] <- sum(str_count(hf2_cells, "hf2.d12"))
+    data_random_muts2cell_hf2[line_count, "Day_15"] <- sum(str_count(hf2_cells, "hf2.d15"))
+    data_random_muts2cell_hf2[line_count, "Day_21"] <- sum(str_count(hf2_cells, "hf2.d21"))
+    data_random_muts2cell_hf2[line_count, "Day_28"] <- sum(str_count(hf2_cells, "hf2.d28"))
+    data_random_muts2cell_hf2[line_count, "sampleSize"] <- j
+  }
+}
+
+data_random_muts2cell_hf1$iteration <- rownames(data_random_muts2cell_hf1)
+data_random_muts2cell_hf2$iteration <- rownames(data_random_muts2cell_hf2)
+
+data_random_muts2cell_hf1_long <- data_random_muts2cell_hf1 %>%
+  pivot_longer(
+    cols = starts_with("Day"),
+    names_to = "Day",         
+    values_to = "CellNum"
+  )
+
+data_random_muts2cell_hf2_long <- data_random_muts2cell_hf2 %>%
+  pivot_longer(
+    cols = starts_with("Day"),
+    names_to = "Day",         
+    values_to = "CellNum"
+  )
+
+data_random_muts2cell_hf1_long$Day <- factor(data_random_muts2cell_hf1_long$Day, levels = c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"))
+data_random_muts2cell_hf2_long$Day <- factor(data_random_muts2cell_hf2_long$Day, levels = c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"))
+
+
+p_Mut2Cell_hf1 <- ggplot(data_random_muts2cell_hf1_long,
+       aes(x = Day, y = CellNum, color = factor(sampleSize))) + 
+  geom_jitter(width = 0.2, alpha = 0.5, size = 1) +   
+  #facet_wrap(~ Timecourse, ncol = 1, scales = "free_y") +
+  ylab("Number of cells") +
+  xlab("Day") +
+  labs(color = "SelectNum") +
+   scale_color_manual(values = c(
+    "10" = "#4d4d4d",
+    "30" = "#bababa",
+    "50" = "#fddbc7",
+    "100" = "#f4a582",
+    "150" = "#b2182b"
+  )) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_Mut2Cell_hf2 <- ggplot(data_random_muts2cell_hf2_long,
+       aes(x = Day, y = CellNum, color = factor(sampleSize))) + 
+  geom_jitter(width = 0.2, alpha = 0.5, size = 1) +   
+  #facet_wrap(~ Timecourse, ncol = 1, scales = "free_y") +
+  ylab("Number of cells") +
+  xlab("Day") +
+  labs(color = "SelectNum") +
+   scale_color_manual(values = c(
+    "10" = "#4d4d4d",
+    "30" = "#bababa",
+    "50" = "#fddbc7",
+    "100" = "#f4a582",
+    "150" = "#b2182b"
+  )) +
+  theme_classic(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_Mut2Cell_hf1
+p_Mut2Cell_hf2
+
+pdf("../Figure/MEF/p_Mut2Cell_hf1.pdf", width = 5.36, height = 3.42)
+p_Mut2Cell_hf1
+dev.off()
+
+pdf("../Figure/MEF/p_Mut2Cell_hf2.pdf", width = 5.36, height = 3.42)
+p_Mut2Cell_hf2
+dev.off()
+```
+
+# lineageTracingExample
+```{r lineageTracingExample}
+selected_start_cloneID <- 2352
+data_clone_score_selected <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k == selected_start_cloneID,][,c("Cellbarcode", "scMutScore", "CellTagD0_48k", "CellTagD3_48k", "CellTagD13_48k")]
+colnames(data_clone_score_selected) <- c("Cellbarcode", "scMutScore", "D0_tag", "D3_tag", "D13_tag")
+
+
+# Categorization of all situations
+data_clone_score_selected_long <- bind_rows(
+  # C1: D3 == NotAva & D13 != NotAva → D0 → D13
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag == "NotAva" & D13_tag != "NotAva") %>%
+    dplyr::select(source = D0_tag, target = D13_tag),
+  
+  # C2: D3 == NotAva & D13 == NotAva → D0 → D0_self
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag == "NotAva" & D13_tag == "NotAva") %>%
+    dplyr::mutate(target = paste0(D0_tag, "_self")) %>%
+    dplyr::select(source = D0_tag, target),
+  
+  # C3: D3 != NotAva & D13 != NotAva → D0→D3
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag != "NotAva") %>%
+    dplyr::select(source = D0_tag, target = D3_tag),
+  
+  # C4: D3 != NotAva & D13 != NotAva → D3→D13
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag != "NotAva") %>%
+    dplyr::select(source = D3_tag, target = D13_tag),
+  
+  # C5: D3 != NotAva & D13 == NotAva → D0→D3
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag == "NotAva") %>%
+    dplyr::select(source = D0_tag, target = D3_tag),
+  
+  # C6: D3 != NotAva & D13 == NotAva → D3→D3_self
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag == "NotAva") %>%
+    dplyr::mutate(target = paste0(D3_tag, "_self")) %>%
+    dplyr::select(source = D3_tag, target)
+)
+
+# Counting the number of pairs
+clone_links <- data_clone_score_selected_long %>%
+  dplyr::group_by(source, target) %>%
+  dplyr::summarise(value = n()) %>%
+  dplyr::arrange(desc(value))
+
+clone_links <- as.data.frame(clone_links)
+
+clone_nodes <- data.frame(
+  name=c(as.character(clone_links$source), 
+  as.character(clone_links$target)) %>% unique()
+)
+
+clone_nodes$group <- ""
+
+for (i in 1:nrow(clone_nodes)){
+  checkNode <- as.character(clone_nodes[i,"name"])
+  if (checkNode %in% as.character(data_clone_score_selected$D0_tag)){
+    clone_nodes[i,"group"] <- "MEF"
+  }
+  
+  if (checkNode %in% as.character(data_clone_score_selected$D3_tag)){
+    clone_nodes[i,"group"] <- "D3"
+  }
+  
+  if (checkNode %in% as.character(data_clone_score_selected$D13_tag)){
+    clone_nodes[i,"group"] <- "D13"
+  }
+}
+
+clone_links$IDsource <- match(clone_links$source, clone_nodes$name)-1 
+clone_links$IDtarget <- match(clone_links$target, clone_nodes$name)-1
+
+p_sankeyNetwork <- sankeyNetwork(Links = clone_links, Nodes = clone_nodes,
+              Source = "IDsource", Target = "IDtarget",
+              Value = "value", NodeID = "name", 
+              sinksRight=FALSE,
+              colourScale = JS("d3.scaleOrdinal()
+                                  .domain(['MEF', 'D3', 'D13'])
+                                  .range(['#1f77b4', '#ff7f0e', '#2ca02c'])"),
+              NodeGroup = "group")
+
+p_sankeyNetwork
+
+#htmlwidgets::saveWidget(p_sankeyNetwork, "../Figures/sankey_plot_temp.html")
+#webshot("../Figures/sankey_plot_temp.html", "../Figures/p_sankey_plot.pdf")
+```
+
+# lineageTracingExample with scMutScore
+```{r network}
+selected_start_cloneID <- c(124, 487, 2352)
+
+data_clone_score_selected <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k %in% selected_start_cloneID,][,c("Cellbarcode", "scMutScore", "CellTagD0_48k", "CellTagD3_48k", "CellTagD13_48k")]
+colnames(data_clone_score_selected) <- c("Cellbarcode", "scMutScore", "D0_tag", "D3_tag", "D13_tag")
+
+# Categorization of all situations
+data_clone_score_selected_long <- bind_rows(
+  # C1: D3 == NotAva & D13 != NotAva → D0 → D13
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag == "NotAva" & D13_tag != "NotAva") %>%
+    dplyr::select(source = D0_tag, target = D13_tag),
+  
+  # C2: D3 == NotAva & D13 == NotAva → D0 → D0_self
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag == "NotAva" & D13_tag == "NotAva") %>%
+    dplyr::mutate(target = paste0(D0_tag, "_self")) %>%
+    dplyr::select(source = D0_tag, target),
+  
+  # C3: D3 != NotAva & D13 != NotAva → D0→D3
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag != "NotAva") %>%
+    dplyr::select(source = D0_tag, target = D3_tag),
+  
+  # C4: D3 != NotAva & D13 != NotAva → D3→D13
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag != "NotAva") %>%
+    dplyr::select(source = D3_tag, target = D13_tag),
+  
+  # C5: D3 != NotAva & D13 == NotAva → D0→D3
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag == "NotAva") %>%
+    dplyr::select(source = D0_tag, target = D3_tag),
+  
+  # C6: D3 != NotAva & D13 == NotAva → D3→D3_self
+  data_clone_score_selected %>%
+    dplyr::filter(D3_tag != "NotAva" & D13_tag == "NotAva") %>%
+    dplyr::mutate(target = paste0(D3_tag, "_self")) %>%
+    dplyr::select(source = D3_tag, target)
+)
+
+# Counting the number of pairs
+clone_links <- data_clone_score_selected_long %>%
+  dplyr::group_by(source, target) %>%
+  dplyr::summarise(value = n()) %>%
+  dplyr::arrange(desc(value))
+
+clone_links <- as.data.frame(clone_links)
+
+clone_links <- clone_links[!grepl("_self", clone_links$target), ]
+
+#clone_links <- clone_links[clone_links$value > 1,]
+
+clone_nodes <- data.frame(
+  name=c(as.character(clone_links$source), 
+  as.character(clone_links$target)) %>% unique()
+)
+
+clone_nodes$group <- ""
+
+for (i in 1:nrow(clone_nodes)){
+  checkNode <- as.character(clone_nodes[i,"name"])
+  if (checkNode %in% as.character(data_clone_score_selected$D0_tag)){
+    clone_nodes[i,"group"] <- "MEF"
+  }
+  
+  if (checkNode %in% as.character(data_clone_score_selected$D3_tag)){
+    clone_nodes[i,"group"] <- "D3"
+  }
+  
+  if (checkNode %in% as.character(data_clone_score_selected$D13_tag)){
+    clone_nodes[i,"group"] <- "D13"
+  }
+}
+
+# cal node scMutScore
+clone_nodes$scMutScore <- 0
+
+data_MEF_D3_D13 <- data.frame()
+
+for (i in 1:nrow(clone_nodes)){
+  group_tmp <- clone_nodes[i, "group"]
+  node_tmp <- clone_nodes[i, "name"]
+  print(node_tmp)
+  print(group_tmp)
+  if (group_tmp == "MEF"){
+    data_mef_tmp <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k %in% selected_start_cloneID & res_index_scMut_meta$CellTagD3_48k == "NotAva" & res_index_scMut_meta$CellTagD13_48k == "NotAva", c("scMutScore", "Day")]
+    if(nrow(data_mef_tmp) == 0){
+      data_mef_tmp_tmp <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k == selected_start_cloneID, c("scMutScore", "Day")]
+      data_mef_tmp_tmp$Tag <- "MEF"
+      clone_nodes[i, "scMutScore"] <- min(data_mef_tmp_tmp$scMutScore)
+      data_MEF_D3_D13 <- rbind(data_MEF_D3_D13, data_mef_tmp_tmp)
+    }else{
+      data_mef_tmp$Tag <- "MEF"
+      clone_nodes[i, "scMutScore"] <- min(data_mef_tmp$scMutScore)
+      data_MEF_D3_D13 <- rbind(data_MEF_D3_D13, data_mef_tmp)
+    }
+  }
+  if (group_tmp == "D3"){
+    data_d3_tmp <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k %in% selected_start_cloneID & res_index_scMut_meta$CellTagD3_48k == node_tmp & res_index_scMut_meta$CellTagD13_48k == "NotAva", c("scMutScore", "Day")]
+    if(nrow(data_d3_tmp) == 0){
+      data_d3_tmp_tmp <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k == selected_start_cloneID & res_index_scMut_meta$CellTagD3_48k == node_tmp, c("scMutScore", "Day")]
+      data_d3_tmp_tmp$Tag <- "D3"
+      clone_nodes[i, "scMutScore"] <- min(data_d3_tmp_tmp$scMutScore)
+      data_MEF_D3_D13 <- rbind(data_MEF_D3_D13, data_d3_tmp_tmp)
+    }else{
+      data_d3_tmp$Tag <- "D3"
+      clone_nodes[i, "scMutScore"] <- min(data_d3_tmp$scMutScore)
+      data_MEF_D3_D13 <- rbind(data_MEF_D3_D13, data_d3_tmp)
+    }
+  }
+  if (group_tmp == "D13"){
+    data_d13_tmp <- res_index_scMut_meta[res_index_scMut_meta$CellTagD0_48k %in% selected_start_cloneID & res_index_scMut_meta$CellTagD13_48k == node_tmp, c("scMutScore", "Day")]
+    data_d13_tmp$Tag <- "D13"
+    clone_nodes[i, "scMutScore"] <- min(data_d13_tmp$scMutScore)
+    data_MEF_D3_D13 <- rbind(data_MEF_D3_D13, data_d13_tmp)
+  }
+}
+
+data_MEF_D3_D13$Tag <- factor(data_MEF_D3_D13$Tag, levels = c("MEF", "D3", "D13"))
+clone_nodes$group <- factor(clone_nodes$group, levels = c("MEF", "D3", "D13"))
+data_MEF_D3_D13$Day <- factor(data_MEF_D3_D13$Day, levels = c("Day_0", "Day_3", "Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28"))
+
+network <- graph_from_data_frame(d=clone_links, vertices=clone_nodes, directed=T)
+
+color_settings_network_1 <- c( D13 = "#e41a1c", D3 = "#377eb8", MEF = "#4daf4a")
+
+color_settings_network_2 <- colorRampPalette(c("#fee8c8", "#fdbb84", "#e34a33"))
+
+colors <- color_settings_network_2(5)
+
+breaks <- unique(quantile(V(network)$scMutScore, probs = seq(0, 1, length.out = 6)))
+
+value_group <- cut(V(network)$scMutScore, breaks = breaks, include.lowest = TRUE, labels = FALSE)
+
+my_color_2 <- colors[value_group]
+
+edge_width <- log2(E(network)$value + 0.1)
+
+vertex_frame_color <- color_settings_network_1[V(network)$group]
+
+p_selected_clone_MEF <- ggplot(data = data_MEF_D3_D13[data_MEF_D3_D13$Tag == "MEF",], mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  geom_violin(trim = FALSE) + coord_cartesian(ylim = c(0, 1)) +
+  geom_boxplot(width = 0.05, fill = "white", outliers = FALSE) +
+  #stat_summary(fun.data="mean_sdl", fun.args = list(mult=1),geom="pointrange", color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = paste0("scMutraceScore_", selected_start_cloneID)) +
+  theme_classic()
+
+p_selected_clone_D3 <- ggplot(data = data_MEF_D3_D13[data_MEF_D3_D13$Tag == "D3",], mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  geom_violin(trim = FALSE) + coord_cartesian(ylim = c(0, 1)) +
+  geom_boxplot(width = 0.05, fill = "white", outliers = FALSE) +
+  #stat_summary(fun.data="mean_sdl", fun.args = list(mult=1),geom="pointrange", color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = paste0("scMutraceScore_", selected_start_cloneID)) +
+  theme_classic()
+
+p_selected_clone_D13 <- ggplot(data = data_MEF_D3_D13[data_MEF_D3_D13$Tag == "D13",], mapping = aes(x = Day, y = scMutScore, fill = Day)) +
+  geom_violin(trim = FALSE) + coord_cartesian(ylim = c(0, 1)) +
+  geom_boxplot(width = 0.05, fill = "white", outliers = FALSE) +
+  #stat_summary(fun.data="mean_sdl", fun.args = list(mult=1),geom="pointrange", color = "black") +
+  scale_fill_manual(values = color_settings_2) +
+  labs(x = "", y = paste0("scMutraceScore_", selected_start_cloneID)) +
+  theme_classic()
+
+#pdf("../Figures/p_network_plot.pdf", width = 12, height = 12)
+plot(network, 
+     vertex.color=my_color_2,
+     vertex.label.color = "black",
+     vertex.label.cex = 0.8,
+     vertex.size = 15,
+     #vertex.frame.width = 3,
+     #vertex.frame.color = vertex_frame_color,
+     edge.color = "black",
+     edge.arrow.size = 0.4,
+     edge.width = edge_width)
+#dev.off()
+col_fun <- colorRampPalette(c("#fee8c8", "#fdbb84", "#e34a33"))
+col_seq <- col_fun(length(my_color_2))
+image(z = matrix(1:length(my_color_2), ncol = 1), col = col_seq,
+      axes = FALSE, main = "Gradient Legend")
+axis(4, at = seq(0, 1, length.out = 5), labels = round(seq(0, 1, length.out = 5), 2))
+
+
+pdf("../Figure/MEF/gradient_legend.pdf", width = 3, height = 5)
+image(z = matrix(1:length(my_color_2), ncol = 1), col = col_seq,
+      axes = FALSE, main = "Gradient Legend")
+axis(4, at = seq(0, 1, length.out = 5), labels = round(seq(0, 1, length.out = 5), 2))
+dev.off()
+
+pdf("../Figure/MEF/p_network_plot.pdf", width = 7.68, height = 5.29)
+plot(network, 
+     vertex.color=my_color_2,
+     vertex.label.color = "black",
+     vertex.label.cex = 0.8,
+     vertex.size = 15,
+     edge.color = "black",
+     edge.arrow.size = 0.4,
+     edge.width = edge_width)
+dev.off()
+```
+
+# testModel
+```{r testModel}
+m1 <- c(1, 1, 1, 1, 1, 1, 1, 1)
+m2 <- c(0, 1, 1, 1, 1, 1, 1, 1)
+m3 <- c(0, 0, 1, 0, 0, 0, 0, 0)
+m4 <- c(0, 0, 0, 1, 1, 1, 1, 1)
+m5 <- c(0, 0, 0, 0, 1, 1, 1, 1)
+m6 <- c(0, 0, 0, 0, 0, 1, 0, 0)
+m7 <- c(0, 0, 0, 0, 0, 0, 1, 0)
+m8 <- c(0, 0, 0, 0, 0, 0, 0, 1)
+
+
+t1 <- c(1, 0, 0, 0, 0, 0, 0, 0)
+t2 <- c(1, 1, 0, 0, 0, 0, 0, 0)
+t3 <- c(1, 1, 1, 1, 0, 0, 0, 0)
+t4 <- c(1, 1, 1, 1, 0, 0, 0, 0)
+t5 <- c(1, 1, 0, 1, 1, 0, 0, 0)
+t6 <- c(1, 1, 0, 1, 1, 1, 1, 1)
+
+test_Matrix_cm <- data.frame(m1 = m1, m2 = m2, m3 = m3, m4 = m4, m5 = m5, m6 = m6, m7 = m7, m8 = m8)
+test_Matrix_mt <- data.frame(t1 = t1, t2 = t2, t3 = t3, t4 =t4, t5 = t5, t6 = t6)
+rownames(test_Matrix_cm) <- c("c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8")
+
+test_Matrix_ct <- as.matrix(test_Matrix_cm) %*% as.matrix(test_Matrix_mt)
+rownames(test_Matrix_ct) <- c("c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8")
+
+res <- cal_MultiSpe(test_Matrix_ct)
+
+#test_Matrix_cm
+#test_Matrix_mt
+#test_Matrix_ct
+
+cal_scMutScore(test_Matrix_cm, test_Matrix_mt, NA)
+
+my_colors <- c("#f7f7f7", "#d9d9d9", "#bdbdbd", "#969696", "#636363", "#252525")
+breaks <- c(0, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5)
+
+p_Matrix_cm <- pheatmap(test_Matrix_cm, cluster_rows = F, cluster_cols = F, color = my_colors, breaks = breaks, border_color = "black", cellwidth = 10, cellheight = 10)
+p_Matrix_mt <- pheatmap(test_Matrix_mt, cluster_rows = F, cluster_cols = F, color = my_colors, breaks = breaks, border_color = "black", cellwidth = 10, cellheight = 10)
+p_Matrix_ct <- pheatmap(test_Matrix_ct, cluster_rows = F, cluster_cols = F, color = my_colors, breaks = breaks, border_color = "black", cellwidth = 10, cellheight = 10)
+
+p_Matrix_cm
+p_Matrix_mt
+p_Matrix_ct
+
+pdf("../Figure/MEF/p_Matrix_cm.pdf", width = 3.40, height = 2.69)
+p_Matrix_cm
+dev.off()
+
+pdf("../Figure/MEF/p_Matrix_mt.pdf", width = 3.40, height = 2.69)
+p_Matrix_mt
+dev.off()
+
+pdf("../Figure/MEF/p_Matrix_ct.pdf", width = 3.40, height = 2.69)
+p_Matrix_ct
+dev.off()
+```
+
+
+
+# sessionInfo
+```{r sessionInfo}
+sessionInfo()
+```
+
+
+
+
+
+
+
+
+
+

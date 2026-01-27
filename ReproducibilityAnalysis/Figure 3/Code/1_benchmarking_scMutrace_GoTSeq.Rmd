@@ -1,0 +1,1569 @@
+---
+title: Benchmarking scMutrace and GoT
+author: Qun Li
+date: 13 Aug 2025 at 14:07:57
+output:
+  pdf_document: 
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+
+
+#ENV
+```{r envs}
+rm(list = ls())
+setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure3/")
+```
+
+# Libraries
+```{r libraries}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggpubr)
+library(circlize)
+library(ggVennDiagram)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(ComplexHeatmap)
+```
+
+# Functions
+```{r functions}
+retriveCellsByLocation <- function(CSM, locList){
+  CSM$CellTag <- rownames(CSM)
+  CSM_tmp <- CSM[, c("CellTag", colnames(CSM)[colnames(CSM) %in% locList])]
+  data_MutPerCell_CSM_tmp <- data.frame(
+    CellTag = rownames(CSM_tmp),
+    MutNum = rowSums(CSM_tmp == "Mut"),
+    WTNum = rowSums(CSM_tmp == "WT")
+  )
+  cells_Total <- data_MutPerCell_CSM_tmp[rowSums(data_MutPerCell_CSM_tmp[,c("MutNum", "WTNum")]) > 0, ]$CellTag
+  cells_WT <-    data_MutPerCell_CSM_tmp[data_MutPerCell_CSM_tmp[,"WTNum"] > 0,]$CellTag
+  cells_Mut <-   data_MutPerCell_CSM_tmp[data_MutPerCell_CSM_tmp[,"MutNum"] > 0,]$CellTag
+  cells <- list(Total = cells_Total, Mut = cells_Mut, WT = cells_WT)
+  return(cells)
+}
+
+retriveLocsByCells <- function(CSM, cellList){
+  CSM$CellTag <- rownames(CSM)
+  CSM_tmp <- CSM[CSM$CellTag %in% cellList,]
+  data_CellPerMut_CSM_tmp <- data.frame(
+    Location = colnames(CSM_tmp),
+    CellMutNum = colSums(CSM_tmp == "Mut"),
+    CellWTNum = colSums(CSM_tmp == "WT")
+  )
+  pos_Total <- data_CellPerMut_CSM_tmp[rowSums(data_CellPerMut_CSM_tmp[, c("CellMutNum", "CellWTNum")]) > 0,]$Location
+  pos_Mut <- data_CellPerMut_CSM_tmp[data_CellPerMut_CSM_tmp[, "CellMutNum"] > 0 ,]$Location
+  pos_WT <- data_CellPerMut_CSM_tmp[data_CellPerMut_CSM_tmp[, "CellWTNum"] > 0 ,]$Location
+  pos <- list(Total = pos_Total, Mut = pos_Mut, WT = pos_WT)
+  return(pos)
+}
+
+count_cellNum_byTag <- function(allCells, tag){
+  num <- sum(grepl(tag, allCells))
+  return(num)
+}
+```
+
+# Load Data
+```{r loadData}
+# mutation data
+IDH_patient_scMut <- readRDS("../Data/GoT/IDH_Patient_Mutation.rds")
+IDH_patient_CSM <- IDH_patient_scMut$CSM
+IDH_patient_SSM <- IDH_patient_scMut$SSM
+IDH_patient_ANN <- IDH_patient_scMut$ANN
+
+IDH_healthy_scMut <- readRDS("../Data/GoT/IDH_Healthy_Mutation.rds")
+IDH_healthy_CSM <- IDH_healthy_scMut$CSM
+IDH_healthy_SSM <- IDH_healthy_scMut$SSM
+IDH_healthy_ANN <- IDH_healthy_scMut$ANN
+IDH_healthy_ANN$Mutation_hg19 <- paste0("chr", IDH_healthy_ANN$Mutation_hg19)
+
+# meta data
+# SampleID from original .rds file.
+# SampleIDQun from original bam file name
+IDH_meta <- read.table("../Data/GoT/GoT_IDH_meta.txt", header = T, sep = "\t")
+IDH_meta$CellBarcode <- paste(IDH_meta$SampleIDQun, IDH_meta$Barcode, sep = "_")
+```
+
+
+# Mutation burden
+```{r Mutationburden}
+IDH_MutPerCell_patient <- data.frame(
+  CellTag = rownames(IDH_patient_CSM),
+  MutNum_somatic = rowSums(IDH_patient_CSM == "Mut"),
+  WTNum_somatic = rowSums(IDH_patient_CSM == "WT")
+)
+
+IDH_MutPerCell_healthy <- data.frame(
+  CellTag = rownames(IDH_healthy_CSM),
+  MutNum_somatic = rowSums(IDH_healthy_CSM == "Mut"),
+  WTNum_somatic = rowSums(IDH_healthy_CSM == "WT")
+)
+
+IDH_MutPerCell_patient$SampleID <- sub("_[^_]+$", "", IDH_MutPerCell_patient$CellTag)
+IDH_MutPerCell_healthy$SampleID <- sub("_[^_]+$", "", IDH_MutPerCell_healthy$CellTag)
+IDH_MutPerCell_patient$SampleType <- "Patient"
+IDH_MutPerCell_healthy$SampleType <- "Healthy"
+IDH_MutPerCell_patient_healthy <- rbind(IDH_MutPerCell_patient[IDH_MutPerCell_patient$MutNum_somatic > 0,], IDH_MutPerCell_healthy)
+
+IDH_meta_CellTag_CellType <- IDH_meta %>% dplyr::select(CellBarcode, CellType, CellSort) %>% dplyr::rename(CellTag = CellBarcode)
+IDH_MutPerCell_patient_healthy_meta <- left_join(IDH_MutPerCell_patient_healthy, IDH_meta_CellTag_CellType, by = "CellTag")
+
+ggplot(IDH_MutPerCell_patient_healthy_meta, aes(x=as.factor(SampleID), y=MutNum_somatic, fill=as.factor(SampleID))) + 
+  geom_boxplot(outliers = FALSE) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(IDH_MutPerCell_patient_healthy_meta, aes(x=SampleType, y=MutNum_somatic, fill=SampleType)) + 
+  geom_boxplot() + 
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(IDH_MutPerCell_patient_healthy_meta, aes(x=as.factor(CellType), y=MutNum_somatic, fill=as.factor(CellType))) + 
+  geom_boxplot() + 
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(na.omit(IDH_MutPerCell_patient_healthy_meta), aes(x=as.factor(CellSort), y=MutNum_somatic, fill=as.factor(CellSort))) + 
+  geom_boxplot() + 
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+IDH_MutPerCell_patient_healthy_meta$Group <- ifelse(grepl("AML",  IDH_MutPerCell_patient_healthy_meta$SampleID, ignore.case = TRUE), "Patient",
+              ifelse(grepl("CH", IDH_MutPerCell_patient_healthy_meta$SampleID, ignore.case = TRUE), "Patient",
+              ifelse(grepl("Donor", IDH_MutPerCell_patient_healthy_meta$SampleID, ignore.case = TRUE), "Healthy",
+                     "Other")))
+
+
+sample_size <- 100
+iteration <- 1000
+IDH_iteration_data <- data.frame(iteration = NA,
+                       Patient = NA,
+                       Healthy = NA)
+
+IDH_MutPerCell_Patient_meta <- IDH_MutPerCell_patient_healthy_meta[IDH_MutPerCell_patient_healthy_meta$Group == "Patient",]
+IDH_MutPerCell_healthy_meta <- IDH_MutPerCell_patient_healthy_meta[IDH_MutPerCell_patient_healthy_meta$Group == "Healthy",]
+
+set.seed(2025)
+
+for (i in 1:iteration) {
+
+  patient_iter <- IDH_MutPerCell_Patient_meta[
+    sample(nrow(IDH_MutPerCell_Patient_meta), sample_size, replace = TRUE), ]
+
+  healthy_iter <- IDH_MutPerCell_healthy_meta[
+    sample(nrow(IDH_MutPerCell_healthy_meta), sample_size, replace = TRUE), ]
+
+  IDH_iteration_data[i,"iteration"] <- i
+  IDH_iteration_data[i,"Patient"] <- mean(patient_iter$MutNum_somatic)
+  IDH_iteration_data[i, "Healthy"] <- mean(healthy_iter$MutNum_somatic)
+}
+
+
+df_long <- reshape2::melt(IDH_iteration_data, id.vars = "iteration",
+                variable.name = "Group",
+                value.name = "MutPerCell")
+
+my_comparisons_1 <- list(c("AML", "Healthy"),
+                       c("CH", "Healthy"))
+
+my_comparisons_2 <- list(c("Patient", "Healthy"))
+
+p_mutation_burden <- ggplot(df_long, aes(x = Group, y = MutPerCell, fill = Group)) +
+  geom_boxplot(width = 0.6, alpha = 0.8) +
+  scale_fill_manual(values = c("Patient"="#ca0020", "Healthy" = "#d9d9d9")) +
+  theme_classic() + labs(y = "Mean mutations per cell (bootstrap)", x = "") +
+  stat_compare_means(comparisons = my_comparisons_2, 
+                     method = "wilcox.test", 
+                     label = "p.format")
+
+p_mutation_burden
+
+group_count <- IDH_meta %>%
+     group_by(donor.id) %>%
+     summarise(Count = n())
+
+group_count$Group <- ifelse(grepl("AML",  group_count$donor.id, ignore.case = TRUE), "AML",
+              ifelse(grepl("CH", group_count$donor.id, ignore.case = TRUE), "CH",
+              ifelse(grepl("Donor", group_count$donor.id, ignore.case = TRUE), "Healthy",
+                     "Other")))
+
+ggplot(group_count, aes(x = Group, y = Count, fill = Group)) +
+  geom_boxplot(width = 0.6, alpha = 0.8) +
+  theme_classic() + labs(y = "Mean mutations per cell (bootstrap)", x = "")
+
+ggsave(filename = "../Figures/GoT/p_mutation_burden.pdf", width = 3.66, height = 4.21)
+```
+
+# Census genes individual sample
+```{r censusgenesindividualsample}
+# IDH_SSM IDH_meta
+# AML_04_Dx_LymphDepleted AML_04_Dx_Live
+# AML_05_Dx_LymphDepleted AML_05_Dx_Live
+# AML_05_postTx_Live  AML_05_postTx_LymphDepleted
+# AML_06_Dx_LymphDepleted AML_06_Dx_Live
+# AML_06_postTx_Live  AML_06_postTx_LymphDepleted
+
+AML_censusgenes <- read.table("../Data/GoT/AML_censusgenes.txt", header = T, sep = "\t")
+AML_censusgenes_genes <- unique(c(AML_censusgenes$GeneSymbol, "IDH1", "IDH2", "DNMT3A", "NPM1",
+                                  "SRSF2", "ASXL1", "CEBPA", "NRAS", "FLT3", "PTPN11", "BCOR",
+                                  "SMC1A", "U2AF1"))
+
+IDH_ANN_census_patient <- IDH_patient_ANN[IDH_patient_ANN$Gene.refGene %in% AML_censusgenes_genes,]
+IDH_ANN_census_healthy <- IDH_healthy_ANN[IDH_healthy_ANN$Gene.refGene %in% IDH_ANN_census_patient$Gene.refGene, ]
+
+IDH_ANN_census <- rbind(IDH_ANN_census_patient[, c("Gene.refGene", "Mutation_hg19", "Mutation_hg38")], 
+                        IDH_ANN_census_healthy[, c("Gene.refGene", "Mutation_hg19", "Mutation_hg38")])
+
+IDH_sampleIDs <- setdiff(unique(IDH_meta$SampleIDQun), c("Donor_02_PB", "Donor_03_BM", "Donor_04_BM"))
+IDH_census_genes <- c(unique(IDH_ANN_census$Gene.refGene), "IDH1_R132", "IDH2_R172", "IDH2_R140", "NRAS_G12")
+
+row_genes_order <- c("ABI1", "TET1", "KAT6B", "KMT2A", "NUP98", "PICALM", 
+                     "CBFA2T3", "SRSF2", "PER1",  "ABL2", "PRDM16", 
+                     "TOP1", "ERG", "BCR", "EP300", "DNMT3A", "CBLB", 
+                     "GATA2", "CHIC2", "ARHGAP26", "CSF1R", "NSD1", 
+                     "DEK", "CUX1", "NSD3", "KAT6A", "NCOA2", "FNBP1", 
+                     "JAK2", "BCORL1", "IDH1", "IDH2", "NRAS", 
+                     "IDH1_R132", "IDH2_R172", "IDH2_R140", "NRAS_G12")
+
+data_censusgene_scMut_fraq <- as.data.frame(matrix(data = NA, nrow = length(IDH_census_genes), ncol = length(IDH_sampleIDs)))
+rownames(data_censusgene_scMut_fraq) <- IDH_census_genes
+colnames(data_censusgene_scMut_fraq) <- IDH_sampleIDs
+
+data_censusgene_GoT_fraq <- as.data.frame(matrix(data = NA, nrow = length(IDH_census_genes), ncol = length(IDH_sampleIDs)))
+rownames(data_censusgene_GoT_fraq) <- IDH_census_genes
+colnames(data_censusgene_GoT_fraq) <- IDH_sampleIDs
+
+for (i in 1:nrow(data_censusgene_scMut_fraq)){
+  gene_tmp <- rownames(data_censusgene_scMut_fraq)[i]
+  if (gene_tmp %in% unique(IDH_ANN_census$Gene.refGene)){
+    mut_list_tmp <- IDH_ANN_census %>% filter(Gene.refGene == gene_tmp) %>% pull(Mutation_hg38)
+    cells_total_mut <- retriveCellsByLocation(IDH_patient_CSM, mut_list_tmp)$Mut
+    cells_total_wt <- retriveCellsByLocation(IDH_patient_CSM, mut_list_tmp)$WT
+  
+    for (sampleID in IDH_sampleIDs){
+      num_mut_tmp <- count_cellNum_byTag(cells_total_mut, sampleID)
+      num_wt_tmp  <- count_cellNum_byTag(cells_total_wt, sampleID)
+      num_total_tmp <- num_mut_tmp + num_wt_tmp
+      fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+      data_censusgene_scMut_fraq[i, sampleID] <- fraq_tmp
+    }
+  }
+  
+}
+
+GoT_selected_genes <- c("IDH1_R132", "IDH2_R172", "IDH2_R140", "NRAS_G12")
+
+for (i in 1:nrow(data_censusgene_GoT_fraq)){
+  gene_tmp <- rownames(data_censusgene_GoT_fraq)[i]
+  if (gene_tmp %in% GoT_selected_genes){
+    IDH_meta_sample_MT_tmp <- IDH_meta %>%
+      filter(.data[[gene_tmp]] == "MT") %>%
+      pull(SampleIDQun)
+
+    IDH_meta_sample_WT_tmp <- IDH_meta %>%
+      filter(.data[[gene_tmp]] == "WT") %>%
+      pull(SampleIDQun)
+    
+    for (sampleID in IDH_sampleIDs){
+      num_mut_tmp <- count_cellNum_byTag(IDH_meta_sample_MT_tmp, sampleID)
+      num_wt_tmp  <- count_cellNum_byTag(IDH_meta_sample_WT_tmp, sampleID)
+      num_total_tmp <- num_mut_tmp + num_wt_tmp
+      fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+      data_censusgene_GoT_fraq[i, sampleID] <- fraq_tmp
+    }
+  }
+}
+
+
+data_censusgene_merge_fraq <- rbind(data_censusgene_scMut_fraq[1:33,], data_censusgene_GoT_fraq[34:37,])
+
+
+col_fun_v1 <- colorRamp2(
+  breaks = c(0, 0.33, 0.66, 1),
+  colors = c("#404040", "#bababa", "#f4a582", "#ca0020")
+)
+
+p_IDH_individual_scMut_fraq <- Heatmap(
+  matrix = data_censusgene_scMut_fraq[row_genes_order,],
+  name = "Proportion",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_heatmap_legend = FALSE,
+  rect_gp = gpar(col = NA),
+  col = col_fun_v1,
+  na_col = "#404040",
+  cell_fun = function(j, i, x, y, width, height, fill) {
+    value <- as.matrix(data_censusgene_scMut_fraq[row_genes_order,])[i, j]
+    if (!is.na(value)) {
+      grid.text(sprintf("%.2f", value), x, y,
+                gp = gpar(fontsize = 10, col = "white"))
+    } else {
+      grid.text("", x, y, gp = gpar(fontsize = 10, col = "black"))
+    }
+  }
+)
+
+p_IDH_individual_GoT_fraq <- Heatmap(
+  matrix = data_censusgene_GoT_fraq[row_genes_order,],
+  name = "Proportion",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_heatmap_legend = FALSE,
+  rect_gp = gpar(col = NA),
+  col = col_fun_v1,
+  na_col = "#404040",
+  cell_fun = function(j, i, x, y, width, height, fill) {
+    value <- as.matrix(data_censusgene_GoT_fraq[row_genes_order,])[i, j]
+    if (!is.na(value)) {
+      grid.text(sprintf("%.2f", value), x, y,
+                gp = gpar(fontsize = 10, col = "white"))
+    } else {
+      grid.text("", x, y, gp = gpar(fontsize = 10, col = "black"))
+    }
+  }
+)
+
+p_IDH_individual_merge_fraq <- Heatmap(
+  matrix = data_censusgene_merge_fraq[row_genes_order,],
+  name = "Proportion",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_heatmap_legend = FALSE,
+  col = col_fun_v1,
+  na_col = "#404040",
+  cell_fun = function(j, i, x, y, width, height, fill) {
+    value <- as.matrix(data_censusgene_merge_fraq[row_genes_order,])[i, j]
+    if (!is.na(value)) {
+      grid.text(sprintf("%.2f", value), x, y,
+                gp = gpar(fontsize = 10, col = "white"))
+    } else {
+      grid.text("", x, y, gp = gpar(fontsize = 10, col = "black"))
+    }
+  },
+  rect_gp = gpar(col = "white", lwd = 1)
+)
+
+p_IDH_individual_scMut_fraq
+p_IDH_individual_GoT_fraq
+p_IDH_individual_merge_fraq
+
+pdf("../Figures/GoT/p_IDH_individual_merge_fraq.pdf", width = 8.12, height = 8.23)
+p_IDH_individual_merge_fraq
+dev.off()
+```
+
+# Census genes stage level
+```{r censusgenesstagelevel}
+IDH_sampleIDs_Day <- list(AML1_D0 = c("AML_01_Dx_Blasts", "AML_01_Dx_LymphDepleted"), AML1_D27 = c("AML_01_postTx_LymphDepleted"),
+                          AML2_D0 = c("AML_02_Dx_LymphDepleted", "AML_02_Dx_Blasts"), AML2_D23 = c("AML_02_postTx_LymphDepleted"),
+                          AML3_D0 = c("AML_03_Dx_LymphDepleted"), AML3_D31 = c("AML_03_postTx_LymphDepleted"),
+                          AML4_D0 = c("AML_04_Dx_LymphDepleted"), AML4_D30 = c("AML_04_postTxD28_Live", "AML_04_postTxD28_LymphDepleted"), AML4_D84 = c("AML_04_postTxD84_Live"),
+                          AML5_D0 = c("AML_05_Dx_LymphDepleted"), AML5_D28 = c("AML_05_postTx_Live"),
+                          AML6_D0 = c("AML_06_Dx_LymphDepleted"), AML6_D28 = c("AML_06_postTx_Live"),
+                          CH01 = c("CH_01_01", "CH_01_02"), CH02 = c("CH_02"),
+                          Healthy01 = c("Donor_02_PB_Live"), Healthy02 = c("Donor_03_BM_LymphDepleted"), Healthy03 = c("Donor_04_BM_LymphDepleted"))
+
+data_censusgene_scMut_stage_fraq <- as.data.frame(matrix(data = NA, nrow = length(IDH_census_genes), ncol = length(names(IDH_sampleIDs_Day))))
+rownames(data_censusgene_scMut_stage_fraq) <- IDH_census_genes
+colnames(data_censusgene_scMut_stage_fraq) <- names(IDH_sampleIDs_Day)
+
+data_censusgene_GoT_stage_fraq <- as.data.frame(matrix(data = NA, nrow = length(IDH_census_genes), ncol = length(names(IDH_sampleIDs_Day))))
+rownames(data_censusgene_GoT_stage_fraq) <- IDH_census_genes
+colnames(data_censusgene_GoT_stage_fraq) <- names(IDH_sampleIDs_Day)
+
+# scMut
+for (i in 1:nrow(data_censusgene_scMut_stage_fraq)){
+  gene_tmp <- rownames(data_censusgene_scMut_stage_fraq)[i]
+  if (gene_tmp %in% unique(IDH_ANN_census$Gene.refGene)){
+    mut_list_patient_tmp <- setdiff(IDH_ANN_census %>% filter(Gene.refGene == gene_tmp) %>% pull(Mutation_hg38), "0")
+    if (length(mut_list_patient_tmp) > 0){
+      #print(paste0("patient: ",mut_list_patient_tmp))
+      cells_total_patient_mut <- retriveCellsByLocation(IDH_patient_CSM, mut_list_patient_tmp)$Mut
+      cells_total_patient_wt  <- retriveCellsByLocation(IDH_patient_CSM, mut_list_patient_tmp)$WT
+      # patient
+      for (sampleID in names(IDH_sampleIDs_Day)){
+        num_mut_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_patient_mut)
+        })))
+
+        num_wt_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_patient_wt)
+        })))
+        num_total_tmp <- num_mut_tmp + num_wt_tmp
+        fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+        data_censusgene_scMut_stage_fraq[i, sampleID] <- fraq_tmp
+      }
+    }
+    
+    mut_list_healthy_tmp <- setdiff(IDH_ANN_census %>% filter(Gene.refGene == gene_tmp) %>% pull(Mutation_hg19), "0")
+    if(length(mut_list_healthy_tmp) > 0){
+      #print(paste0("healthy: ", mut_list_healthy_tmp))
+      cells_total_healthy_mut <- retriveCellsByLocation(IDH_healthy_CSM, mut_list_healthy_tmp)$Mut
+      cells_total_healthy_wt  <- retriveCellsByLocation(IDH_healthy_CSM, mut_list_healthy_tmp)$WT
+      # healthy
+      for (sampleID in names(IDH_sampleIDs_Day)){
+        num_mut_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_healthy_mut)
+        })))
+
+        num_wt_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_healthy_wt)
+        })))
+        num_total_tmp <- num_mut_tmp + num_wt_tmp
+        fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+        data_censusgene_scMut_stage_fraq[i, sampleID] <- fraq_tmp
+      }
+    }
+  }
+}
+
+
+# GoT
+GoT_selected_genes <- c("IDH1_R132", "IDH2_R172", "IDH2_R140", "NRAS_G12")
+for (i in 1:nrow(data_censusgene_GoT_stage_fraq)){
+  gene_tmp <- rownames(data_censusgene_GoT_stage_fraq)[i]
+  if (gene_tmp %in% GoT_selected_genes){
+    IDH_meta_sample_MT_tmp <- IDH_meta %>%
+      filter(.data[[gene_tmp]] == "MT") %>%
+      pull(SampleIDQun)
+
+    IDH_meta_sample_WT_tmp <- IDH_meta %>%
+      filter(.data[[gene_tmp]] == "WT") %>%
+      pull(SampleIDQun)
+    
+    for (sampleID in names(IDH_sampleIDs_Day)){
+      num_mut_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_Day[[sampleID]], function(pattern) {
+          grepl(pattern, IDH_meta_sample_MT_tmp)
+      })))
+      num_wt_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_Day[[sampleID]], function(pattern) {
+          grepl(pattern, IDH_meta_sample_WT_tmp)
+      })))
+      num_total_tmp <- num_mut_tmp + num_wt_tmp
+      fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+      data_censusgene_GoT_stage_fraq[i, sampleID] <- fraq_tmp
+    }
+  }
+}
+
+data_censusgene_merge_stage_fraq <- rbind(data_censusgene_scMut_stage_fraq[1:33,],  data_censusgene_GoT_stage_fraq[34:37,])
+
+col_fun_v1 <- colorRamp2(
+  breaks = c(0, 0.33, 0.66, 1),
+  colors = c("#404040", "#bababa", "#f4a582", "#ca0020")
+)
+
+p_IDH_individual_scMut_stage_fraq <- Heatmap(
+  matrix = data_censusgene_scMut_stage_fraq,
+  name = "Proportion",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_heatmap_legend = FALSE,
+  rect_gp = gpar(col = NA),
+  col = col_fun_v1,
+  na_col = "white",
+  cell_fun = function(j, i, x, y, width, height, fill) {
+    value <- as.matrix(data_censusgene_scMut_stage_fraq)[i, j]
+    if (!is.na(value)) {
+      grid.text(sprintf("%.2f", value), x, y,
+                gp = gpar(fontsize = 10, col = "white"))
+    } else {
+      grid.text("NA", x, y, gp = gpar(fontsize = 10, col = "black"))
+    }
+  }
+)
+
+p_IDH_individual_GoT_stage_fraq <- Heatmap(
+  matrix = data_censusgene_GoT_stage_fraq,
+  name = "Proportion",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_heatmap_legend = FALSE,
+  rect_gp = gpar(col = NA),
+  col = col_fun_v1,
+  na_col = "white",
+  cell_fun = function(j, i, x, y, width, height, fill) {
+    value <- as.matrix(data_censusgene_GoT_stage_fraq)[i, j]
+    if (!is.na(value)) {
+      grid.text(sprintf("%.2f", value), x, y,
+                gp = gpar(fontsize = 10, col = "white"))
+    } else {
+      grid.text("NA", x, y, gp = gpar(fontsize = 10, col = "black"))
+    }
+  }
+)
+
+p_IDH_individual_merge_stage_fraq <- Heatmap(
+  matrix = data_censusgene_merge_stage_fraq[row_genes_order,],
+  name = "Proportion",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_heatmap_legend = FALSE,
+  col = col_fun_v1,
+  na_col = "#404040",
+  cell_fun = function(j, i, x, y, width, height, fill) {
+    value <- as.matrix(data_censusgene_merge_stage_fraq[row_genes_order,])[i, j]
+    if (!is.na(value)) {
+      grid.text(sprintf("%.2f", value), x, y,
+                gp = gpar(fontsize = 10, col = "white"))
+    } else {
+      grid.text("", x, y, gp = gpar(fontsize = 10, col = "black"))
+    }
+  },
+  rect_gp = gpar(col = "white", lwd = 1)
+)
+
+p_IDH_individual_scMut_stage_fraq
+p_IDH_individual_GoT_stage_fraq
+p_IDH_individual_merge_stage_fraq
+
+pdf("../Figures/GoT/p_IDH_individual_merge_stage_fraq.pdf", width = 8.12, height = 8.23)
+p_IDH_individual_merge_stage_fraq
+dev.off()
+```
+
+# Census genes sample level
+```{r sampleLEVEL}
+IDH_sampleIDs_merge_Day <- list(AML1 = c("AML_01_Dx_Blasts", "AML_01_Dx_LymphDepleted", "AML_01_postTx_LymphDepleted"),
+                          AML2 = c("AML_02_Dx_LymphDepleted", "AML_02_Dx_Blasts", "AML_02_postTx_LymphDepleted"),
+                          AML3 = c("AML_03_Dx_LymphDepleted", "AML_03_postTx_LymphDepleted"),
+                          AML4 = c("AML_04_Dx_LymphDepleted", "AML_04_postTxD28_Live", "AML_04_postTxD28_LymphDepleted", "AML_04_postTxD84_Live"),
+                          AML5 = c("AML_05_Dx_LymphDepleted", "AML_05_postTx_Live"),
+                          AML6 = c("AML_06_Dx_LymphDepleted", "AML_06_postTx_Live"),
+                          CH01 = c("CH_01_01", "CH_01_02"), CH02 = c("CH_02"),
+                          Healthy01 = c("Donor_02_PB_Live"), Healthy02 = c("Donor_03_BM_LymphDepleted"), Healthy03 = c("Donor_04_BM_LymphDepleted"))
+
+data_censusgene_scMut_mergeSample_fraq <- as.data.frame(matrix(data = NA, nrow = length(IDH_census_genes), ncol = length(names(IDH_sampleIDs_merge_Day))))
+rownames(data_censusgene_scMut_mergeSample_fraq) <- IDH_census_genes
+colnames(data_censusgene_scMut_mergeSample_fraq) <- names(IDH_sampleIDs_merge_Day)
+
+data_censusgene_GoT_mergeSample_fraq <- as.data.frame(matrix(data = NA, nrow = length(IDH_census_genes), ncol = length(names(IDH_sampleIDs_merge_Day))))
+rownames(data_censusgene_GoT_mergeSample_fraq) <- IDH_census_genes
+colnames(data_censusgene_GoT_mergeSample_fraq) <- names(IDH_sampleIDs_merge_Day)
+
+# scMut
+for (i in 1:nrow(data_censusgene_scMut_mergeSample_fraq)){
+  gene_tmp <- rownames(data_censusgene_scMut_mergeSample_fraq)[i]
+  if (gene_tmp %in% unique(IDH_ANN_census$Gene.refGene)){
+    mut_list_patient_tmp <- setdiff(IDH_ANN_census %>% filter(Gene.refGene == gene_tmp) %>% pull(Mutation_hg38), "0")
+    if (length(mut_list_patient_tmp) > 0){
+      #print(paste0("patient: ",mut_list_patient_tmp))
+      cells_total_patient_mut <- retriveCellsByLocation(IDH_patient_CSM, mut_list_patient_tmp)$Mut
+      cells_total_patient_wt  <- retriveCellsByLocation(IDH_patient_CSM, mut_list_patient_tmp)$WT
+      # patient
+      for (sampleID in names(IDH_sampleIDs_merge_Day)){
+        num_mut_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_merge_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_patient_mut)
+        })))
+
+        num_wt_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_merge_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_patient_wt)
+        })))
+        num_total_tmp <- num_mut_tmp + num_wt_tmp
+        fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+        data_censusgene_scMut_mergeSample_fraq[i, sampleID] <- fraq_tmp
+      }
+    }
+    
+    mut_list_healthy_tmp <- setdiff(IDH_ANN_census %>% filter(Gene.refGene == gene_tmp) %>% pull(Mutation_hg19), "0")
+    if(length(mut_list_healthy_tmp) > 0){
+      #print(paste0("healthy: ", mut_list_healthy_tmp))
+      cells_total_healthy_mut <- retriveCellsByLocation(IDH_healthy_CSM, mut_list_healthy_tmp)$Mut
+      cells_total_healthy_wt  <- retriveCellsByLocation(IDH_healthy_CSM, mut_list_healthy_tmp)$WT
+      # healthy
+      for (sampleID in names(IDH_sampleIDs_merge_Day)){
+        num_mut_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_merge_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_healthy_mut)
+        })))
+
+        num_wt_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_merge_Day[[sampleID]], function(pattern) {
+          grepl(pattern, cells_total_healthy_wt)
+        })))
+        num_total_tmp <- num_mut_tmp + num_wt_tmp
+        fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+        data_censusgene_scMut_mergeSample_fraq[i, sampleID] <- fraq_tmp
+      }
+    }
+  }
+}
+
+
+# GoT
+GoT_selected_genes <- c("IDH1_R132", "IDH2_R172", "IDH2_R140", "NRAS_G12")
+for (i in 1:nrow(data_censusgene_GoT_mergeSample_fraq)){
+  gene_tmp <- rownames(data_censusgene_GoT_mergeSample_fraq)[i]
+  if (gene_tmp %in% GoT_selected_genes){
+    IDH_meta_sample_MT_tmp <- IDH_meta %>%
+      filter(.data[[gene_tmp]] == "MT") %>%
+      pull(SampleIDQun)
+
+    IDH_meta_sample_WT_tmp <- IDH_meta %>%
+      filter(.data[[gene_tmp]] == "WT") %>%
+      pull(SampleIDQun)
+    
+    for (sampleID in names(IDH_sampleIDs_merge_Day)){
+      num_mut_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_merge_Day[[sampleID]], function(pattern) {
+          grepl(pattern, IDH_meta_sample_MT_tmp)
+      })))
+      num_wt_tmp <- sum(Reduce("|", lapply(IDH_sampleIDs_merge_Day[[sampleID]], function(pattern) {
+          grepl(pattern, IDH_meta_sample_WT_tmp)
+      })))
+      num_total_tmp <- num_mut_tmp + num_wt_tmp
+      fraq_tmp <- ifelse(num_total_tmp != 0, num_mut_tmp / num_total_tmp, NA)
+      data_censusgene_GoT_mergeSample_fraq[i, sampleID] <- fraq_tmp
+    }
+  }
+}
+
+data_censusgene_mergeSample_fraq <- rbind(data_censusgene_scMut_mergeSample_fraq[1:33, names(IDH_sampleIDs_merge_Day)], 
+                                          data_censusgene_GoT_mergeSample_fraq[34:37,names(IDH_sampleIDs_merge_Day)])
+
+col_fun_v1 <- colorRamp2(
+  breaks = c(0, 0.33, 0.66, 1),
+  colors = c("#404040", "#bababa", "#f4a582", "#ca0020")
+)
+
+out_order_genes_row <- c(sort(row_genes_order[1:30]), row_genes_order[31:37])
+
+p_IDH_individual_mergeSample_fraq <- Heatmap(
+  matrix = data_censusgene_mergeSample_fraq[out_order_genes_row,],
+  name = "Proportion",
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_heatmap_legend = FALSE,
+  col = col_fun_v1,
+  na_col = "#404040",
+  cell_fun = function(j, i, x, y, width, height, fill) {
+    value <- as.matrix(data_censusgene_mergeSample_fraq[out_order_genes_row,])[i, j]
+    if (!is.na(value)) {
+      grid.text(sprintf("%.2f", value), x, y,
+                gp = gpar(fontsize = 10, col = "white"))
+    } else {
+      grid.text("", x, y, gp = gpar(fontsize = 10, col = "black"))
+    }
+  },
+  rect_gp = gpar(col = "white", lwd = 1)
+)
+
+p_IDH_individual_mergeSample_fraq
+
+pdf("../Figures/GoT/p_IDH_individual_mergeSample_fraq.pdf", width = 8.12, height = 8.23)
+p_IDH_individual_mergeSample_fraq
+dev.off()
+
+write.csv(data_censusgene_mergeSample_fraq[out_order_genes_row,], "../Data/GoT/Mutation_sample.csv")
+```
+
+
+# Benchmarking
+```{r benchmarking}
+# IDH1	IDH1_R132S	2: 208248389  AML01 (1)
+# IDH1	IDH1_R132C	2: 208248389  AML02 (1)
+# IDH1	IDH1_R132H	2: 208248388  AML03 (no scMut, low coverage of scRNA-seq)
+# IDH2	IDH2_R172K	15: 90088606  AML04 (1)
+# IDH2	IDH2_R140Q	15: 90088702  AML05,AML06,CH01,CH02 (1)
+# NRAS	NRAS_G12D 	1: 114716126  AML02 (1)
+# SRSF2	SRSF2_P95L	17: 76736877  AML04,CH02 (GoT, not available in their provided meta data)
+# SRSF2	SRSF2_P95R	17: 76736877  AML05 (GoT, not available in their provided meta data)
+# SRSF2	SRSF2_P95H	17: 76736877  AML06 (GoT, not available in their provided meta data)
+# DNMT3A	DNMT3A_M682R	2:25241599  AML04 (no GoT, not available in their provided meta data)
+# DNMT3A	DNMT3A_R882H	2: 25234373 AML05 (no GoT, not available in their provided meta data)
+# DNMT3A	DNMT3A_R882C	2: 25234374 AML06 (no GoT, not available in their provided meta data)
+
+selected_muts_forBenchmarking <- c("IDH1_R132S", "IDH1_R132C", "IDH2_R172K",
+                                   "IDH2_R140Q", "NRAS_G12D")
+
+selected_samples_forBenchmarking <- c("AML_01_Dx_Blasts", "AML_01_Dx_LymphDepleted",  "AML_01_postTx_LymphDepleted",  
+                                      "AML_02_Dx_LymphDepleted", "AML_02_Dx_Blasts", "AML_02_postTx_LymphDepleted",
+                                      "AML_04_Dx_LymphDepleted", "AML_04_postTxD28_Live", "AML_04_postTxD28_LymphDepleted", "AML_04_postTxD84_Live",
+                                      "AML_05_Dx_LymphDepleted", "AML_05_postTx_Live", 
+                                      "AML_06_Dx_LymphDepleted", "AML_06_postTx_Live", 
+                                      "CH_01_01", "CH_01_02", "CH_02")
+
+benchmark_scMut_vs_scGoT <- function(mut_list, sample_list, IDH_patient_CSM, IDH_meta, mut_map) {
+  col_res <- c("muts", "samples", "check", "precision", "recall", "f1score")
+  data_res <- as.data.frame(matrix(data = 0, 
+                                   nrow = length(mut_list) * length(sample_list), 
+                                   ncol = length(col_res)))
+  colnames(data_res) <- col_res
+  
+  nrow_count <- 0
+  
+  for (mut in mut_list) {
+    mut_scMut <- mut_map[[mut]]$scMut
+    mut_scGoT <- mut_map[[mut]]$scGoT
+    
+    # extract scMut / scGoT cell
+    cells_scMut <- retriveCellsByLocation(IDH_patient_CSM, mut_scMut)$Mut
+    cells_scGoT <- IDH_meta %>%
+      filter(.data[[mut_scGoT]] == "MT") %>%
+      pull(CellBarcode)
+    
+    for (sampleID in sample_list) {
+      nrow_count <- nrow_count + 1
+      
+      cells_scGoT_tmp <- cells_scGoT[grepl(sampleID, cells_scGoT)]
+      cells_scMut_tmp <- cells_scMut[grepl(sampleID, cells_scMut)]
+      
+      if (length(cells_scGoT_tmp) > 0 & length(cells_scMut_tmp) > 0) {
+        common_num <- length(intersect(cells_scMut_tmp, cells_scGoT_tmp))
+        
+        precision_tmp <- ifelse(length(cells_scMut_tmp) > 0, 
+                                common_num/length(unique(cells_scMut_tmp)), 0)
+        recall_tmp <- ifelse(length(cells_scGoT_tmp) > 0, 
+                             common_num/length(unique(cells_scGoT_tmp)), 0)
+        f1_tmp <- ifelse((precision_tmp + recall_tmp) > 0, 
+                         (2 * precision_tmp * recall_tmp)/(precision_tmp + recall_tmp), 0)
+        check_tmp <- 1
+      } else {
+        precision_tmp <- 0
+        recall_tmp <- 0
+        f1_tmp <- 0
+        check_tmp <- 0
+      }
+      
+      data_res[nrow_count, ] <- list(mut, sampleID, check_tmp, precision_tmp, recall_tmp, f1_tmp)
+    }
+  }
+  
+  # merge res
+  data_summary <- data_res %>%
+    filter(check == 1) %>% filter(precision > 0) %>%
+    group_by(muts) %>%
+    summarise(
+      mean_precision = mean(precision, na.rm = TRUE),
+      mean_recall = mean(recall, na.rm = TRUE),
+      mean_f1 = mean(f1score, na.rm = TRUE)
+    )
+  
+  return(list(res = data_res, summary = data_summary))
+}
+
+# mut map
+mut_map <- list(
+  "IDH1_R132S" = list(scMut = "chr2_208248389_G_T", scGoT = "IDH1_R132"),
+  "IDH1_R132C" = list(scMut = "chr2_208248389_G_A", scGoT = "IDH1_R132"),
+  "IDH2_R172K" = list(scMut = "chr15_90088606_C_T", scGoT = "IDH2_R172"),
+  "IDH2_R140Q" = list(scMut = "chr15_90088702_C_T", scGoT = "IDH2_R140"),
+  "NRAS_G12D"  = list(scMut = "chr1_114716126_C_T", scGoT = "NRAS_G12")
+)
+
+# benchmark
+benchmark_res <- benchmark_scMut_vs_scGoT(
+  mut_list = selected_muts_forBenchmarking,
+  sample_list = selected_samples_forBenchmarking,
+  IDH_patient_CSM = IDH_patient_CSM,
+  IDH_meta = IDH_meta,
+  mut_map = mut_map
+)
+
+# IDH1_R132S (AML_02_Dx_LymphDepleted) GoT data dont cover count scRNA reads
+data_benchmarking_res <- benchmark_res$res %>% filter(check == 1) %>% filter(precision > 0)
+
+benchmark_res$res %>% head()
+data_benchmarking_summary <- benchmark_res$summary
+
+genesColor <- c(IDH1_R132C = "#1f78b4",
+                IDH1_R132S = "#33a02c",
+                IDH2_R140Q = "#e31a1c",
+                IDH2_R172K = "#ff7f00",
+                NRAS_G12D  = "#6a3d9a")
+
+p_benchmarking <- ggplot(data = data_benchmarking_res) + geom_point(mapping =  aes(x = recall , y = precision, color = muts), size = 10, show.legend = TRUE) +
+  scale_color_manual(values = genesColor) +
+  xlab("Recall") + ylab("Precision") + 
+  xlim(0, 1) +
+  ylim(0, 1) +
+  theme_classic() + 
+  theme(axis.title = element_text(size=20), axis.text.y = element_text(size=20),
+          axis.text.x = element_text(size=20), legend.text=element_text(size=15))
+
+p_benchmarking
+
+# Check CH02
+cell_mut_scMut_CH02_IDH2_R140Q <- retriveCellsByLocation(IDH_patient_CSM, "chr15_90088702_C_T")$Mut
+cell_mut_scMut_CH02_IDH2_R140Q <- cell_mut_scMut_CH02_IDH2_R140Q[grepl("CH_02", cell_mut_scMut_CH02_IDH2_R140Q)]
+cell_mut_scGoT_CH02_IDH2_R140Q <- IDH_meta %>% filter(donor.id == "CH-02" & IDH2_R140 == "MT") %>% pull(CellBarcode)
+
+venn_list_CH02_IDH2_R140Q <- list(scMut = unique(cell_mut_scMut_CH02_IDH2_R140Q), 
+                  scGoT = unique(cell_mut_scGoT_CH02_IDH2_R140Q))
+
+p_venn_CH02_IDH2_R140Q <- ggVennDiagram(venn_list_CH02_IDH2_R140Q, category.names = c("scMut", "scGoT")) + scale_fill_distiller(palette = "RdBu")
+p_venn_CH02_IDH2_R140Q
+
+# AML_04 IDH2_R172K
+cell_mut_scMut_AML04_IDH2_R172K <- retriveCellsByLocation(IDH_patient_CSM, "chr15_90088606_C_T")$Mut
+cell_mut_scMut_AML04_IDH2_R172K <- cell_mut_scMut_AML04_IDH2_R172K[grepl("AML_04", cell_mut_scMut_AML04_IDH2_R172K)]
+cell_mut_scGoT_AML04_IDH2_R172K <- IDH_meta %>% filter(donor.id == "AML-04" & IDH2_R172 == "MT") %>% pull(CellBarcode)
+
+venn_list_AML04_IDH2_R172K <- list(scMut = unique(cell_mut_scMut_AML04_IDH2_R172K), 
+                                   scGoT = unique(cell_mut_scGoT_AML04_IDH2_R172K))
+
+p_venn_AML04_IDH2_R172K <- ggVennDiagram(venn_list_AML04_IDH2_R172K, category.names = c("scMut", "scGoT")) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML04_IDH2_R172K
+
+p_benchmarking_summary <- ggplot(data = data_benchmarking_summary) + geom_point(mapping =  aes(x = mean_recall , y = mean_precision, color = muts), size = 10, show.legend = TRUE) +
+  scale_color_manual(values = genesColor) +
+  xlab("Recall") + ylab("Precision") + 
+  xlim(0, 1) +
+  ylim(0, 1) +
+  theme_classic() + 
+  theme(axis.title = element_text(size=20), axis.text.y = element_text(size=20),
+          axis.text.x = element_text(size=20), legend.text=element_text(size=15))
+
+p_benchmarking_summary
+
+pdf("../Figures/GoT/p_benchmarking.pdf", width = 6.18, height = 3.89)
+p_benchmarking
+dev.off()
+
+pdf("../Figures/GoT/p_benchmarking_summary.pdf", width = 6.18, height = 3.89)
+p_benchmarking_summary
+dev.off()
+
+pdf("../Figures/GoT/p_venn_CH02_IDH2_R140Q.pdf", width = 6.18, height = 3.89)
+p_venn_CH02_IDH2_R140Q
+dev.off()
+
+write.csv(data_benchmarking_res, "../Data/GoT/Benchmarking_data.csv")
+```
+
+# co mutation cells
+```{r coMutationCells}
+# fraction single mutation & co-mutant sites
+get_sample_targetMutCell <- function(IDH_patient_CSM, mutsite, sampleID){
+  cell_mut_scMut_tmp <- retriveCellsByLocation(IDH_patient_CSM, mutsite)$Mut
+  cell_mut_scMut_tmp_sample <- cell_mut_scMut_tmp[grepl(sampleID, cell_mut_scMut_tmp)]
+  return(cell_mut_scMut_tmp_sample)
+}
+
+# AML01 (0)
+# AML02 (IDH1_R132C, NRAS_G12D)
+cell_mut_scMut_AML02_Dx_IDH1 <- get_sample_targetMutCell(IDH_patient_CSM, "chr2_208248389_G_A", "AML_02_Dx")
+cell_mut_scMut_AML02_Dx_NRAS <- get_sample_targetMutCell(IDH_patient_CSM, "chr1_114716126_C_T", "AML_02_Dx")
+venn_list_AML02_Dx <- list(IDH1 = unique(cell_mut_scMut_AML02_Dx_IDH1), 
+                                     NRAS = unique(cell_mut_scMut_AML02_Dx_NRAS))
+p_venn_AML02_Dx <- ggVennDiagram(venn_list_AML02_Dx) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML02_Dx
+
+cell_mut_scMut_AML02_Post_IDH1 <- get_sample_targetMutCell(IDH_patient_CSM, "chr2_208248389_G_A", "AML_02_postTx")
+cell_mut_scMut_AML02_Post_NRAS <- get_sample_targetMutCell(IDH_patient_CSM, "chr1_114716126_C_T", "AML_02_postTx")
+venn_list_AML02_Post <- list(IDH1 = unique(cell_mut_scMut_AML02_Post_IDH1), 
+                                       NRAS = unique(cell_mut_scMut_AML02_Post_NRAS))
+p_venn_AML02_Post <- ggVennDiagram(venn_list_AML02_Post) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML02_Post
+
+
+# AML03 (0)
+# AML04 (IDH2_R172K, DNMT3A_M682R, SRSF2_P95L)
+cell_mut_scMut_AML04_Dx_IDH2   <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088606_C_T", "AML_04_Dx")
+cell_mut_scMut_AML04_Dx_DNMT3A <- get_sample_targetMutCell(IDH_patient_CSM, "chr2_25241599_A_C", "AML_04_Dx")
+cell_mut_scMut_AML04_Dx_SRSF2  <- get_sample_targetMutCell(IDH_patient_CSM, "chr17_76736877_G_A", "AML_04_Dx")
+
+venn_list_AML04_Dx <- list(IDH2 = unique(cell_mut_scMut_AML04_Dx_IDH2), 
+                                     DNMT3A = unique(cell_mut_scMut_AML04_Dx_DNMT3A),
+                                     SRSF2 = unique(cell_mut_scMut_AML04_Dx_SRSF2))
+
+p_venn_AML04_Dx <- ggVennDiagram(venn_list_AML04_Dx) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML04_Dx
+
+cell_mut_scMut_AML04_D28_IDH2   <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088606_C_T", "AML_04_postTxD28")
+cell_mut_scMut_AML04_D28_DNMT3A <- get_sample_targetMutCell(IDH_patient_CSM, "chr2_25241599_A_C", "AML_04_postTxD28")
+cell_mut_scMut_AML04_D28_SRSF2  <- get_sample_targetMutCell(IDH_patient_CSM, "chr17_76736877_G_A", "AML_04_postTxD28")
+
+venn_list_AML04_D28 <- list(IDH2 = unique(cell_mut_scMut_AML04_D28_IDH2), 
+                            DNMT3A = unique(cell_mut_scMut_AML04_D28_DNMT3A),
+                            SRSF2 = unique(cell_mut_scMut_AML04_D28_SRSF2))
+
+p_venn_AML04_D28 <- ggVennDiagram(venn_list_AML04_D28) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML04_D28
+
+cell_mut_scMut_AML04_D84_IDH2   <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088606_C_T", "AML_04_postTxD84")
+cell_mut_scMut_AML04_D84_DNMT3A <- get_sample_targetMutCell(IDH_patient_CSM, "chr2_25241599_A_C", "AML_04_postTxD84")
+cell_mut_scMut_AML04_D84_SRSF2  <- get_sample_targetMutCell(IDH_patient_CSM, "chr17_76736877_G_A", "AML_04_postTxD84")
+
+venn_list_AML04_D84 <- list(IDH2 = unique(cell_mut_scMut_AML04_D84_IDH2), 
+                            DNMT3A = unique(cell_mut_scMut_AML04_D84_DNMT3A),
+                            SRSF2 = unique(cell_mut_scMut_AML04_D84_SRSF2))
+
+p_venn_AML04_D84 <- ggVennDiagram(venn_list_AML04_D84) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML04_D84
+
+# AML05 (IDH2_R140Q, SRSF2_P95R)
+cell_mut_scMut_AML05_Dx_IDH2   <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088702_C_T", "AML_05_Dx")
+cell_mut_scMut_AML05_Dx_SRSF2  <- get_sample_targetMutCell(IDH_patient_CSM, "chr17_76736877_G_C", "AML_05_Dx")
+
+venn_list_AML05_Dx <- list(IDH2 = unique(cell_mut_scMut_AML05_Dx_IDH2), 
+                           SRSF2 = unique(cell_mut_scMut_AML05_Dx_SRSF2))
+
+p_venn_AML05_Dx <- ggVennDiagram(venn_list_AML05_Dx) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML05_Dx
+
+cell_mut_scMut_AML05_Post_IDH2   <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088702_C_T", "AML_05_postTx")
+cell_mut_scMut_AML05_Post_SRSF2  <- get_sample_targetMutCell(IDH_patient_CSM, "chr17_76736877_G_C", "AML_05_postTx")
+
+venn_list_AML05_Post <- list(IDH2 = unique(cell_mut_scMut_AML05_Post_IDH2), 
+                           SRSF2 = unique(cell_mut_scMut_AML05_Post_SRSF2))
+
+p_venn_AML05_Post <- ggVennDiagram(venn_list_AML05_Post) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML05_Post
+
+
+# AML06 (DNMT3A_R882C, IDH2_R140Q)
+cell_mut_scMut_AML06_Dx_IDH2    <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088702_C_T", "AML_06_Dx")
+cell_mut_scMut_AML06_Dx_DNMT3A  <- get_sample_targetMutCell(IDH_patient_CSM, "chr2_25234374_G_A", "AML_06_Dx")
+
+venn_list_AML06_Dx <- list(IDH2 = unique(cell_mut_scMut_AML06_Dx_IDH2), 
+                           DNMT3A = unique(cell_mut_scMut_AML06_Dx_DNMT3A))
+
+p_venn_AML06_Dx <- ggVennDiagram(venn_list_AML06_Dx) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML06_Dx
+
+cell_mut_scMut_AML06_Post_IDH2    <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088702_C_T", "AML_06_postTx")
+cell_mut_scMut_AML06_Post_DNMT3A  <- get_sample_targetMutCell(IDH_patient_CSM, "chr2_25234374_G_A", "AML_06_postTx")
+
+venn_list_AML06_Post <- list(IDH2 = unique(cell_mut_scMut_AML06_Post_IDH2), 
+                             DNMT3A = unique(cell_mut_scMut_AML06_Post_DNMT3A))
+
+p_venn_AML06_Post <- ggVennDiagram(venn_list_AML06_Post) + scale_fill_distiller(palette = "RdBu")
+p_venn_AML06_Post
+
+# CH02 (IDH2_R140Q, SRSF2_P95L)
+cell_mut_scMut_CH02_IDH2    <- get_sample_targetMutCell(IDH_patient_CSM, "chr15_90088702_C_T", "CH_02")
+cell_mut_scMut_CH02_SRSF2   <- get_sample_targetMutCell(IDH_patient_CSM, "chr17_76736877_G_C", "CH_02")
+
+venn_list_CH02_Dx <- list(IDH2 = unique(cell_mut_scMut_CH02_IDH2), 
+                          SRSF2 = unique(cell_mut_scMut_CH02_SRSF2))
+
+p_venn_CH02_Dx <- ggVennDiagram(venn_list_CH02_Dx) + scale_fill_distiller(palette = "RdBu")
+p_venn_CH02_Dx
+```
+
+# CellType
+```{r CellType}
+IDH_meta_AML <- IDH_meta[IDH_meta$donor.id %in% c("AML-01", "AML-02", "AML-03",
+                                                  "AML-04", "AML-05", "AML-06"),]
+
+IDH_meta_AML_Dx <- IDH_meta_AML[IDH_meta_AML$stage == "Dx",]
+IDH_meta_AML_Post <- IDH_meta_AML[IDH_meta_AML$stage == "postTx",]
+
+
+IDH_meta_CH <- IDH_meta[IDH_meta$donor.id %in% c("CH-01", "CH-02"),]
+
+color_setting_seurat <- c("B" = "#9F6214", "CD14_Mono" = "#76ABA3", "CD16_Mono" = "#8E6678",
+                          "CD4_T" = "#5C5F44", "CD8_T" = "#888E49", "cDC" = "#9796CA",
+                          "Ery" = "#CC630E", "GMP" = "#179095", "HSC" = "#19305F",
+                          "Macrophage" = "#82AFDE", "MEP" = "#BB3712", "MPP" = "#105B72",
+                          "NK" = "#AFC464", "pDC" = "#CFA489", "Plasma" = "#DBAFCF",
+                          "Platelet" = "#F6B9B6", "Progenitor_B" = "#EC8762", 
+                          "Progenitor_DC" = "#5A5985", "Stroma" = "#865E73")
+
+ggplot(IDH_meta_AML, mapping = aes(rpca_UMAP_1, rpca_UMAP_2, color = CellType)) +
+  geom_point(size = 1, alpha = 0.8) +
+  theme_classic() +
+  labs(x = "UMAP 1", y = "UMAP 2", color = "Cell Type") +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
+  )
+
+ggplot(IDH_meta_AML_Dx, mapping = aes(rpca_UMAP_1, rpca_UMAP_2, color = CellType)) +
+  geom_point(size = 1, alpha = 0.8) +
+  theme_classic() +
+  labs(x = "UMAP 1", y = "UMAP 2", color = "Cell Type") +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
+  )
+
+ggplot(IDH_meta_AML_Post, mapping = aes(rpca_UMAP_1, rpca_UMAP_2, color = CellType)) +
+  geom_point(size = 1, alpha = 0.8) +
+  theme_classic() +
+  labs(x = "UMAP 1", y = "UMAP 2", color = "Cell Type") +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
+  )
+
+ggplot(IDH_meta_CH, mapping = aes(rpca_UMAP_1, rpca_UMAP_2, color = CellType)) +
+  geom_point(size = 1, alpha = 0.8) +
+  theme_classic() +
+  labs(x = "UMAP 1", y = "UMAP 2", color = "Cell Type") +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
+  )
+
+set.seed(2025)
+
+IDH_meta_sub <- IDH_meta %>%
+  filter(donor.id %in% c("AML-01", "AML-02", "AML-03", "AML-04", "AML-05", "AML-06", "CH-01", "CH-02")) %>%
+  group_by(CellType) %>%
+  slice_sample(prop = 0.05) %>%
+  ungroup()
+
+p_seurat_cellType <- ggplot(IDH_meta_sub, mapping = aes(rpca_UMAP_1, rpca_UMAP_2, color = CellType)) +
+  geom_point(size = 1, alpha = 0.8) +
+  theme_classic() +
+  labs(x = "UMAP 1", y = "UMAP 2", color = "Cell Type") +
+  scale_color_manual(values = color_setting_seurat) +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8)
+  )
+
+p_seurat_cellType
+
+pdf("../Figures/GoT/p_seurat_cellType.pdf", width = 7.31, height = 6.18)
+p_seurat_cellType
+dev.off()
+```
+
+# CellTypespecificmutation
+```{r CellTypespecificmutation}
+IDH_meta_selected_columns <- IDH_meta %>% dplyr::select(CellBarcode, SampleIDQun, CellType)
+muts_all <- unique(IDH_patient_SSM$Location)
+mutCell_cutoff <- 30
+cellType_cutoff <- 30
+data_celltype_enrich <- data.frame()
+
+for (mut in muts_all){
+  all_sample_mutCells <- retriveCellsByLocation(IDH_patient_CSM, mut)$Mut
+  if (length(all_sample_mutCells) > 0){
+    IDH_meta_selected_columns_tmp <- IDH_meta_selected_columns[IDH_meta_selected_columns$CellBarcode %in% all_sample_mutCells,]
+    sampleIDs_tmp <- unique(IDH_meta_selected_columns_tmp$SampleIDQun)
+    celltypes_tmp <- unique(IDH_meta_selected_columns_tmp$CellType)
+    for (sampleID in sampleIDs_tmp){
+      # total cell of sampleID
+      cells_sample_all    <- IDH_meta[IDH_meta$SampleIDQun == sampleID,]
+      # total mutant cell of sampleID
+      cells_sample_allmut <- IDH_meta_selected_columns_tmp %>% filter(SampleIDQun == sampleID)
+      if(nrow(cells_sample_allmut) >= mutCell_cutoff){
+        for(celltype in celltypes_tmp){
+          # total cell of sampleID in celltype
+          cells_sample_celltype_all <- cells_sample_all[cells_sample_all$CellType == celltype,]
+          if (nrow(cells_sample_celltype_all) >= cellType_cutoff){
+            # total mutant cell of sampleID in celltype
+            cells_sample_celltype_targetmut <- cells_sample_allmut %>% filter(CellType == celltype)
+          
+            pvalue <- phyper(nrow(cells_sample_celltype_targetmut) - 1, nrow(cells_sample_celltype_all), 
+                      nrow(cells_sample_all) - nrow(cells_sample_celltype_all), nrow(cells_sample_allmut),lower.tail=F)
+            
+            result <- data.frame(mutsite = mut, SampleIDQun = sampleID,
+                                 type = celltype, p = pvalue,
+                                 mut.num = nrow(cells_sample_celltype_targetmut))
+            data_celltype_enrich <- rbind(data_celltype_enrich, result)
+          }
+        }
+      }
+    }
+  }
+}
+
+data_celltype_enrich$FDR <- p.adjust(data_celltype_enrich$p, method = "BH")
+data_celltype_enrich <- data_celltype_enrich %>% filter(FDR <= 0.05)
+
+IDH_sampleIDs_Day_df <- stack(IDH_sampleIDs_Day) %>%
+  dplyr::rename(SampleIDQun = values, sampleIDMerge = ind)
+
+data_celltype_enrich_mutate <- data_celltype_enrich %>%
+  mutate(
+    logFDR = -log10(FDR),
+    mutsite = factor(mutsite),
+    type = factor(type)
+  )
+
+data_celltype_enrich_mutate_new <- data_celltype_enrich_mutate %>%
+  dplyr::left_join(IDH_sampleIDs_Day_df, by = "SampleIDQun")
+
+meta_ann <- meta_ann <- IDH_patient_ANN %>%
+  dplyr::select(Mutation_hg38, Gene.refGene) %>%
+  dplyr::rename(mutsite = Mutation_hg38)
+
+data_celltype_enrich_mutate_gene <- data_celltype_enrich_mutate_new %>% left_join(meta_ann, by = "mutsite")
+
+data_celltype_enrich_mutate_gene$ID <- paste(data_celltype_enrich_mutate_gene$sampleIDMerge,
+                                            data_celltype_enrich_mutate_gene$mutsite,
+                                            data_celltype_enrich_mutate_gene$Gene.refGene,
+                                            sep = "_")
+
+all_FDR <- data_celltype_enrich_mutate_gene$FDR
+
+data_celltype_enrich_mutate_gene$bin <- cut(
+  all_FDR,
+  breaks = seq(min(all_FDR, na.rm = TRUE), max(all_FDR, na.rm = TRUE), length.out = 11),
+  include.lowest = TRUE,
+  labels = paste0("Bin", 1:10)
+)
+
+colors_setting_enrichMut <- c(
+  "Bin1" = "#67001f",
+  "Bin2" = "#b2182b",
+  "Bin3" = "#d6604d",
+  "Bin4" = "#f4a582",
+  "Bin5" = "#fddbc7",
+  "Bin6" = "#e0e0e0",
+  "Bin7" = "#bababa",
+  "Bin8" = "#878787",
+  "Bin9" = "#4d4d4d",
+  "Bin10" = "#1a1a1a"
+)
+
+p_celltype_enrich <- ggplot(data_celltype_enrich_mutate_gene, aes(x = ID, y = type)) +
+  #geom_point(aes(size = mut.num, color = bin)) +
+  geom_point(aes(color = bin)) +
+  #facet_wrap(~ sampleIDMerge, scales = "free_y") +
+  #scale_color_gradientn(colors = c("#bababa", "#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ca0020")) +
+  scale_color_manual(values = colors_setting_enrichMut) +
+  #scale_size(range = c(1, 2)) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold"),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    x = "Mutation site",
+    y = "Cell type",
+    color = "-log10(FDR)",
+    size = "Mutant cell number"
+  )
+
+p_celltype_enrich
+
+pdf("../Figures/GoT/p_celltype_Mutenrich.pdf", width = 17, height = 4.75)
+p_celltype_enrich
+dev.off()
+
+pdf("../Figures/GoT/p_celltype_Mutenrich_show.pdf", width = 8.56, height = 4.44)
+p_celltype_enrich
+dev.off()
+```
+# HealthyCellTypeSpecificMutation
+```{r HealthyCellTypeSpecificMutation}
+library(dplyr)
+IDH_meta_selected_columns <- IDH_meta %>% dplyr::select(CellBarcode, SampleIDQun, CellType)
+
+muts_healthy_all <- unique(IDH_healthy_SSM$Location)
+
+mutCell_cutoff <- 30
+cellType_cutoff <- 30
+data_celltype_healthy_enrich <- data.frame()
+
+for (mut in muts_healthy_all){
+  all_sample_mutCells <- retriveCellsByLocation(IDH_healthy_CSM, mut)$Mut
+  all_sample_mutCells <- gsub("LymphDepleted_|Live_", "", all_sample_mutCells)
+  if (length(all_sample_mutCells) > 0){
+    IDH_meta_selected_columns_tmp <- IDH_meta_selected_columns[IDH_meta_selected_columns$CellBarcode %in% all_sample_mutCells,]
+    sampleIDs_tmp <- unique(IDH_meta_selected_columns_tmp$SampleIDQun)
+    celltypes_tmp <- unique(IDH_meta_selected_columns_tmp$CellType)
+    for (sampleID in sampleIDs_tmp){
+      # total cell of sampleID
+      cells_sample_all    <- IDH_meta[IDH_meta$SampleIDQun == sampleID,]
+      # total mutant cell of sampleID
+      cells_sample_allmut <- IDH_meta_selected_columns_tmp %>% filter(SampleIDQun == sampleID)
+      if(nrow(cells_sample_allmut) >= mutCell_cutoff){
+        for(celltype in celltypes_tmp){
+          # total cell of sampleID in celltype
+          cells_sample_celltype_all <- cells_sample_all[cells_sample_all$CellType == celltype,]
+          if (nrow(cells_sample_celltype_all) >= cellType_cutoff){
+            # total mutant cell of sampleID in celltype
+            cells_sample_celltype_targetmut <- cells_sample_allmut %>% filter(CellType == celltype)
+          
+            pvalue <- phyper(nrow(cells_sample_celltype_targetmut) - 1, nrow(cells_sample_celltype_all), 
+                      nrow(cells_sample_all) - nrow(cells_sample_celltype_all), nrow(cells_sample_allmut),lower.tail=F)
+            
+            result <- data.frame(mutsite = mut, SampleIDQun = sampleID,
+                                 type = celltype, p = pvalue,
+                                 mut.num = nrow(cells_sample_celltype_targetmut))
+            data_celltype_healthy_enrich <- rbind(data_celltype_healthy_enrich, result)
+          }
+        }
+      }
+    }
+  }
+}
+
+data_celltype_healthy_enrich$FDR <- p.adjust(data_celltype_healthy_enrich$p, method = "BH")
+data_celltype_healthy_enrich <- data_celltype_healthy_enrich %>% filter(FDR <= 0.05)
+
+IDH_sampleIDs_Day_df <- stack(IDH_sampleIDs_Day) %>%
+  dplyr::rename(SampleIDQun = values, sampleIDMerge = ind)
+
+data_celltype_healthy_enrich_mutate <- data_celltype_healthy_enrich %>%
+  mutate(
+    logFDR = -log10(FDR),
+    mutsite = factor(mutsite),
+    type = factor(type)
+  )
+
+data_celltype_healthy_enrich_mutate_new <- data_celltype_healthy_enrich_mutate %>%
+  dplyr::left_join(IDH_sampleIDs_Day_df, by = "SampleIDQun")
+
+meta_healthy_ann <- IDH_healthy_ANN %>%
+  dplyr::select(Mutation_hg19, Gene.refGene) %>%
+  dplyr::rename(mutsite = Mutation_hg19)
+
+data_celltype_healthy_enrich_mutate_gene <- data_celltype_healthy_enrich_mutate_new %>% left_join(meta_healthy_ann, by = "mutsite")
+
+data_celltype_healthy_enrich_mutate_gene$ID <- paste(data_celltype_healthy_enrich_mutate_gene$SampleIDQun,
+                                            data_celltype_healthy_enrich_mutate_gene$mutsite,
+                                            data_celltype_healthy_enrich_mutate_gene$Gene.refGene,
+                                            sep = "_")
+
+all_FDR <- data_celltype_healthy_enrich_mutate_gene$FDR
+
+data_celltype_healthy_enrich_mutate_gene$bin <- cut(
+  all_FDR,
+  breaks = seq(min(all_FDR, na.rm = TRUE), max(all_FDR, na.rm = TRUE), length.out = 11),
+  include.lowest = TRUE,
+  labels = paste0("Bin", 1:10)
+)
+
+colors_setting_enrichMut <- c(
+  "Bin1" = "#67001f",
+  "Bin2" = "#b2182b",
+  "Bin3" = "#d6604d",
+  "Bin4" = "#f4a582",
+  "Bin5" = "#fddbc7",
+  "Bin6" = "#e0e0e0",
+  "Bin7" = "#bababa",
+  "Bin8" = "#878787",
+  "Bin9" = "#4d4d4d",
+  "Bin10" = "#1a1a1a"
+)
+
+p_celltype_healthy_enrich <- ggplot(data_celltype_healthy_enrich_mutate_gene, aes(x = ID, y = type)) +
+  #geom_point(aes(size = mut.num, color = bin)) +
+  geom_point(aes(color = bin)) +
+  #facet_wrap(~ sampleIDMerge, scales = "free_y") +
+  #scale_color_gradientn(colors = c("#bababa", "#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ca0020")) +
+  scale_color_manual(values = colors_setting_enrichMut) +
+  #scale_size(range = c(1, 2)) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold"),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    x = "Mutation site",
+    y = "Cell type",
+    color = "-log10(FDR)",
+    size = "Mutant cell number"
+  )
+
+p_celltype_healthy_enrich
+
+pdf("../Figures/GoT/p_celltype_healthy_enrich.pdf", width = 5.485714, height = 4.75)
+p_celltype_healthy_enrich
+dev.off()
+```
+
+# allEnrichCelltype
+```{r allEnrichCelltype}
+data_celltype_patient_healthy_enrich <- rbind(data_celltype_enrich_mutate_gene, data_celltype_healthy_enrich_mutate_gene)
+
+p_data_celltype_patient_healthy_enrich <- ggplot(data_celltype_patient_healthy_enrich, aes(x = ID, y = type)) +
+  geom_point(aes(color = bin)) +
+  scale_color_manual(values = colors_setting_enrichMut) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold"),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    x = "Mutation site",
+    y = "Cell type",
+    color = "-log10(FDR)",
+    size = "Mutant cell number"
+  )
+
+ggsave("../Figures/p_data_celltype_patient_healthy_enrich.pdf", width = 9.96, height = 4.53)
+```
+
+
+# showAllMutWithoutCellNumLimitation
+```{r showAllMutWithoutCellNumLimitation}
+# Patients
+IDH_meta_selected_columns <- IDH_meta %>% dplyr::select(CellBarcode, SampleIDQun, CellType)
+muts_all <- unique(IDH_patient_SSM$Location)
+mutCell_cutoff <- 5
+cellType_cutoff <- 5
+data_celltype_patient_enrich_all <- data.frame()
+
+for (mut in muts_all){
+  all_sample_mutCells <- retriveCellsByLocation(IDH_patient_CSM, mut)$Mut
+  if (length(all_sample_mutCells) > 0){
+    IDH_meta_selected_columns_tmp <- IDH_meta_selected_columns[IDH_meta_selected_columns$CellBarcode %in% all_sample_mutCells,]
+    sampleIDs_tmp <- unique(IDH_meta_selected_columns_tmp$SampleIDQun)
+    celltypes_tmp <- unique(IDH_meta_selected_columns_tmp$CellType)
+    for (sampleID in sampleIDs_tmp){
+      # total cell of sampleID
+      cells_sample_all    <- IDH_meta[IDH_meta$SampleIDQun == sampleID,]
+      # total mutant cell of sampleID
+      cells_sample_allmut <- IDH_meta_selected_columns_tmp %>% filter(SampleIDQun == sampleID)
+      if(nrow(cells_sample_allmut) >= mutCell_cutoff){
+        for(celltype in celltypes_tmp){
+          # total cell of sampleID in celltype
+          cells_sample_celltype_all <- cells_sample_all[cells_sample_all$CellType == celltype,]
+          if (nrow(cells_sample_celltype_all) >= cellType_cutoff){
+            # total mutant cell of sampleID in celltype
+            cells_sample_celltype_targetmut <- cells_sample_allmut %>% filter(CellType == celltype)
+          
+            pvalue <- phyper(nrow(cells_sample_celltype_targetmut) - 1, nrow(cells_sample_celltype_all), 
+                      nrow(cells_sample_all) - nrow(cells_sample_celltype_all), nrow(cells_sample_allmut),lower.tail=F)
+            
+            result <- data.frame(mutsite = mut, SampleIDQun = sampleID,
+                                 type = celltype, p = pvalue,
+                                 mut.num = nrow(cells_sample_celltype_targetmut))
+            data_celltype_patient_enrich_all <- rbind(data_celltype_patient_enrich_all, result)
+          }
+        }
+      }
+    }
+  }
+}
+
+data_celltype_patient_enrich_all$FDR <- p.adjust(data_celltype_patient_enrich_all$p, method = "BH")
+data_celltype_patient_enrich_all <- data_celltype_patient_enrich_all %>% filter(FDR <= 0.05)
+
+# Healthy
+muts_healthy_all <- unique(IDH_healthy_SSM$Location)
+
+mutCell_cutoff <- 5
+cellType_cutoff <- 5
+data_celltype_healthy_enrich_all <- data.frame()
+
+for (mut in muts_healthy_all){
+  all_sample_mutCells <- retriveCellsByLocation(IDH_healthy_CSM, mut)$Mut
+  all_sample_mutCells <- gsub("LymphDepleted_|Live_", "", all_sample_mutCells)
+  if (length(all_sample_mutCells) > 0){
+    IDH_meta_selected_columns_tmp <- IDH_meta_selected_columns[IDH_meta_selected_columns$CellBarcode %in% all_sample_mutCells,]
+    sampleIDs_tmp <- unique(IDH_meta_selected_columns_tmp$SampleIDQun)
+    celltypes_tmp <- unique(IDH_meta_selected_columns_tmp$CellType)
+    for (sampleID in sampleIDs_tmp){
+      # total cell of sampleID
+      cells_sample_all    <- IDH_meta[IDH_meta$SampleIDQun == sampleID,]
+      # total mutant cell of sampleID
+      cells_sample_allmut <- IDH_meta_selected_columns_tmp %>% filter(SampleIDQun == sampleID)
+      if(nrow(cells_sample_allmut) >= mutCell_cutoff){
+        for(celltype in celltypes_tmp){
+          # total cell of sampleID in celltype
+          cells_sample_celltype_all <- cells_sample_all[cells_sample_all$CellType == celltype,]
+          if (nrow(cells_sample_celltype_all) >= cellType_cutoff){
+            # total mutant cell of sampleID in celltype
+            cells_sample_celltype_targetmut <- cells_sample_allmut %>% filter(CellType == celltype)
+          
+            pvalue <- phyper(nrow(cells_sample_celltype_targetmut) - 1, nrow(cells_sample_celltype_all), 
+                      nrow(cells_sample_all) - nrow(cells_sample_celltype_all), nrow(cells_sample_allmut),lower.tail=F)
+            
+            result <- data.frame(mutsite = mut, SampleIDQun = sampleID,
+                                 type = celltype, p = pvalue,
+                                 mut.num = nrow(cells_sample_celltype_targetmut))
+            data_celltype_healthy_enrich_all <- rbind(data_celltype_healthy_enrich_all, result)
+          }
+        }
+      }
+    }
+  }
+}
+
+data_celltype_healthy_enrich_all$FDR <- p.adjust(data_celltype_healthy_enrich_all$p, method = "BH")
+data_celltype_healthy_enrich_all <- data_celltype_healthy_enrich_all %>% filter(FDR <= 0.05)
+```
+
+# GO 
+```{r GO}
+# backgroud genes
+# GSE230559_sirenko_CSC_2025_final_object.rds was download from geo page
+# data_obj <- readRDS("GSE230559_sirenko_CSC_2025_final_object.rds")
+# obj_subset <- subset(
+#  data_obj,
+#  subset = donor.id %in% c("AML-01", "AML-02", "AML-03",
+#   "AML-04", "AML-05", "AML-06", "CH-01", "CH-02", "Donor-02-PB",
+#   "Donor-03-BM", "Donor-04-BM")
+# )
+# mat <- GetAssayData(obj_subset, slot = "data")
+# gene_means <- rowMeans(mat)
+# genes_high <- names(gene_means[gene_means > 0])
+
+genes_background <- unique(read.csv("../Data/GoT/genes_high.csv", header = T)$geneSymbol)
+
+AML_sites <- IDH_patient_SSM[rowSums(IDH_patient_SSM[, c("AML_01_Dx_Blasts", "AML_01_Dx_LymphDepleted", "AML_01_postTx_LymphDepleted",
+                                                      "AML_02_Dx_Blasts", "AML_02_Dx_LymphDepleted", "AML_02_postTx_LymphDepleted",
+                                                      "AML_03_Dx_LymphDepleted", "AML_03_postTx_LymphDepleted",
+                                                      "AML_04_Dx_LymphDepleted", "AML_04_postTxD28_Live", "AML_04_postTxD28_LymphDepleted", "AML_04_postTxD84_Live",
+                                                      "AML_05_Dx_LymphDepleted", "AML_05_postTx_Live",
+                                                      "AML_06_Dx_LymphDepleted", "AML_06_postTx_Live")] == "Mut") > 0, ] %>% pull(Location)
+
+CH_sites <- IDH_patient_SSM[rowSums(IDH_patient_SSM[, c("CH_01_01", "CH_01_02", "CH_02")] == "Mut") > 0, ] %>% pull(Location)
+
+enrich.go_patient <- enrichGO(gene = unique(IDH_patient_ANN$Gene.refGene),
+                      universe = genes_background,
+                      OrgDb = 'org.Hs.eg.db',  
+                      keyType = 'SYMBOL',  
+                      ont = 'ALL', 
+                      pAdjustMethod = 'fdr',
+                      pvalueCutoff = 0.5,
+                      readable = TRUE)
+
+enrich.go_patientAML <- enrichGO(gene = unique(IDH_patient_ANN[IDH_patient_ANN$Mutation_hg38 %in% AML_sites,]$Gene.refGene),
+                      universe = genes_background,
+                      OrgDb = 'org.Hs.eg.db',  
+                      keyType = 'SYMBOL',  
+                      ont = 'ALL', 
+                      pAdjustMethod = 'fdr',
+                      pvalueCutoff = 0.5,
+                      readable = TRUE)
+
+enrich.go_patientCH <- enrichGO(gene = unique(IDH_patient_ANN[IDH_patient_ANN$Mutation_hg38 %in% CH_sites,]$Gene.refGene),
+                      universe = genes_background,
+                      OrgDb = 'org.Hs.eg.db',  
+                      keyType = 'SYMBOL',  
+                      ont = 'ALL', 
+                      pAdjustMethod = 'fdr',
+                      pvalueCutoff = 0.5,
+                      readable = TRUE)
+
+enrich.go_healthy <- enrichGO(gene = unique(IDH_healthy_ANN$Gene.refGene),
+                      universe = genes_background,
+                      OrgDb = 'org.Hs.eg.db',  
+                      keyType = 'SYMBOL',  
+                      ont = 'ALL', 
+                      pAdjustMethod = 'fdr',
+                      pvalueCutoff = 0.5,
+                      readable = TRUE)
+
+
+enrich_results_patient    <- as.data.frame(enrich.go_patient) %>% filter(ONTOLOGY == "BP" &  p.adjust <= 0.05) %>% arrange(desc(Count))
+enrich_results_patientAML <- as.data.frame(enrich.go_patientAML) %>% filter(ONTOLOGY == "BP" & p.adjust <= 0.05) %>% arrange(desc(Count))
+enrich_results_patientCH  <- as.data.frame(enrich.go_patientCH) %>% filter(ONTOLOGY == "BP" & pvalue <= 0.05) %>% arrange(desc(Count))
+enrich_results_healthy <- as.data.frame(enrich.go_healthy) %>% filter(ONTOLOGY == "BP" & pvalue <= 0.05) %>% arrange(desc(Count))
+
+enrich_results_patient$type <- "patient"
+enrich_results_healthy$type <- "healthy"
+
+# remove dup ids
+goids_patient <- c("GO:0032870", "GO:0007264", "GO:1901652",
+                   "GO:0051249", "GO:0019439", "GO:0002757",
+                   "GO:1903706", "GO:0030099", "GO:0030522",
+                   "GO:1902105")
+
+# healthy only one record
+goids_healthy <- c("GO:0071901")
+
+enrich_results_patient_healthy <- rbind(enrich_results_patient[enrich_results_patient$ID %in% goids_patient,],
+                                        enrich_results_healthy[enrich_results_healthy$ID %in% goids_healthy])
+
+enrich_results_patient_healthy <- rbind(enrich_results_patient,
+                                        enrich_results_healthy)
+
+p_go_mut_patient_healthy_results_top10 <- ggplot(enrich_results_patient_healthy, aes(x = reorder(Description, Count), y = Count)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  coord_flip() +
+  geom_text(aes(label = Count), hjust = -0.1, size = 4, color = "black") +
+  labs(
+    x = "GO Term",
+    y = "Gene Count",
+    title = "Top 10 (patient and healthy)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 14, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    legend.position = "none",
+    panel.grid.major.y = element_blank()
+  ) +
+  ylim(0, max(enrich_results_patient_healthy$Count)*1.15)
+
+p_go_mut_patient_healthy_results_top10
+
+pdf("../Figures/GoT/p_go_mut_patient_healthy_results_top10.pdf", width = 8.55, height = 3.74)
+p_go_mut_patient_healthy_results_top10
+dev.off()
+
+# save go terms
+write.csv(enrich_results_patientAML, "../Results/enrich_results_patientAML.csv", quote = F)
+write.csv(enrich_results_patientCH, "../Results/enrich_results_patientCH.csv", quote = F)
+write.csv(enrich_results_healthy, "../Results/enrich_results_healthy.csv", quote = F)
+```
+
+# plot GO
+```{r plotGO}
+enrich_results_patientAML <- read.csv("../Results/enrich_results_patientAML.csv")
+enrich_results_patientCH <-  read.csv("../Results/enrich_results_patientCH.csv")
+enrich_results_healthy <-  read.csv("../Results/enrich_results_healthy.csv")
+
+enrich_results_patientAML$type <- "AML"
+enrich_results_patientCH$type <- "CH"
+enrich_results_healthy$type <- "Healthy"
+selected_columns <- c("ID", "Description", "GeneRatio", "BgRatio", "pvalue", "p.adjust", "qvalue", "geneID", "Count", "type")
+
+enrich_results_patientAML_selected <- enrich_results_patientAML[enrich_results_patientAML$ID %in% c("GO:0071375", "GO:1903706", "GO:1902105", "GO:0090263", "GO:0030099", "GO:0033032", "GO:1903131", "GO:0051249", "GO:0046637", "GO:0141193"), selected_columns]
+enrich_results_patientCH_selected <- enrich_results_patientCH[enrich_results_patientCH$ID %in% c("GO:1903311", "GO:0043484", "GO:0050684"), selected_columns]
+enrich_results_healthy_selected <- enrich_results_healthy[enrich_results_healthy$ID %in% c("GO:0044843", "GO:0043086", "GO:0031053"), selected_columns]
+
+enrich_results_merged <- rbind(enrich_results_patientAML_selected,
+                                 enrich_results_patientCH_selected,
+                                 enrich_results_healthy_selected)
+
+p_go_mut_patient_healthy_results_top10 <- ggplot(enrich_results_merged, aes(x = reorder(Description, -log2(pvalue)), y = -log2(pvalue), fill = type)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  coord_flip() +
+  labs(
+    x = "GO Term",
+    y = "-log2(pvalue)",
+    title = "Top 10 (patient and healthy)"
+  ) +
+  scale_fill_manual(
+    values = c(
+      AML = "#ff7f00",
+      CH = "#33a02c",
+      Healthy = "#6a3d9a"
+    )) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 14, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    legend.position = "none",
+    panel.grid.major.y = element_blank()
+  )
+
+pdf("../Figures/GoT/p_go_mut_patient_healthy_results_top10.pdf", width = 8.55, height = 3.74)
+p_go_mut_patient_healthy_results_top10
+dev.off()
+```
+
+# sessionInfo
+```{r sessionInfo}
+sessionInfo()
+```
+
+
+
+
+
+
+
+
+
+
+

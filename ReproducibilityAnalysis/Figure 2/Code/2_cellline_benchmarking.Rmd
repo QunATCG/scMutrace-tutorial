@@ -1,0 +1,396 @@
+---
+title: cellline benchmarking
+author: Qun Li
+date: 18 Aug 2025 at 15:50:59
+output:
+  pdf_document: 
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Env
+```{r env}
+rm(list = ls())
+setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure2/")
+```
+
+# Libraries
+```{r libraries}
+library(pheatmap)
+library(ggplot2)
+library(circlize)
+library(dplyr)
+library(Seurat)
+library(ComplexHeatmap)
+```
+
+# Load Data
+```{r loadData}
+cellLine_database <- readRDS("../Data/CellLine_Database_res.rds")
+cellLine_mutation <- readRDS("../Data/CellLine_Mutation_res.rds")
+cellLine_annotation <- read.csv("../Data/CellLine_Annotation.csv", header = T, row.names = 1)
+# remove KPL1 (SNP fingerprinting confirms that this line is an MCF-7 derivative. DepMap metadata has been updated (as of 22Q2) to reflect this.)
+cellLine_annotation <- cellLine_annotation[!cellLine_annotation$cellLineName %in% c("KPL1"),]
+
+cellLine_mutation$MCF7_MayC9 <- cellLine_mutation$MCF7_MayC9 %>%
+  mutate(position_cor = sub("_[ACGT]+_[ACGT]+$", "", position_cor))
+cellLine_mutation$MCF7_NovC9 <- cellLine_mutation$MCF7_NovC9 %>%
+  mutate(position_cor = sub("_[ACGT]+_[ACGT]+$", "", position_cor))
+cellLine_mutation$MCF7_Parental <- cellLine_mutation$MCF7_Parental %>%
+  mutate(position_cor = sub("_[ACGT]+_[ACGT]+$", "", position_cor))
+cellLine_mutation$MCF7_WT3 <- cellLine_mutation$MCF7_WT3 %>%
+  mutate(position_cor = sub("_[ACGT]+_[ACGT]+$", "", position_cor))
+cellLine_mutation$MCF7_WT4 <- cellLine_mutation$MCF7_WT4 %>%
+  mutate(position_cor = sub("_[ACGT]+_[ACGT]+$", "", position_cor))
+cellLine_mutation$MCF7_WT5 <- cellLine_mutation$MCF7_WT5 %>%
+  mutate(position_cor = sub("_[ACGT]+_[ACGT]+$", "", position_cor))
+```
+
+# processing
+```{r processing}
+ann_data_new = data.frame(Groups=cellLine_annotation$ann)
+rownames(ann_data_new) <- rownames(cellLine_annotation)
+ann_colors = list(Groups = c(Bone="black", Breast="#ff7f00", Cervix = "#33a02c", Stomach = "#cab2d6",
+                             Liver = "#a6cee3", Lung = "#e31a1c", Kidney = "#6a3d9a",
+                             Skin = "#b15928", Brain = "#fdbf6f", Normal = "#ffff99"))
+
+data_cell_lines <- do.call("rbind", cellLine_database)
+# remove KPL1 (SNP fingerprinting confirms that this line is an MCF-7 derivative. DepMap metadata has been updated (as of 22Q2) to reflect this.)
+data_cell_lines <- data_cell_lines[!data_cell_lines$cellLineName %in% c("KPL1"),]
+
+
+data_scMut_lines <- do.call("rbind", cellLine_mutation)
+
+scMut_lines <- unique(data_scMut_lines$cellLineName)
+cellLine_Names <- unique(data_cell_lines$cellLineName)
+
+data_sim_scmut <- as.data.frame(matrix(nrow = length(scMut_lines), ncol = length(cellLine_Names)))
+rownames(data_sim_scmut) <- scMut_lines
+colnames(data_sim_scmut) <- cellLine_Names
+
+for (i in 1:length(cellLine_Names)){
+  cellLine_name_tmp <- colnames(data_sim_scmut)[i]
+  cellLine_name_tmp_pos <- data_cell_lines[data_cell_lines$cellLineName == cellLine_name_tmp,]$position_cor
+  for(j in 1:length(scMut_lines)){
+    scLine_name_tmp <- rownames(data_sim_scmut)[j]
+    scmut_pos <- data_scMut_lines[data_scMut_lines$cellLineName == scLine_name_tmp,]$position_cor
+    score_tmp <- length(intersect(scmut_pos, cellLine_name_tmp_pos)) / length(union(scmut_pos, cellLine_name_tmp_pos))
+    data_sim_scmut[j, i] <- score_tmp
+  }
+}
+
+data_scaled <- t(scale(t(as.matrix(data_sim_scmut))))
+
+row_names_order <- c("KATOIII", "HGC1", "HGC2", "NCIN87", "SNU161", "SNU162", "NUGC4",
+                       "SNU638", "MKN45", "SNU601_ATAC", "SNU601_RNA", "SNU668",
+                    "MCF7_Parental",  "MCF7_WT3", "MCF7_WT4", "MCF7_WT5", "MCF7_MayC9", "MCF7_NovC9")
+
+data_scaled <- data_scaled[row_names_order,]
+
+max_val <- max(data_scaled)
+min_val <- min(data_scaled)
+breaks <- seq(min_val, max_val, length.out = 4)
+
+col_fun_v1 <- circlize::colorRamp2(
+  breaks,
+  c("#404040", "#bababa", "#f4a582", "#ca0020")
+)
+
+p_total <- pheatmap(data_scaled, 
+                    cluster_rows = FALSE, cluster_cols = FALSE, 
+                    annotation_col = ann_data_new, 
+                    annotation_colors = ann_colors, 
+                    color = col_fun_v1,
+                   cellheight = 20, cellwidth = 0.5, show_colnames = FALSE)
+
+p_total
+```
+
+```{r saveTotal}
+pdf("../Figures/p_cellLines_total.pdf", width = 9.48, height = 7.0)
+p_total
+dev.off()
+```
+
+# selectedCelllines
+```{r simscMutCellLineSelected}
+marked_celllines <- c("HGC27", "KATOIII", "MKN45","NCIN87", "NUGC4", "SNU16","SNU601", "SNU638", "SNU668")
+
+normalCellLines <- unique(cellLine_database$Normal$cellLineName)
+
+stomachCellLines <- unique(cellLine_database$Stomach$cellLineName)[unique(cellLine_database$Stomach$cellLineName) %in% marked_celllines]
+
+selected_cellLines <- c("A549", "JHU028", "LK2",
+                        "NOS1", "CHLA10", "U251MG", "U251MGDM", "MCF7", "T47D",
+                        "HELA", "HOKUG", "786O", "ACHN", "HEPG2", "HUH7",
+                        "SKMEL5", "MEWO", 
+                        #"SKGT2","HGC27", "KATOIII", "MKN45","NCIN87", "NUGC4", "SNU16","SNU601", "SNU638", "SNU668",
+                        normalCellLines, stomachCellLines)
+
+ann_data_new = data.frame(Groups=cellLine_annotation$ann)
+
+rownames(ann_data_new) <- rownames(cellLine_annotation)
+
+ann_colors = list(Groups = c(Bone="black", Breast="#ff7f00", Cervix = "#33a02c", Stomach = "#cab2d6",
+                             Liver = "#a6cee3", Lung = "#e31a1c", Kidney = "#6a3d9a",
+                             Skin = "#b15928", Brain = "#fdbf6f", Normal = "#ffff99"))
+
+data_sim_scmut_selected <- as.data.frame(matrix(nrow = length(scMut_lines), ncol = length(selected_cellLines)))
+rownames(data_sim_scmut_selected) <- scMut_lines
+colnames(data_sim_scmut_selected) <- selected_cellLines
+
+
+for (i in 1:length(selected_cellLines)){
+  cellLine_name_tmp <- colnames(data_sim_scmut_selected)[i]
+  cellLine_name_tmp_pos <- data_cell_lines[data_cell_lines$cellLineName == cellLine_name_tmp,]$position_cor
+  for(j in 1:length(scMut_lines)){
+    scLine_name_tmp <- rownames(data_sim_scmut_selected)[j]
+    scmut_pos <- data_scMut_lines[data_scMut_lines$cellLineName == scLine_name_tmp,]$position_cor
+    score_tmp <- length(intersect(scmut_pos, cellLine_name_tmp_pos)) / length(union(scmut_pos, cellLine_name_tmp_pos))
+    data_sim_scmut_selected[j, i] <- score_tmp
+  }
+}
+
+data_scaled_selected <- t(scale(t(as.matrix(data_sim_scmut_selected))))
+
+data_scaled_selected <- data_scaled_selected[row_names_order,]
+
+max_val <- max(data_scaled_selected)
+min_val <- min(data_scaled_selected)
+breaks <- seq(min_val, max_val, length.out = 4)
+
+col_fun_v1 <- circlize::colorRamp2(
+  breaks,
+  c("#404040", "#bababa", "#f4a582", "#ca0020")
+)
+
+p_selected <- Heatmap(data_scaled_selected,
+        name = "score",
+        col = col_fun_v1,
+        cluster_rows = FALSE,
+        cluster_columns = FALSE,
+        show_column_names = TRUE,
+        row_names_side = "left",
+        column_names_side = "bottom")
+
+p_selected
+
+pdf("../Figures/p_cellLines_selected.pdf", width = 9.08, height = 3.89)
+p_selected
+dev.off()
+```
+# MCF7MutSim
+```{r MCF7MutSim}
+MCF7_colnames <- c("MCF7_MayC9", "MCF7_NovC9", "MCF7_Parental", "MCF7_WT3", "MCF7_WT4", "MCF7_WT5")
+data_sim_scmut_MCF7 <- as.data.frame(matrix(nrow = length(MCF7_colnames), ncol = length(MCF7_colnames)))
+rownames(data_sim_scmut_MCF7) <- MCF7_colnames
+colnames(data_sim_scmut_MCF7) <- MCF7_colnames
+
+
+for (i in 1:length(MCF7_colnames)){
+  cellLine_name_tmp <- colnames(data_sim_scmut_MCF7)[i]
+  cellLine_name_tmp_pos <- data_scMut_lines[data_scMut_lines$cellLineName == cellLine_name_tmp,]$position_cor
+  for(j in 1:length(MCF7_colnames)){
+    scLine_name_tmp <- rownames(data_sim_scmut_MCF7)[j]
+    scmut_pos <- data_scMut_lines[data_scMut_lines$cellLineName == scLine_name_tmp,]$position_cor
+    score_tmp <- length(intersect(scmut_pos, cellLine_name_tmp_pos)) / length(union(scmut_pos, cellLine_name_tmp_pos))
+    data_sim_scmut_MCF7[j, i] <- score_tmp
+  }
+}
+
+data_scaled_MCF7 <- t(scale(t(as.matrix(data_sim_scmut_MCF7))))
+
+max_val <- max(data_sim_scmut_MCF7)
+min_val <- min(data_sim_scmut_MCF7)
+breaks <- seq(min_val, max_val, length.out = 4)
+
+col_fun_v1 <- circlize::colorRamp2(
+  breaks,
+  c("#404040", "#bababa", "#f4a582", "#ca0020")
+)
+
+p_selected_MCF7 <- Heatmap(data_sim_scmut_MCF7,
+        name = "score",
+        col = col_fun_v1,
+        cluster_rows = TRUE,
+        cluster_columns = TRUE,
+        show_column_names = TRUE,
+        row_names_side = "left",
+        column_names_side = "bottom")
+
+p_selected_MCF7
+
+pdf("../Figures/p_selected_MCF7.pdf", width = 5.4, height = 5.4)
+p_selected_MCF7
+dev.off()
+```
+
+# How to generate MCF7_merge_exp.rds
+```{r generateMCF7ExpSim, eval=FALSE}
+# load data
+MCF7_Parental <- Read10X("../data/exp/MCF7_Parent/") # note the folder name is "MCF7_Parent", output of cell ranger
+MCF7_WT3 <- Read10X("../data/exp/MCF7_WT3/") # note the folder name is "MCF7_WT3", output of cell ranger
+MCF7_WT4 <- Read10X("../data/exp/MCF7_WT4/") # note the folder name is "MCF7_WT4", output of cell ranger
+MCF7_WT5 <- Read10X("../data/exp/MCF7_WT5/") # note the folder name is "MCF7_WT5", output of cell ranger
+
+MCF7_May <- Read10X("../data/exp/MCF7_MayC9/") # note the folder name is "MCF7_MayC9", output of cell ranger
+MCF7_Nov <- Read10X("../data/exp/MCF7_NovC9/") # note the folder name is "MCF7_NovC9", output of cell ranger
+
+MCF7_Parental <- CreateSeuratObject(MCF7_Parental, project = "MCF7_Parental")
+MCF7_WT3 <- CreateSeuratObject(MCF7_WT3, project = "MCF7_WT3")
+MCF7_WT4 <- CreateSeuratObject(MCF7_WT4, project = "MCF7_WT4")
+MCF7_WT5 <- CreateSeuratObject(MCF7_WT5, project = "MCF7_WT5")
+
+MCF7_May <- CreateSeuratObject(MCF7_May, project = "MCF7_May")
+MCF7_Nov <- CreateSeuratObject(MCF7_Nov, project = "MCF7_Nov")
+# filter 
+# Cells with either <1,000 detected genes or >0.15 mitochondrial fraction were excluded from further analysis.
+# Finally, the resulting expression matrix was filtered to remove genes detected in <3 cells.
+filter_scRNA_sample <- function(obj, 
+                                min_genes = 1000, 
+                                max_mt = 15, 
+                                min_cells_per_gene = 3,
+                                mt_pattern = "^MT-") {
+  
+  stopifnot("Seurat" %in% class(obj))
+  
+  obj[["percent.mt"]] <- PercentageFeatureSet(obj, pattern = mt_pattern)
+  
+  obj <- subset(obj, subset = nFeature_RNA >= min_genes & percent.mt <= max_mt)
+  
+  counts_mat <- GetAssayData(obj, assay = "RNA", slot = "counts")
+  
+  gene_filter <- Matrix::rowSums(counts_mat > 0) >= min_cells_per_gene
+  
+  obj <- obj[which(gene_filter), ]
+  
+  return(obj)
+}
+
+MCF7_Parental <- filter_scRNA_sample(MCF7_Parental)
+MCF7_WT3 <- filter_scRNA_sample(MCF7_WT3)
+MCF7_WT4 <- filter_scRNA_sample(MCF7_WT4)
+MCF7_WT5 <- filter_scRNA_sample(MCF7_WT5)
+MCF7_May <- filter_scRNA_sample(MCF7_May)
+MCF7_Nov <- filter_scRNA_sample(MCF7_Nov)
+
+MCF7_Parental$sample <- "Parental"
+MCF7_WT3$sample <- "WT3"
+MCF7_WT4$sample <- "WT4"
+MCF7_WT5$sample <- "WT5"
+MCF7_May$sample <- "May"
+MCF7_Nov$sample <- "Nov"
+
+# merge
+MCF7_Merge <- merge(MCF7_Parental, y = c(MCF7_WT3, MCF7_WT4, MCF7_WT5, MCF7_May, MCF7_Nov), add.cell.ids = c("Parental", "WT3", "WT4", "WT5", "May", "Nov"), project = "MCF7_merge")
+
+MCF7_Merge <- NormalizeData(MCF7_Merge)
+MCF7_Merge <- FindVariableFeatures(MCF7_Merge)
+MCF7_Merge <- ScaleData(MCF7_Merge)
+MCF7_Merge <- RunPCA(MCF7_Merge)
+MCF7_Merge <- RunUMAP(MCF7_Merge, dims = 1:20)
+MCF7_Merge <- RunTSNE(MCF7_Merge, dims = 1:20)
+
+my_colors <- c(
+  "May"     = "#D73027",
+  "Nov"     = "#FC8D59",
+  "Parental"  = "#7F7F7F",
+  "WT3"       = "#4575B4",
+  "WT4"       = "#74ADD1",
+  "WT5"       = "#ABD9E9"
+)
+
+DimPlot(
+  MCF7_Merge,
+  group.by = "sample",
+  cols = my_colors,
+  reduction = "umap",
+) +
+  ggtitle("UMAP of MCF7 samples") +
+  theme_classic(base_size = 14)
+
+DimPlot(
+  MCF7_Merge,
+  group.by = "sample",
+  cols = my_colors,
+  reduction = "tsne",
+) +
+  ggtitle("tsne of MCF7 samples") +
+  theme_classic(base_size = 14)
+s
+```
+
+# MCF7ExpSim
+```{r MCF7ExpSim}
+MCF7_exp <- readRDS("../Data/MCF7_merge_exp.rds")
+
+my_colors <- c(
+  "May"       = "#D73027",
+  "Nov"       = "#FC8D59",
+  "Parental"  = "#7F7F7F",
+  "WT3"       = "#4575B4",
+  "WT4"       = "#74ADD1",
+  "WT5"       = "#ABD9E9"
+)
+
+p_dimplot <- DimPlot(
+  MCF7_exp,
+  group.by = "sample",
+  cols = my_colors,
+  reduction = "tsne") + ggtitle("TSNE of MCF7 samples") + theme_classic()
+
+# distance
+pca_data <- Embeddings(MCF7_exp, "pca")[, 1:20]
+
+meta <- MCF7_exp@meta.data
+avg_pca <- as.data.frame(pca_data) %>%
+  mutate(group = meta$orig.ident) %>%
+  group_by(group) %>%
+  summarise(across(everything(), mean))
+
+dist_mat <- dist(avg_pca[,-1])
+dist_mat <- as.matrix(dist_mat)
+rownames(dist_mat) <- avg_pca$group
+colnames(dist_mat) <- avg_pca$group
+
+max_val <- max(dist_mat)
+min_val <- min(dist_mat)
+breaks <- seq(min_val, max_val, length.out = 4)
+
+col_fun_v1 <- circlize::colorRamp2(
+  breaks,
+  c("#ca0020", "#f4a582",   "#bababa", "#404040")
+)
+
+p_selected_MCF7_exp <- Heatmap(dist_mat,
+        name = "Euclidean distance",
+        col = col_fun_v1,
+        cluster_rows = TRUE,
+        cluster_columns = TRUE,
+        show_column_names = TRUE,
+        row_names_side = "left",
+        column_names_side = "bottom")
+
+p_selected_MCF7_exp
+
+pdf("../Figures/p_selected_MCF7_exp.pdf", width = 5.4, height = 5.4)
+p_selected_MCF7_exp
+dev.off()
+
+ggsave(filename = "../Figures/UMAP_MCF7_samples.pdf", plot = p_dimplot, width = 6, height = 5)
+```
+
+
+# sessionInfo
+```{r sessionInfo}
+sessionInfo()
+```
+
+
+
+
