@@ -1,4 +1,4 @@
-# Figure 1 Data
+# Figure 1
 
 ```shell
 Figure1
