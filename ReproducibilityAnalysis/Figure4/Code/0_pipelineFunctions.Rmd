@@ -13,12 +13,6 @@ output:
 knitr::opts_chunk$set(collapse = TRUE)
 ```
 
-# Env
-```{r envs}
-rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure5/")
-```
-
 # pipelines for mapping scRNA-seq and scATAC data
 ```{r mapping_pipeline, eval=FALSE}
 #############################
@@ -427,6 +421,239 @@ for (sample in names(sample_selected_scATA)){
   saveArchRProject(ArchRProj = scATAC_data, outputDirectory = tmp_out_dir, load = FALSE)
 }
 ```
+
+# pipelines for trajectory analysis of scATAC-seq data
+```{r scATAC_trajectory_analysis, eval=TRUE}
+library(ArchR)
+library(Seurat)
+library(magrittr)
+library(dplyr)
+library(patchwork)
+library(stringr)
+library(hdf5r)
+library(Matrix)
+library(org.Hs.eg.db)
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+
+addArchRGenome("hg38")
+addArchRThreads(threads = 10)
+
+options(ArchR.downloadPath = "/cfs/klemming/home/q/qunli/qundir/AML/data/ArchR")
+scATAC_path_dir <- "/cfs/klemming/home/q/qunli/qundir/AML/data/scATA/"
+scATAC_output_dir <- "/cfs/klemming/home/q/qunli/qundir/AML/data/scATAOut/"
+scRNA_RDS_dir <- "/cfs/klemming/home/q/qunli/qundir/AML/data/scRNARDS/"
+MACS2_location <- "/pdc/software/other/macs2/2.2.9.1/bin/macs2"
+dbArchR <- "/cfs/klemming/home/q/qunli/qundir/AML/data/ArchR/Annotations/ArchR-Hg38-v1.Anno"
+
+group_colors <- c("B.Cell" = "#7DB18A", "CD16.Monocytes" = "#6F4A98", "CD4.Memory" = "#4C502D",
+                  "CD4.Naive" = "#201C19", "CD8.Effector" = "#2A5B31", "CD8.Memory" = "#69AD46",
+                  "CD8.Naive" = "#5B521A", "cDC" = "#8587B1", "CLP" = "#B9D5AB", "Early.Basophil" = "#CD6D82",
+                  "Early.Erythrocyte" = "#B12579", "GMP" = "#25316E", "HSC" = "#EAA63A", "Late.Erythrocyte" = "#EAAFC0",
+                  "Monocytes" = "#406DB1", "NK" = "#4C662E", "pDC" = "#62B1E1", "Plasma" = "#D2E7EB",
+                  "Pre.B.Cell" = "#45948E", "Progenitor" = "#AA872C", "Unknown" = "#EAEAEA")
+
+sample <- "AML11"
+lineage_type <- "M"
+traj_celltype <- "predictedGroup_Un" # predictedGroup_Un Classified_Celltype
+trajectory_name <- "trajectory_M" # trajectory_M Monocle_Progenitor
+
+
+tmp_out_dir <- paste0(scATAC_output_dir, sample, "/")
+predifined_meta_DX <- read.delim(paste0("/cfs/klemming/home/q/qunli/qundir/AML/data/scATA/", sample, "_DX_filtered_metadata.tsv"))
+rownames(predifined_meta_DX) <- paste0(sample, "_DX#", predifined_meta_DX$Cell_Barcode)
+predifined_meta_REL <- read.delim(paste0("/cfs/klemming/home/q/qunli/qundir/AML/data/scATA/", sample, "_REL_filtered_metadata.tsv"))
+rownames(predifined_meta_REL) <- paste0(sample, "_DX#", predifined_meta_REL$Cell_Barcode)
+predifined_meta <- rbind(predifined_meta_DX, predifined_meta_REL)
+predifined_meta$cellNames <- rownames(predifined_meta)
+
+scATAC_data <- loadArchRProject(tmp_out_dir)
+
+scATAC_data <- addCellColData(
+  ArchRProj = scATAC_data,
+  data      = predifined_meta[scATAC_data$cellNames, "Classified_Celltype"],
+  cells     = scATAC_data$cellNames,
+  name      = "Classified_Celltype",
+  force     = TRUE
+)
+
+scATAC_data <- addMotifAnnotations(ArchRProj = scATAC_data, motifSet = "cisbp", name = "Motif",force=T)
+scATAC_data <- addDeviationsMatrix(ArchRProj = scATAC_data, peakAnnotation = "Motif", force = TRUE)
+scATAC_data <- addArchRAnnotations(ArchRProj = scATAC_data, collection = "ATAC", db = dbArchR, force = TRUE)
+
+cellsInSample <- grep("DX|REL", scATAC_data$cellNames, value = TRUE)
+scATAC_data <- subsetArchRProject(scATAC_data, cells = cellsInSample, force = TRUE)
+
+
+# trajectory analysis
+trajectory_M <- c("HSC", "Progenitor", "GMP", "Monocytes", "CLP", "Pre.B.Cell", "B.Cell")
+trajectory_M <- c("HSC", "Progenitor", "GMP", "Monocytes")
+
+scATAC_data<- addTrajectory(
+    ArchRProj = scATAC_data, 
+    name = trajectory_name,
+    groupBy = traj_celltype,
+    trajectory = trajectory_M, 
+    embedding = "UMAP", 
+    force = TRUE
+)
+
+#Monocle3
+monocle_solo <- getMonocleTrajectories(
+    ArchRProj = scATAC_data,
+    name = trajectory_name,
+    useGroups = trajectory_M,
+    principalGroup = "HSC",
+    groupBy = traj_celltype,
+    embedding = "UMAP",
+    clusterParams = list(k = 50),
+    seed = 1
+)
+
+scATAC_data <- addMonocleTrajectory(
+    ArchRProj = scATAC_data,
+    name = trajectory_name,
+    useGroups = trajectory_M,
+    groupBy = traj_celltype,
+    monocleCDS = monocle_solo,
+    force = TRUE
+)
+
+scATAC_data <- addImputeWeights(scATAC_data)
+geneName_Q <- "MEF2C"
+
+#ArchR
+p1_GeneScoreMatrix <- plotTrajectory(scATAC_data, trajectory = trajectory_name, colorBy = "GeneScoreMatrix", name = geneName_Q, continuousSet = "horizonExtra")
+p2_GeneIntegrationMatrix <- plotTrajectory(scATAC_data, trajectory = trajectory_name, colorBy = "GeneIntegrationMatrix", name = geneName_Q, continuousSet = "blueYellow")
+p3_cellColData <- plotTrajectory(scATAC_data, trajectory = trajectory_name, colorBy = "cellColData", name = trajectory_name)
+p4_UMAP_celltype <- plotEmbedding(ArchRProj = scATAC_data, colorBy = "cellColData", name = traj_celltype, embedding = "UMAP", pal = group_colors)
+p5_UMAP_stage <- plotEmbedding(ArchRProj = scATAC_data, colorBy = "cellColData", name = "Sample", embedding = "UMAP")
+
+name_p1_GeneScoreMatrix <- paste0("p1_GeneScoreMatrix_", geneName_Q, "_", sample, "_", lineage_type, ".pdf")
+name_p2_GeneIntegrationMatrix <- paste0("p2_GeneIntegrationMatrix_", geneName_Q, "_", sample, "_", lineage_type, ".pdf")
+name_p3_cellColData <- paste0("p3_cellColData_", sample, "_", lineage_type, ".pdf")
+name_p4_UMAP_celltype <- paste0("p4_UMAP_celltype_", sample,  "_", lineage_type, ".pdf")
+name_p5_UMAP_stage <- paste0("p5_UMAP_stage_", sample,  "_", lineage_type, ".pdf")
+name_p6_gene_time <- paste0(tmp_out_dir, "Plots/", "p6_gene_time_", sample,  "_", lineage_type, ".pdf")
+
+
+plotPDF(p1_GeneScoreMatrix, name = name_p1_GeneScoreMatrix, ArchRProj = scATAC_data, addDOC = FALSE, width = 5, height = 5)
+plotPDF(p2_GeneIntegrationMatrix, name = name_p2_GeneIntegrationMatrix, ArchRProj = scATAC_data, addDOC = FALSE, width = 5, height = 5)
+plotPDF(p3_cellColData, name = name_p3_cellColData, ArchRProj = scATAC_data, addDOC = FALSE, width = 5, height = 5)
+plotPDF(p4_UMAP_celltype, name = name_p4_UMAP_celltype, ArchRProj = scATAC_data, addDOC = FALSE, width = 5, height = 5)
+plotPDF(p5_UMAP_stage, name = name_p5_UMAP_stage, ArchRProj = scATAC_data, addDOC = FALSE, width = 5, height = 5)
+
+pdf(name_p6_gene_time, width = 10, height = 8)
+ggAlignPlots(p1_GeneScoreMatrix[[2]], p2_GeneIntegrationMatrix[[2]], type = "h")
+dev.off()
+
+# Pseudo-time heatmaps
+trajMM  <- getTrajectory(ArchRProj = scATAC_data, name = trajectory_name, useMatrix = "MotifMatrix", log2Norm = FALSE, trajectoryLabel = "Sample")
+trajGIM <- getTrajectory(ArchRProj = scATAC_data, name = trajectory_name, useMatrix = "GeneIntegrationMatrix", log2Norm = FALSE, trajectoryLabel = "Sample")
+corGIM_MM <- correlateTrajectories(trajGIM, trajMM)
+idxToRemove2 <- grep(pattern = "deviations", x = corGIM_MM[["correlatedMappings"]]$name2)
+if(length(idxToRemove2 > 1)){
+  corGIM_MM[["correlatedMappings"]] <- corGIM_MM[["correlatedMappings"]][-idxToRemove2,]
+}
+
+trajGIM2 <- trajGIM[corGIM_MM[[1]]$name1, ]
+trajMM2 <- trajMM[corGIM_MM[[1]]$name2, ]
+trajCombined <- trajGIM2
+assay(trajCombined, withDimnames=FALSE) <- t(apply(assay(trajGIM2), 1, scale)) + t(apply(assay(trajMM2), 1, scale))
+combinedMat <- plotTrajectoryHeatmap(trajCombined, returnMat = TRUE, varCutOff = 0)
+rowOrder <- match(rownames(combinedMat), rownames(trajGIM2))
+ht1 <- plotTrajectoryHeatmap(trajGIM2,  pal = paletteContinuous(set = "blueYellow"), varCutOff = 0, rowOrder = rowOrder, colorColumns = TRUE)
+ht2 <- plotTrajectoryHeatmap(trajMM2, pal = paletteContinuous(set = "solarExtra"), varCutOff = 0, rowOrder = rowOrder, colorColumns = TRUE)
+
+name_p7_heatmap <- paste0(tmp_out_dir, "Plots/", "p7_heatmap_", sample,  "_", lineage_type, ".pdf")
+pdf(name_p7_heatmap, width = 10, height = 8)
+ComplexHeatmap::draw(ht1 + ht2)
+dev.off()
+
+
+# save assay data
+trajGIM2_assay <- as.data.frame(t(apply(assay(trajGIM2), 1, scale)))
+trajGIM2_colData <- as.data.frame(trajGIM2@colData)
+trajGIM2_colData$time <- rownames(trajGIM2_colData)
+
+trajMM2_assay  <- as.data.frame(t(apply(assay(trajMM2), 1, scale)))
+trajMM2_colData <- as.data.frame(trajMM2@colData)
+trajMM2_colData$time <- rownames(trajMM2_colData)
+
+trajGIM2_rds <- list(assayMat = trajGIM2_assay, assayColData = trajGIM2_colData)
+trajMM2_rds  <- list(assayMat = trajMM2_assay, assayColData = trajMM2_colData)
+
+name_rds_GIM2 <- paste0(tmp_out_dir, "Plots/", "p8_RDS_GIM2_", sample,  "_", lineage_type, ".rds")
+name_rds_MM2 <-  paste0(tmp_out_dir, "Plots/", "p8_RDS_MM2_", sample,  "_", lineage_type, ".rds")
+saveRDS(trajGIM2_rds, name_rds_GIM2)
+saveRDS(trajMM2_rds, name_rds_MM2)
+```
+
+
+# pipelines for generating single-cell somatic mutation data list
+```{r scSomaticMutation_pipeline, eval=FALSE}
+load_CSM <- function(csm_path, somatic_locs){
+  data_CSM_raw <- read.csv(csm_path, header = T, row.names = 1)
+  data_CSM_raw <- as.data.frame(t(data_CSM_raw))
+  data_CSM <- data_CSM_raw %>%
+    select(any_of(somatic_locs))
+  
+  data_MutPerCell <- data.frame(
+    CellTag = rownames(data_CSM),
+    MutNum_somatic = rowSums(data_CSM == "Mut"),
+    WTNum_somatic = rowSums(data_CSM == "WT")
+  )
+
+  data_CellPerMut <- data.frame(
+    Location = colnames(data_CSM),
+    CellMutNum = colSums(data_CSM == "Mut"),
+    CellWTNum = colSums(data_CSM == "WT")
+  )
+  
+  cells_selected <- data_MutPerCell %>% filter(MutNum_somatic > 0) %>% pull(CellTag)
+  locs_selected <- data_CellPerMut %>% filter(CellMutNum > 0) %>% pull(Location)
+  data_CSM_clean <- data_CSM[cells_selected, locs_selected]
+  rm(data_CSM_raw, data_CSM, data_MutPerCell, data_CellPerMut, cells_selected, locs_selected)
+  return(data_CSM_clean)
+}
+
+# ATA
+ATA_samples <- c("AML1", "AML2", "AML3", "AML4", "AML5", "AML6", "AML7", "AML8",
+                 "AML10", "AML11", "AML12", "AML13", "AML14", "AML15", "AML16", "AML17", "AML18", "AML19", 
+                 "AML20", "AML21", "AML22", "AML24", "AML25", "AML26", "AML27")
+
+AML_ATA_CSM_list <- list()
+
+for (sampleID in ATA_samples){
+  message(paste0("Processing ", sampleID))
+  # generate from scMutrace pipeline
+  CSM_path <- paste0("../Data/AML/Mutation/scATA/", sampleID, "/gCellSNPMatrix.step3.1_excludeControlSites.csv")
+  CSM_tmp <- load_CSM(CSM_path, AML_scATA_locs)
+  AML_ATA_CSM_list[[sampleID]] <- CSM_tmp
+  rm(CSM_path, CSM_tmp)
+}
+
+# RNA
+RNA_samples <- c("AML1", "AML2", "AML3", "AML4", "AML5", "AML6", "AML7", "AML8", "AML9", "AML10", 
+                 "AML11", "AML12", "AML13", "AML14", "AML15", "AML16", "AML17", "AML18", "AML19", 
+                 "AML20", "AML21", "AML22", "AML23", "AML24", "AML25", "AML26", "AML27", "AML28")
+
+AML_RNA_CSM_list <- list()
+
+for (sampleID in RNA_samples){
+  message(paste0("Processing ", sampleID))
+  # generate from scMutrace pipeline
+  CSM_path <- paste0("../Data/AML/Mutation/scRNA/", sampleID, "/gCellSNPMatrix.step3.1_excludeControlSites.csv")
+  CSM_tmp <- load_CSM(CSM_path, AML_scRNA_locs)
+  AML_RNA_CSM_list[[sampleID]] <- CSM_tmp
+  rm(CSM_path, CSM_tmp)
+}
+
+saveRDS(AML_ATA_CSM_list, "../Data/AML/AML_ATA_CSM_list.rds")
+saveRDS(AML_RNA_CSM_list, "../Data/AML/AML_RNA_CSM_list.rds")
+```
+
+
 
 # pipelines for generating sample stage mutation similarity matrix
 ```{r samplestagemutation_matrix_pipeline, eval=FALSE}

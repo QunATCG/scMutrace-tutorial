@@ -1,15 +1,19 @@
 ---
-title: "pAML reproducibility analysis"
+title: "Figure 4 pAML reproducibility analysis"
 author: "Qun Li"
 date: "22 Aug 2025 at 10:12:37"
 output:
-  word_document:
-    toc: true
-    toc_depth: '3'
   pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
+  word_document:
+    toc: true
+    toc_depth: '3'
 ---
 
 ```{r, setup, include=FALSE}
@@ -19,7 +23,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 # Env
 ```{r envs}
 rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure5/")
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure4/")
 ```
 
 # Load libraries
@@ -115,24 +119,38 @@ get_mut_cols <- function(df, loc) {
 }
 ```
 
+*AML_census.rds* and *AML_tiergenes.txt* were downloaded from the COSMIC database and curated for downstream analyses
+
+*AML_SSM.rds* and *AML_ATA_CSM_list.rds*, *AML_RNA_CSM_list.rds* were generated using scMutrace as described in the Methods section and `0_pipelineFunctions.Rmd`(pipelines for generating single-cell somatic mutation data list).
+
+*AML_scRNA_meta.rds* and *AML_scATA_meta.rds* contain meta data for cell type annotation similarity analysis and were generate from `0_pipelineFunctions.Rmd`(pipelines for porcessing scRNA-seq data and pipelines for processing scATAC-seq data).
+
+*sampleInfo.txt* contains sample information including cell numbers and patient clinical data for scRNA-seq and scATAC-seq data and was downloaded from original paper.
+
+*EGA_scATA.hg38_multianno.txt* and *EGA_scRNA.hg38_multianno.txt* contain mutation annotation information generated using ANNOVAR.
+
+*Mutational_Matrix_SBS.txt* and *COSMIC_SBS96_Activities.txt* were generated using SigProfiler suite as described in the Methods section.
+
+
 # load data
 ```{r loadData}
 # load AML census data
-AML_census <- readRDS("../Data/AML/AML_census.rds")
-AML_genes_tiers <- read.table("../Data/AML/AML_tiergenes.txt", header = T, sep = "\t")
+AML_census <- readRDS("../Data/HumanpAML/AML_census.rds")
+AML_genes_tiers <- read.table("../Data/HumanpAML/AML_tiergenes.txt", header = T, sep = "\t")
 
 # load SSM data
-AML_SSM <- readRDS("../Data/AML/AML_SSM.rds")
+AML_SSM <- readRDS("../Data/HumanpAML/AML_SSM.rds")
 AML_SSM_scRNA <- AML_SSM$scRNA
 AML_SSM_scATA <- AML_SSM$scATA
 
 # CSM
-AML_ATA_CSM_list <- readRDS("../Data/AML/AML_ATA_CSM_list.rds")
-AML_RNA_CSM_list <- readRDS("../Data/AML/AML_RNA_CSM_list.rds")
+AML_ATA_CSM_list <- readRDS("../Data/HumanpAML/AML_ATA_CSM_list.rds")
+AML_RNA_CSM_list <- readRDS("../Data/HumanpAML/AML_RNA_CSM_list.rds")
 
 # meta data for celltype annotation similarity
-AML_scRNA_meta_list <- readRDS("../Data/AML/AML_scRNA_meta.rds")
-AML_scATA_meta_list <- readRDS("../Data/AML/AML_scATA_metaQun.rds")
+AML_scRNA_meta_list <- readRDS("../Data/HumanpAML/AML_scRNA_meta.rds")
+# metaQun
+AML_scATA_meta_list <- readRDS("../Data/HumanpAML/AML_scATA_meta.rds")
 
 AML_scRNA_meta <- do.call(rbind, AML_scRNA_meta_list)
 rownames(AML_scRNA_meta) <- sub("\\.", "#", rownames(AML_scRNA_meta))
@@ -158,13 +176,12 @@ AML_SSM_scATA_bed$Tag <- ifelse(AML_SSM_scATA_bed$Location %in% AML_census$mutat
 AML_scATA_NotCensus_locs <- AML_SSM_scATA_bed %>% dplyr::filter(Tag == "NotCensus") %>% pull(Location)
 
 # load paired sample info data
-AML_samples <- read.table("../Data/AML/commonBedfileName.txt", header = T, sep = "\t")
-AML_sampleInfo <- read.table("../Data/AML/sampleInfo.txt", header = T, sep = "\t")
+AML_sampleInfo <- read.table("../Data/HumanpAML/sampleInfo.txt", header = T, sep = "\t")
 AML_sampleInfo[is.na(AML_sampleInfo)] <- 0
 
 # AML ann
-AML_scATA_ann <- read.table("../Data/AML/EGA_scATA.hg38_multianno.txt", header = T, sep = "\t")
-AML_scRNA_ann <- read.table("../Data/AML/EGA_scRNA.hg38_multianno.txt", header = T, sep = "\t")
+AML_scATA_ann <- read.table("../Data/HumanpAML/EGA_scATA.hg38_multianno.txt", header = T, sep = "\t")
+AML_scRNA_ann <- read.table("../Data/HumanpAML/EGA_scRNA.hg38_multianno.txt", header = T, sep = "\t")
 
 col_freq_databases <- c("gnomad40_exome_AF", "gnomad40_exome_AF_raw", "gnomad40_exome_AF_XX", 
                         "gnomad40_exome_AF_XY", "gnomad40_exome_AF_grpmax", "gnomad40_exome_faf95", 
@@ -225,9 +242,10 @@ AML_SSM_scRNA_bed <- AML_SSM_scRNA_bed %>%
 
 # load mutation features data
 # generate using sigProfiler suite
-AML_mutation_features <- read.table("../Data/AML/Mutational_Matrix_SBS.txt", header = T, sep = "\t", row.names = 1)
-AML_mutation_features_contribution <- read.table("../Data/AML/COSMIC_SBS96_Activities.txt", header = T, sep = "\t")
+AML_mutation_features <- read.table("../Data/HumanpAML/Mutational_Matrix_SBS.txt", header = T, sep = "\t", row.names = 1)
+AML_mutation_features_contribution <- read.table("../Data/HumanpAML/COSMIC_SBS96_Activities.txt", header = T, sep = "\t")
 ```
+
 # extract different stage patient mutations
 ```{r extractStageMutations}
 AML_patient_ATA_mutations <- list()
@@ -313,6 +331,11 @@ AML_SSM_scRNA_all <- data.frame(Location = unique(unlist(AML_patient_RNA_mutatio
 #write.csv(AML_SSM_scATA_all, "../Results/AML/AML_SSM_scATA_all.csv", row.names = FALSE)
 #write.csv(AML_SSM_scRNA_all, "../Results/AML/AML_SSM_scRNA_all.csv", row.names = FALSE)
 ```
+
+networkD3 interactive sankey plot
+
+intersection of mutations number from different stages were manually calculated and used to generate the sankey plot below (see `# extract different stage patient mutations`).
+
 # networkD3 Example
 ```{r networkD3Example, message=FALSE, warning=FALSE}
 # A connection data frame is a list of flows with intensity for each flow
@@ -412,7 +435,6 @@ p_sampleCellsNumber <- ggplot(AML_sampleInfo_plot, aes(x = sampleAlias, y = Cell
   theme_classic() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 p_sampleCellsNumber
-#ggsave("../Figures/AML/p_sampleCellsNumber.pdf", p_sampleCellsNumber, width = 14, height = 4)
 ```
 
 # mutation features similarity
@@ -487,11 +509,10 @@ sbs_color <- c(
   "SBS7a" = "#e31a1c", "SBS7b" = "#fc8d59", "SBS7c" = "#fdd49e", 
   "SBS13" = "#252525", "SBS15" = "#bdbdbd", "SBS15" = "#d9d9d9",
   "SBS18" =  "#f0f0f0", "SBS19" = "#969696",  "SBS23" = "#969696",
-  "SBS31" = "#737373",
-  "SBS39" = "#525252", "SBS54" = "#252525", "SBS87" = "purple"
+  "SBS31" = "#737373", "SBS39" = "#525252", "SBS54" = "#252525"
 )
 
-AML_mutation_features_contribution <- read.table("../Data/AML/COSMIC_SBS96_Activities.txt", header = T, sep = "\t")
+AML_mutation_features_contribution <- read.table("../Data/HumanpAML/COSMIC_SBS96_Activities.txt", header = T, sep = "\t")
 AML_mutation_features_contribution_long <- AML_mutation_features_contribution %>%
   pivot_longer(
     cols = -Samples,
@@ -515,9 +536,8 @@ p_mutation_featureDistribution <- ggplot(AML_mutation_features_contribution_long
   ylab("Percentage (%)")
 
 p_mutation_featureDistribution
-
-#ggsave("../Figures/AML/p_mutation_featureDistribution.pdf", p_mutation_featureDistribution, width = 6.98, height = 5.73)
 ```
+
 # census genes
 ```{r censusGenes}
 scATA_rare_locs <- AML_SSM_scATA_bed %>% filter(freq == "rare") %>% pull(Location)
@@ -820,7 +840,7 @@ loc_total <- unique(c(AML_scATA_NotCensus_locs, AML_scRNA_NotCensus_locs))
 line_i <- 0
 
 for (loc in loc_total){
-  message(paste0("Processing ", loc))
+  # message(paste0("Processing ", loc))
   # gene
   gene <- NA
   if (loc %in% AML_scATA_ann$Location){
@@ -841,7 +861,7 @@ for (loc in loc_total){
     { names(.)[. == "Mut"] }
   
   if(length(samples_ata_loc) > 0){
-    message(paste0("  Processing scATA..."))
+    # message(paste0("  Processing scATA..."))
     sample_ids <- unique(str_extract(samples_ata_loc, "AML[0-9]+"))
     for (sample_id in sample_ids){
       line_i <- line_i + 1
@@ -891,7 +911,7 @@ for (loc in loc_total){
   
   if(length(samples_rna_loc) > 0){
     sample_ids <- unique(str_extract(samples_rna_loc, "AML[0-9]+"))
-    message(paste0("  Processing scRNA..."))
+    # message(paste0("  Processing scRNA..."))
     for (sample_id in sample_ids){
       line_i <- line_i + 1
       cells_all   <- retriveCellsByLocation(AML_RNA_CSM_list[[sample_id]], loc)
@@ -1043,11 +1063,17 @@ p_scATA_fractionMutation <- ggplot(df_fractionSimilarity_long, aes(x = as.factor
 p_scRNA_fractionMutation
 p_scATA_fractionMutation
 ```
+
+*JointCCA_AML8.rds* contains the UMAP coordinates and metadata for the integrated scRNA-seq and scATAC-seq data of AML8 sample and was generated using ArchR package (see `0_pipelineFunctions.R`> # pipelines for processing scATAC-seq data).
+
+*AML8_scRNA_meta.rds* contains the metadata for scRNA-seq data of AML8 sample and was generated using Seurat package (see `0_pipelineFunctions.R` > # pipelines for porcessing scRNA-seq data).
+
 # RNAIntegration Example
 ```{r RNAIntegrationExample}
-data_save_block <- readRDS("../Data/AML/JointCCA_AML8.rds")
-scRNA_data <- readRDS("/Users/liqun/Desktop/scMutraceReproducibility/Figure5/Data/AML/singleCellMatrix/scRNA/AML8_scRNA.rds")
-meta_scRNA <- scRNA_data@meta.data
+data_save_block <- readRDS("../Data/HumanpAML/JointCCA_AML8.rds")
+meta_scRNA <- readRDS("../Data/HumanpAML/AML8_scRNA_meta.rds")
+
+
 df_AML08_CCA <- data.frame(
   UMAP1 = data_save_block$UMAP1,
   UMAP2 = data_save_block$UMAP2,
@@ -1110,12 +1136,12 @@ p_UMAPbyGroup
 p_UMAPbyStage
 
 # from 0_pipelineFunctions.R > # pipelines for processing scATAC-seq data
-scATAC_data <- loadArchRProject("../Data/AML/singleCellMatrix/scATACTest/")
-proj <- addPeak2GeneLinks(scATAC_data, k = 20)
+# scATAC_data <- loadArchRProject("../Data/AML/singleCellMatrix/scATACTest/")
+# proj <- addPeak2GeneLinks(scATAC_data, k = 20)
 # Get P2G Links
-p2g <- getPeak2GeneLinks(proj)
-p_plotPeak2GeneHeatmap <- plotPeak2GeneHeatmap(proj, groupBy = "predictedGroup_Un", palGroup = group_colors)
-ComplexHeatmap::draw(p_plotPeak2GeneHeatmap, heatmap_legend_side = "right")
+# p2g <- getPeak2GeneLinks(proj)
+# p_plotPeak2GeneHeatmap <- plotPeak2GeneHeatmap(proj, groupBy = "predictedGroup_Un", palGroup = group_colors)
+# ComplexHeatmap::draw(p_plotPeak2GeneHeatmap, heatmap_legend_side = "right")
 ```
 
 # celltype annotation similarity
@@ -1208,11 +1234,13 @@ p_cellType_similarity <- Heatmap(
 p_cellType_similarity
 ```
 
+*data_commonBed_similarity_all.csv* and *data_commonBed_similarity_noCensus.csv* contain the sample stage mutation similarity matrices calculated based on common mutated genomic regions (with and without Census genes respectively) and were generated using the functions in `0_pipelineFunctions.R` > pipelines for generating sample stage mutation similarity matrix.
+
 # sample stage mutation similarity
 ```{r sampleStageMutationSimilarity}
 # may spent 2hrs
 # generate data_commonBed_similarity_all.csv and data_commonBed_similarity_noCensus.csv 
-# first using 0_pipelineFunctions.R > # pipelines for generating sample stage mutation similarity matrix
+# using 0_pipelineFunctions.R > # pipelines for generating sample stage mutation similarity matrix
 
 sample_order_keep <- c(
                       "AML1_DX", "AML1_REM", 
@@ -1238,10 +1266,11 @@ sample_order_keep <- c(
                       "AML24_DX", "AML24_REM", "AML24_REL", 
                       "AML26_DX", "AML26_REM", "AML26_REL", 
                       "AML27_DX", "AML27_REM", "AML27_REL")
-data_commonBed_similarity_lenient <- read.csv("../Data/AML/data_commonBed_similarity_all.csv", row.names = 1)
+
+data_commonBed_similarity_lenient <- read.csv("../Data/HumanpAML/data_commonBed_similarity_all.csv", row.names = 1)
 data_commonBed_similarity_lenient <- data_commonBed_similarity_lenient[sample_order_keep, sample_order_keep]
 
-data_commonBed_similarity_stringent <- read.csv("../Data/AML/data_commonBed_similarity_noCensus.csv", row.names = 1)
+data_commonBed_similarity_stringent <- read.csv("../Data/HumanpAML/data_commonBed_similarity_noCensus.csv", row.names = 1)
 data_commonBed_similarity_stringent <- data_commonBed_similarity_stringent[sample_order_keep, sample_order_keep]
 
 row_prefix <- sapply(rownames(data_commonBed_similarity_lenient), function(x) strsplit(x, "_")[[1]][1])
@@ -1309,10 +1338,11 @@ Heatmap(data_commonBed_similarity_stringent,
           }
         })
 ```
+*data_mutationCelltype_similarity_scRNA_scATAC.rds* , *data_mutationCelltype_similarity_scRNA.rds*, and *data_mutationCelltype_similarity_scATA.rds* contain the celltype mutation similarity matrices calculated based on scRNA-seq and scATAC-seq data and were generated using the functions in `0_pipelineFunctions.R` > # pipelines for generating celltype similarity (scRNA vs scATAC), # pipelines for generating celltype similarity (scRNA) and # pipelines for generating celltype similarity (scATAC)
 
 # mutation Celltype similarity (scRNA vs scATAC)
 ```{r mutationCelltypeSimilarityscRNA_scATAC}
-data_mutationCelltype_similarity_scRNA_scATAC <- readRDS("../Data/AML/data_mutationCelltype_similarity_scRNA_scATAC.rds")
+data_mutationCelltype_similarity_scRNA_scATAC <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scRNA_scATAC.rds")
 similarity_sum_scRNA_scATAC <- Reduce("+", data_mutationCelltype_similarity_scRNA_scATAC)
 similarity_mean_scRNA_scATAC <- similarity_sum_scRNA_scATAC / length(data_mutationCelltype_similarity_scRNA_scATAC)
 
@@ -1347,7 +1377,7 @@ p_cellType_similarity_Mutation_scRNA_scATAC
 
 # mutation among celltype similarity merge all stages (scRNA)
 ```{r mutationCelltypeSimilarityscRNA_allStages}
-data_mutationCelltype_similarity_scRNA <- readRDS("../Data/AML/data_mutationCelltype_similarity_scRNA.rds")
+data_mutationCelltype_similarity_scRNA <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scRNA.rds")
 similarity_sum_scRNA <- Reduce("+", data_mutationCelltype_similarity_scRNA)
 similarity_mean_scRNA <- similarity_sum_scRNA / length(data_mutationCelltype_similarity_scRNA)
 
@@ -1380,7 +1410,7 @@ Heatmap(
 
 # mutation among celltype similarity merge all stages (scATA)
 ```{r mutationCelltypeSimilarityscATA_allStages}
-data_mutationCelltype_similarity_scATA <- readRDS("../Data/AML/data_mutationCelltype_similarity_scATA.rds")
+data_mutationCelltype_similarity_scATA <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scATA.rds")
 similarity_sum_scATA <- Reduce("+", data_mutationCelltype_similarity_scATA)
 similarity_mean_scATA <- similarity_sum_scATA / length(data_mutationCelltype_similarity_scATA)
 breaks <- seq(min(as.matrix(similarity_mean_scATA)), 
@@ -1432,6 +1462,8 @@ p_correlation_celltypeMutationSimilarity
 cor.test(mat_long_scATA$Value, mat_long_scRNA$Value, method = "pearson")
 ```
 
+*data_mutationCelltype_similarity_scRNA_DX.rds*, *data_mutationCelltype_similarity_scRNA_REM.rds* and *data_mutationCelltype_similarity_scRNA_REL.rds* contains cell type mutation similarity across different stages (see `0_pipelineFunctions.Rmd` > # pipelines for generating celltype similarity by stages(scRNA))
+
 # mutation among celltype similarity by stages (scRNA)
 ```{r mutationCelltypeSimilarityscRNA_byStages}
 res_scRNA_order_manu <- c("HSC", "Progenitor",
@@ -1441,51 +1473,56 @@ res_scRNA_order_manu <- c("HSC", "Progenitor",
 
 cols <- rev(colorRampPalette(brewer.pal(11, "RdBu"))(100))
 
-data_mutationCelltype_similarity_scRNA_DX <- readRDS("../Data/AML/data_mutationCelltype_similarity_scRNA_DX.rds")
+data_mutationCelltype_similarity_scRNA_DX <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scRNA_DX.rds")
 similarity_sum_scRNA_DX <- Reduce("+", data_mutationCelltype_similarity_scRNA_DX)
 similarity_mean_scRNA_DX <- similarity_sum_scRNA_DX / length(data_mutationCelltype_similarity_scRNA_DX)
 corrplot(as.matrix(similarity_mean_scRNA_DX[res_scRNA_order_manu, res_scRNA_order_manu]), order = "original", method = 'color', 
          type = 'lower', col = cols, col.lim = c(0, 1))
 
-data_mutationCelltype_similarity_scRNA_REM <- readRDS("../Data/AML/data_mutationCelltype_similarity_scRNA_REM.rds")
+data_mutationCelltype_similarity_scRNA_REM <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scRNA_REM.rds")
 similarity_sum_scRNA_REM <- Reduce("+", data_mutationCelltype_similarity_scRNA_REM)
 similarity_mean_scRNA_REM <- similarity_sum_scRNA_REM / length(data_mutationCelltype_similarity_scRNA_REM)
 corrplot(as.matrix(similarity_mean_scRNA_REM[res_scRNA_order_manu, res_scRNA_order_manu]), order = "original", method = 'color', 
          type = 'lower', col = cols, col.lim = c(0, 1))
 
 
-data_mutationCelltype_similarity_scRNA_REL <- readRDS("../Data/AML/data_mutationCelltype_similarity_scRNA_REL.rds")
+data_mutationCelltype_similarity_scRNA_REL <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scRNA_REL.rds")
 similarity_sum_scRNA_REL <- Reduce("+", data_mutationCelltype_similarity_scRNA_REL)
 similarity_mean_scRNA_REL <- similarity_sum_scRNA_REL / length(data_mutationCelltype_similarity_scRNA_REL)
 corrplot(as.matrix(similarity_mean_scRNA_REL[res_scRNA_order_manu, res_scRNA_order_manu]), order = "original", method = 'color', 
          type = 'lower', col = cols, col.lim = c(0, 1))
 ```
+
+*data_mutationCelltype_similarity_scATA_DX.rds*, *data_mutationCelltype_similarity_scATA_REM.rds* and *data_mutationCelltype_similarity_scATA_REL.rds* contains cell type mutation similarity across different stages (see `0_pipelineFunctions.Rmd` > # pipelines for generating celltype similarity by stages(scATA))
+
 # mutation among celltype similarity by stages (scATA)
 ```{r mutationCelltypeSimilarityscATA_byStages}
 cols <- colorRampPalette(brewer.pal(11, "RdBu"))(100)
-data_mutationCelltype_similarity_scATA_DX <- readRDS("../Data/AML/data_mutationCelltype_similarity_scATA_DX.rds")
+data_mutationCelltype_similarity_scATA_DX <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scATA_DX.rds")
 similarity_sum_scATA_DX <- Reduce("+", data_mutationCelltype_similarity_scATA_DX)
 similarity_mean_scATA_DX <- similarity_sum_scATA_DX / length(data_mutationCelltype_similarity_scATA_DX)
 corrplot(as.matrix(similarity_mean_scATA_DX[res_scRNA_order_manu, res_scRNA_order_manu]), order = "original", method = 'color', 
          type = 'upper', col = cols, col.lim = c(0, 1))
 
-data_mutationCelltype_similarity_scATA_REM <- readRDS("../Data/AML/data_mutationCelltype_similarity_scATA_REM.rds")
+data_mutationCelltype_similarity_scATA_REM <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scATA_REM.rds")
 similarity_sum_scATA_REM <- Reduce("+", data_mutationCelltype_similarity_scATA_REM)
 similarity_mean_scATA_REM <- similarity_sum_scATA_REM / length(data_mutationCelltype_similarity_scATA_REM)
 corrplot(as.matrix(similarity_mean_scATA_REM[res_scRNA_order_manu, res_scRNA_order_manu]), order = "original", method = 'color', 
          type = 'upper', col = cols, col.lim = c(0, 1))
 
-data_mutationCelltype_similarity_scATA_REL <- readRDS("../Data/AML/data_mutationCelltype_similarity_scATA_REL.rds")
+data_mutationCelltype_similarity_scATA_REL <- readRDS("../Data/HumanpAML/data_mutationCelltype_similarity_scATA_REL.rds")
 similarity_sum_scATA_REL <- Reduce("+", data_mutationCelltype_similarity_scATA_REL)
 similarity_mean_scATA_REL <- similarity_sum_scATA_REL / length(data_mutationCelltype_similarity_scATA_REL)
 corrplot(as.matrix(similarity_mean_scATA_REL[res_scRNA_order_manu, res_scRNA_order_manu]), order = "original", method = 'color', 
          type = 'upper', col = cols, col.lim = c(0, 1))
 ```
 
+*data_AML_scATA_mutpeakgene.rds* and *data_AML_scRNA_mutgeneExp.rds* contain the mutation peak-gene associations from scATAC-seq data and mutation gene expression from scRNA-seq data respectively and were generated using the functions in `0_pipelineFunctions.R` > # pipelines for generating mutgeneExp and # pipelines for generating mutpeakgenedata
+
 # stage diff mutations
 ```{r stageDiffMutations}
-AML_ATA_mutPeakGene <- readRDS("../Results/AML/data_AML_scATA_mutpeakgene.rds")
-AML_RNA_mutExprGene <- readRDS("../Results/AML/data_AML_scRNA_mutgeneExp.rds")
+AML_ATA_mutPeakGene <- readRDS("../Data/HumanpAML/data_AML_scATA_mutpeakgene.rds")
+AML_RNA_mutExprGene <- readRDS("../Data/HumanpAML/data_AML_scRNA_mutgeneExp.rds")
 
 HSPC = c("HSC", "Progenitor")
 Myeloid = c("GMP", "Monocytes", "CD16.Monocytes", "cDC", "pDC")
@@ -1758,10 +1795,12 @@ GO_ATA_enrich_ALL$Comparison <- "ALL"
 GO_ATA_enrich <- rbind(GO_ATA_enrich_DX_vs_REM, GO_ATA_enrich_REM_vs_REL, GO_ATA_enrich_DX_vs_REL, GO_ATA_enrich_ALL)
 ```
 
+*GO_RNA_enrich.csv* and *GO_ATA_enrich.csv* contain the GO enrichment results for stage differential mutations from scRNA-seq and scATAC-seq data respectively and were generated using the code in the previous chunk
+
 # GO for stage diff mutations
 ```{r GOstageDiffMutations}
-GO_RNA_enrich <- read.csv("../Data/AML/GO_RNA_enrich.csv")
-GO_ATA_enrich <- read.csv("../Data/AML/GO_ATA_enrich.csv")
+GO_RNA_enrich <- read.csv("../Data/HumanpAML/GO_RNA_enrich.csv")
+GO_ATA_enrich <- read.csv("../Data/HumanpAML/GO_ATA_enrich.csv")
 # remove duplicated GO terms
 GO_ID_RNA_ex <- c("GO:0030099", "GO:0051056")
 GO_ID_ATA_ex <- c("GO:0015669", "GO:0015670", "GO:0042744", "GO:0098869", "GO:0019755",
@@ -1902,7 +1941,6 @@ ggplot(AML_ATA_celltype_percentage, aes(x = Classified_Celltype, y = Library_ID,
 
 
 # main
-
 HSPC = c("HSC", "Progenitor")
 Myeloid = c("GMP", "Monocytes", "CD16.Monocytes", "cDC", "pDC")
 Lymphoid = c("CLP", "Pre.B.Cell", "B.Cell", "CD4.Memory", "CD4.Naive", "CD8.Effector", "CD8.Memory", "CD8.Naive", "NK")
@@ -1915,7 +1953,7 @@ AML_ATA_meta_merge_main <- AML_ATA_meta_merge %>%
       Classified_Celltype %in% Myeloid ~ "Myeloid",
       Classified_Celltype %in% Lymphoid ~ "Lymphoid",
       Classified_Celltype %in% Eryth ~ "Eryth",
-      TRUE ~ "Other"  # 如果有未分类的细胞类型
+      TRUE ~ "Other"  # Other
     )
   )
 
@@ -2122,8 +2160,10 @@ p_similarity_celltypePercentage
 cor.test(merged_percentage_data$percentage_ATA, merged_percentage_data$percentage_RNA, method = "pearson")
 ```
 
+*p8_RDS_GIM2_sampleID_M.rds* and *p8_RDS_MM2_sampleID_M.rds* contain the GeneIntegrationMatrix and MotifMatrix data for transcrption factor lineage analysis respectively and were generated using `0_pipelineFunctions.Rmd` > # pipelines for processing scATAC-seq data and # pipelines for trajectory analysis of scATAC-seq data
+
 # transcrption factor lineage analysis
-```{r TFlineageAnalysis}
+```{r TFlineageAnalysis, eval=FALSE}
 plot_list_lineageSwitching <- function(GIMPath, MMPath, colOrder = NA){
   message("Function to plot lineage switching heatmaps for GIM and MM data.")
   if (all(is.na(colOrder))) {
@@ -2216,18 +2256,18 @@ range_scale <- function(x, min_val = -1.5, max_val = 1.5) {
 
 
 # paths
-GIM_AML4_Path <- "../Data/AML/p8_RDS_GIM2_AML4_M.rds"
-MM_AML4_Path <- "../Data/AML/p8_RDS_MM2_AML4_M.rds"
-GIM_AML16_Path <- "../Data/AML/p8_RDS_GIM2_AML16_M.rds"
-MM_AML16_Path <- "../Data/AML/p8_RDS_MM2_AML16_M.rds"
-GIM_AML11_Path <- "../Data/AML/p8_RDS_GIM2_AML18_M.rds"
-MM_AML11_Path <- "../Data/AML/p8_RDS_MM2_AML18_M.rds"
-GIM_AML17_Path <- "../Data/AML/p8_RDS_GIM2_AML17_M.rds"
-MM_AML17_Path <- "../Data/AML/p8_RDS_MM2_AML17_M.rds"
-GIM_AML18_Path <- "../Data/AML/p8_RDS_GIM2_AML18_M.rds"
-MM_AML18_Path <- "../Data/AML/p8_RDS_MM2_AML18_M.rds"
-GIM_AML24_Path <- "../Data/AML/p8_RDS_GIM2_AML24_M.rds"
-MM_AML24_Path <- "../Data/AML/p8_RDS_MM2_AML24_M.rds"
+GIM_AML4_Path <- "../Data/HumanpAML/p8_RDS_GIM2_AML4_M.rds"
+MM_AML4_Path <- "../Data/HumanpAML/p8_RDS_MM2_AML4_M.rds"
+GIM_AML16_Path <- "../Data/HumanpAML/p8_RDS_GIM2_AML16_M.rds"
+MM_AML16_Path <- "../Data/HumanpAML/p8_RDS_MM2_AML16_M.rds"
+GIM_AML11_Path <- "../Data/HumanpAML/p8_RDS_GIM2_AML18_M.rds"
+MM_AML11_Path <- "../Data/HumanpAML/p8_RDS_MM2_AML18_M.rds"
+GIM_AML17_Path <- "../Data/HumanpAML/p8_RDS_GIM2_AML17_M.rds"
+MM_AML17_Path <- "../Data/HumanpAML/p8_RDS_MM2_AML17_M.rds"
+GIM_AML18_Path <- "../Data/HumanpAML/p8_RDS_GIM2_AML18_M.rds"
+MM_AML18_Path <- "../Data/HumanpAML/p8_RDS_MM2_AML18_M.rds"
+GIM_AML24_Path <- "../Data/HumanpAML/p8_RDS_GIM2_AML24_M.rds"
+MM_AML24_Path <- "../Data/HumanpAML/p8_RDS_MM2_AML24_M.rds"
 
 colOrderQ <- c(1:100)
 lineage_AML4 <- plot_list_lineageSwitching(GIM_AML4_Path, MM_AML4_Path, colOrderQ)
@@ -2343,8 +2383,8 @@ colnames_lineageSwitching_matrix <- c(paste("AML4", c(paste(rep(stage_names_line
 colnames(lineageSwitching_gene_matrix) <- colnames_lineageSwitching_matrix
 
 for (sample in sample_names_lineage) {
-  ATA_motif_path <- paste0("../Data/AML/", sample, "_cellMotif.rds")
-  RNA_motif_path <- paste0("../Data/AML/singleCellMatrix/scATAC_geneExp/", sample, "_geneExp.rds")
+  ATA_motif_path <- paste0("../Data/HumanpAML/", sample, "_cellMotif.rds")
+  RNA_motif_path <- paste0("../Data/HumanpAML/", sample, "_geneExp.rds")
   ATA_motif <- readRDS(ATA_motif_path)
   rownames(ATA_motif) <- sub("_.*$", "", rownames(ATA_motif))
   RNA_exp <- readRDS(RNA_motif_path)
@@ -2404,10 +2444,12 @@ Heatmap(lineageSwitching_gene_matrix,
 #saveRDS(gene_lineage, "../Data/AML/AML_lineageSwitching_gene_meta.rds")
 ```
 
+*AML_lineageSwitching_gene_matrix.rds* and *AML_lineageSwitching_gene_meta.rds* contain the lineage switching gene matrix and gene lineage metadata used for plotting transcription factor lineage plots and were generated using the code above.
+
 # transcription factor lineage plots
 ```{r TFlineagePlots}
-lineageSwitching_gene_matrix <- readRDS("../Data/AML/AML_lineageSwitching_gene_matrix.rds")
-gene_lineage <- readRDS("../Data/AML/AML_lineageSwitching_gene_meta.rds")
+lineageSwitching_gene_matrix <- readRDS("../Data/HumanpAML/AML_lineageSwitching_gene_matrix.rds")
+gene_lineage <- readRDS("../Data/HumanpAML/AML_lineageSwitching_gene_meta.rds")
 gene_lineage_tf <- gene_lineage[gene_lineage$Lineage %in% c("Myeloid_TF", "Lymphoid_TF"),]
 gene_lineage_marker <- gene_lineage[gene_lineage$Lineage %in% c("HSC_Marker", "Progenitor_Marker",
                                                             "Myeloid_Marker_GMP", "Myeloid_Marker_Monocyte",
