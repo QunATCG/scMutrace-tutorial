@@ -1,22 +1,28 @@
 ---
-title: benchmarking tools
-author: Qun Li
-date: 15 Aug 2025 at 14:26:31
+title: "benchmarking tools"
+author: "Qun Li"
+date: "15 Aug 2025 at 14:26:31"
 output:
-  pdf_document: 
+  pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE)
 ```
 
+Reading WGS data and performing the bootstrap procedure may require substantial memory and computational time
+
 # ENV
 ```{r envs}
 rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure2/")
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure2/")
 ```
 
 # Libraries
@@ -62,7 +68,9 @@ snATAC (ENCFF692LTO): https://www.encodeproject.org/experiments/ENCSR997YNO/
 WGS (ENCFF926UDZ): https://www.encodeproject.org/experiments/ENCSR997HAI/
 
 ```{r loadDataENCODE}
-path_encode_excel <- "../Data/GermlineMutation_results_HumanColon_sup.xlsx"
+# Reading WGS data and performing the bootstrap procedure may require substantial memory and computational time
+# scATAC
+path_encode_excel <- "../Data/HumanColon/GermlineMutation_results_HumanColon_sup.xlsx"
 excel_sheets(path_encode_excel)
 
 # init res
@@ -74,16 +82,11 @@ data_benchmarking_humanColon_res <- as.data.frame(matrix(data = 0, nrow = length
 colnames(data_benchmarking_humanColon_res) <- col_benchmarking
 
 # generate benchmarking data
-HumanColon_WGS <- readRDS("../Data/GermlineMutation_results_HumanColon_WGS.rds")
-HumanColon_commonBed <- readRDS("../Data/GermlineMutation_results_HumanColon_commonBed.rds")
+# WGS
+HumanColon_WGS <- readRDS("../Data/HumanColon/GermlineMutation_results_HumanColon_WGS.rds")
 
 HumanColon_WGS_benchmarking <- list()
 for (sampleID in SampleIDs_HumanColon){
-  #data_bed <- HumanColon_commonBed[[sampleID]]
-  #data_wgs <- HumanColon_WGS[[sampleID]]
-  #data_wgs_benchmarking <- bedtoolsr::bt.intersect(data_wgs, data_bed)
-  #colnames(data_wgs_benchmarking) <- c("chrom_wgs", "pos_start_wgs", "pos_end_wgs", "ref_wgs", "alt_wgs" )
-  #HumanColon_WGS_benchmarking[[sampleID]] <- data_wgs_benchmarking
   data_wgs <- HumanColon_WGS[[sampleID]]
   colnames(data_wgs) <- c("chrom_wgs", "pos_start_wgs", "pos_end_wgs", "ref_wgs", "alt_wgs" )
   HumanColon_WGS_benchmarking[[sampleID]] <- data_wgs
@@ -93,10 +96,6 @@ HumanColon_RNA_benchmarking <- list()
 for (sampleID in SampleIDs_HumanColon){
   data_rna_ini <- data.frame()
   for (tool in Tools_benchmarking_germline){
-    #data_rna_total <- read_excel(path_encode_excel, sheet = tool) %>% filter(SampleID == sampleID)
-    #data_rna_sample_benchmarking <- bedtoolsr::bt.intersect(data_rna_total, HumanColon_commonBed[[sampleID]])
-    #data_rna_ini <- rbind(data_rna_ini, data_rna_sample_benchmarking)
-    
     data_rna_total <- read_excel(path_encode_excel, sheet = tool) %>% filter(SampleID == sampleID)
     data_rna_ini <- rbind(data_rna_ini, data_rna_total)
   }
@@ -159,8 +158,6 @@ colorAssign_0 = c(freebayes = "#FFDC91FF", SAMtools = "#7876B1FF",
 data_benchmarking_humanColon_res <- data_benchmarking_humanColon_res %>%
   mutate(Tool = fct_reorder(Tool, F1Score, .fun = mean, .na_rm = TRUE))
 
-#data_benchmarking_humanColon_res$Tool <- factor(data_benchmarking_humanColon_res$Tool, levels = c("Strelka2", "freebayes", "SAMtools", "VarScan2", "scAllele", "Monopogen", "scMutrace"))
-
 data_benchmarking_humanColon_res <- na.omit(data_benchmarking_humanColon_res)
 
 p_humanColon_point <- ggplot(data = data_benchmarking_humanColon_res) + 
@@ -185,7 +182,7 @@ p_humanColon_box
 
 # cSCC
 ```{r cSCC}
-path_cSCC_excel <- "../Data/SomaticMutation_results_cSCC_sup.xlsx"
+path_cSCC_excel <- "../Data/HumancSCC/SomaticMutation_results_cSCC_sup.xlsx"
 excel_sheets(path_cSCC_excel)
 
 Tools_benchmarking_cSCC <- c("freeBayes", "Monopogen", "SAMtools", "scAllele","scMutrace", "SComatic", "Strelka2", "VarScan2")
@@ -258,9 +255,6 @@ data_benchmarking_cSCC_res <- data_benchmarking_cSCC_res %>%
 
 data_benchmarking_cSCC_res <- na.omit(data_benchmarking_cSCC_res)
 
-# c("freeBayes", "Monopogen", "SAMtools", "scAllele","scMutrace", "SComatic", "Strelka2", "VarScan2")
-# data_benchmarking_cSCC_res$Tool <- factor(data_benchmarking_cSCC_res$Tool, levels = c("Strelka2", "freeBayes", "SAMtools", "VarScan2", "Monopogen", "SComatic", "scAllele", "scMutrace"))
-
 p_cSCC_point <- ggplot(data = data_benchmarking_cSCC_res) + 
   geom_point(mapping =  aes(x = Recall, y = Precision, color = Tool), size = 5, show.legend = FALSE) +
   scale_color_manual(values = colorAssign_1) +
@@ -288,26 +282,43 @@ for (name in names(cSCC_Data_benchmarking)){
   cSCC_overlap_list[[name]] <- ids_tmp
 }
 
+# For Strelka2, there are too many unique calls and we can't filter them 
 upset(fromList(cSCC_overlap_list), 
       nsets = length(cSCC_overlap_list), 
       order.by = "freq",
       main.bar.color = "steelblue",
       sets.bar.color = "gray23",
       text.scale = c(2, 2, 2, 1.5, 2, 1.5))
-
-
-#ggsave("../Figures/p_cSCC_benchmarking_point.pdf", p_cSCC_point, width = 4.47, height = 3.75)
-#ggsave("../Figures/p_cSCC_benchmarking_box.pdf", p_cSCC_box, width = 4.47, height = 3.75)
 ```
 
 # cSCC mutation signature
 ```{r cSCCMutSignature}
-cosine_similarity <- function(a, b) {
-  sum(a * b) / (sqrt(sum(a^2)) * sqrt(sum(b^2)))
+#cosine_similarity <- function(a, b) {
+#  sum(a * b) / (sqrt(sum(a^2)) * sqrt(sum(b^2)))
+#}
+
+cosine_similarity <- function(a, b, na.rm = TRUE) {
+  a <- as.numeric(a)
+  b <- as.numeric(b)
+  
+  if (na.rm) {
+    keep <- !(is.na(a) | is.na(b))
+    a <- a[keep]
+    b <- b[keep]
+  }
+  
+  denom <- sqrt(sum(a^2)) * sqrt(sum(b^2))
+  if (denom == 0) return(as.numeric(NA)) 
+  
+  sim <- sum(a * b) / denom
+  
+  sim <- max(min(sim, 1), -1)
+  
+  return(as.numeric(sim))
 }
 
-cSCC_sig <- read.table("../data/Mutational_Matrix_SBS_cSCC.txt", header = T, sep = "\t")
-cSCC_contribution_raw <- read.csv("../data/Signature_contributions_cSCC.csv", header = T, row.names = 1)
+cSCC_sig <- read.table("../Data/HumancSCC/Mutational_Matrix_SBS_cSCC.txt", header = T, sep = "\t")
+cSCC_contribution_raw <- read.csv("../Data/HumancSCC/Signature_contributions_cSCC.csv", header = T, row.names = 1)
 cSCC_contribution <- cSCC_contribution_raw[,-1]
 
 # calsim
@@ -344,7 +355,7 @@ p_cSCC_data_cosSim <- pheatmap(cSCC_data_cosSim_res,
                                cluster_rows = F, cluster_cols = F,
                                display_numbers = TRUE, number_color = "white",
                                main = "cosine_similarity cSCC", 
-                               color = col_fun_v1)
+                               color = col_fun_v1(seq(0, 1, length.out = 100)))
 p_cSCC_data_cosSim
 
 cSCC_contribution_long <- melt(as.matrix(cSCC_contribution))
@@ -371,11 +382,7 @@ p_cSCC_contribution <- ggplot(cSCC_contribution_long, aes(x = Tool, y = Value, f
   labs(x = "Tool", y = "Proportion", fill = "Signature")
 
 p_cSCC_contribution
-
-#pdf("../Figures/p_cSCC_data_cosSim.pdf", width = 5.31, height = 3.90)
 p_cSCC_data_cosSim
-#dev.off()
-#ggsave("../Figures/p_cSCC_contribution.pdf", p_cSCC_contribution, width = 4.47, height = 3.75)
 ```
 
 # Mouse scATAC
@@ -385,11 +392,8 @@ Tools_benchmarking_Mouse <- c("freebayes", "SAMtools", "scAllele",
 
 SampleIDs_Mouse <- c("EPSRC1", "EPSRC2", "EPSRC4")
 
-#Mouse_WGS <- readRDS("../Data/GermlineMutation_results_Mouse_WGS_scATAC.rds")
-#Mouse_scATA <- readRDS("../Data/GermlineMutation_results_Mouse_scATAC.rds")
-
-Mouse_WGS <- readRDS("../Data/GermlineMutation_results_Mouse_WGS_scATAC.rds")
-Mouse_scATA <- readRDS("../Data/GermlineMutation_results_Mouse_scATAC.rds")
+Mouse_WGS <- readRDS("../Data/MouseEpithelioidSarcoma/GermlineMutation_results_Mouse_WGS_scATAC.rds")
+Mouse_scATA <- readRDS("../Data/MouseEpithelioidSarcoma/GermlineMutation_results_Mouse_scATAC.rds")
 
 col_benchmarking_Mouse <- c("Iteration", "sampleID", "Tool", "Precision", "Recall", "F1Score")
 
@@ -478,9 +482,6 @@ p_Mouse_scATAC_box <- ggplot(data = data_benchmarking_Mouse_scATA_res, aes(x = T
 
 p_Mouse_scATAC_point
 p_Mouse_scATAC_box
-
-#ggsave("../Figures/p_Mouse_scATAC_benchmarking_point.pdf", p_Mouse_scATAC_point, width = 4.47, height = 3.75)
-#ggsave("../Figures/p_Mouse_scATAC_benchmarking_box.pdf", p_Mouse_scATAC_box, width = 4.47, height = 3.75)
 ```
 
 # Mouse scRNA
@@ -490,8 +491,8 @@ Tools_benchmarking_Mouse <- c("freebayes", "SAMtools", "scAllele",
 
 SampleIDs_Mouse <- c("EPSRC1", "EPSRC2", "EPSRC4")
 
-Mouse_WGS <- readRDS("../Data/GermlineMutation_results_Mouse_WGS_scRNA.rds")
-Mouse_scRNA <- readRDS("../Data/GermlineMutation_results_Mouse_scRNA.rds")
+Mouse_WGS <- readRDS("../Data/MouseEpithelioidSarcoma/GermlineMutation_results_Mouse_WGS_scRNA.rds")
+Mouse_scRNA <- readRDS("../Data/MouseEpithelioidSarcoma/GermlineMutation_results_Mouse_scRNA.rds")
 
 col_benchmarking_Mouse <- c("Iteration", "sampleID", "Tool", "Precision", "Recall", "F1Score")
 
@@ -580,15 +581,12 @@ p_Mouse_scRNA_box <- ggplot(data = data_benchmarking_Mouse_scRNA_res, aes(x = To
 
 p_Mouse_scRNA_point
 p_Mouse_scRNA_box
-
-#ggsave("../Figures/p_Mouse_scRNA_benchmarking_point.pdf", p_Mouse_scRNA_point, width = 4.47, height = 3.75)
-#ggsave("../Figures/p_Mouse_scRNA_benchmarking_box.pdf", p_Mouse_scRNA_box, width = 4.47, height = 3.75)
 ```
 
 # Mouse scRNA scATA calConsistencyscore
 ```{r calConsistencyscore}
 SampleIDs_Mouse <- c("EPSRC1", "EPSRC2", "EPSRC4")
-Mouse_Consistencyscore <- readRDS("../Data/GermlineMutation_results_Mouse_Consistencyscore.rds")
+Mouse_Consistencyscore <- readRDS("../Data/MouseEpithelioidSarcoma/GermlineMutation_results_Mouse_Consistencyscore.rds")
 
 Mouse_consistencyScoreMatrix_RNA_ATA <- matrix(nrow = length(SampleIDs_Mouse), ncol = length(SampleIDs_Mouse))
 colnames(Mouse_consistencyScoreMatrix_RNA_ATA) <- SampleIDs_Mouse
@@ -631,16 +629,12 @@ p_consistencyScoreMatrix_RNA_ATA <- pheatmap(Mouse_consistencyScoreMatrix_RNA_AT
                                              main = "Consistency score of scRNA and scATAC", 
                                              color = col_vec)
 p_consistencyScoreMatrix_RNA_ATA
-
-pdf("../Figures/p_Mouse_ConsistencyScore_scRNA_scATAC.pdf", width = 4.47, height = 3.75)
-p_consistencyScoreMatrix_RNA_ATA
-dev.off()
 ```
 
 # BrainPFC 
 ```{r calConsistencyscorePFC}
 # common region with at least 2 cells
-PFC_Mutation <- readRDS("../Data/BrainPFC_Mutation_res.rds")
+PFC_Mutation <- readRDS("../Data/HumanPFC/BrainPFC_Mutation_res.rds")
 
 PFC_sampleIDs <- c("Sample018", "Sample019", "Sample020", "Sample021", "Sample022", 
                "Sample023", "Sample025", "Sample026", "Sample027", "Sample028",
@@ -679,13 +673,9 @@ p_consistencyScoreMatrix_RNA_ATA_brain <- pheatmap(consistencyScoreMatrix_RNA_AT
                                              cluster_rows = F, cluster_cols = F,
                                              display_numbers = TRUE, number_color = "white",
                                              main = "Consistency score of scRNA and scATAC", 
-                                             color = col_fun_v1)
+                                             color = col_fun_v1(seq(0, 1, length.out = 100)))
 
 p_consistencyScoreMatrix_RNA_ATA_brain
-
-#pdf("../Figures/p_Brain_ConsistencyScore_scRNA_scATAC.pdf", width = 8.50, height = 6.70)
-#p_consistencyScoreMatrix_RNA_ATA_brain
-#dev.off()
 ```
 
 

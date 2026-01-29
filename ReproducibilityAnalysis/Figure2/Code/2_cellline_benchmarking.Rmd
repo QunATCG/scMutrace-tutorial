@@ -1,12 +1,16 @@
 ---
-title: cellline benchmarking
-author: Qun Li
-date: 18 Aug 2025 at 15:50:59
+title: "cellline benchmarking"
+author: "Qun Li"
+date: "18 Aug 2025 at 15:50:59"
 output:
-  pdf_document: 
+  pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
@@ -16,7 +20,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 # Env
 ```{r env}
 rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure2/")
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure2/")
 ```
 
 # Libraries
@@ -31,9 +35,9 @@ library(ComplexHeatmap)
 
 # Load Data
 ```{r loadData}
-cellLine_database <- readRDS("../Data/CellLine_Database_res.rds")
-cellLine_mutation <- readRDS("../Data/CellLine_Mutation_res.rds")
-cellLine_annotation <- read.csv("../Data/CellLine_Annotation.csv", header = T, row.names = 1)
+cellLine_database <- readRDS("../Data/HumanCellline/CellLine_Database_res.rds")
+cellLine_mutation <- readRDS("../Data/HumanCellline/CellLine_Mutation_res.rds")
+cellLine_annotation <- read.csv("../Data/HumanCellline/CellLine_Annotation.csv", header = T, row.names = 1)
 # remove KPL1 (SNP fingerprinting confirms that this line is an MCF-7 derivative. DepMap metadata has been updated (as of 22Q2) to reflect this.)
 cellLine_annotation <- cellLine_annotation[!cellLine_annotation$cellLineName %in% c("KPL1"),]
 
@@ -111,12 +115,6 @@ p_total <- pheatmap(data_scaled,
 p_total
 ```
 
-```{r saveTotal}
-pdf("../Figures/p_cellLines_total.pdf", width = 9.48, height = 7.0)
-p_total
-dev.off()
-```
-
 # selectedCelllines
 ```{r simscMutCellLineSelected}
 marked_celllines <- c("HGC27", "KATOIII", "MKN45","NCIN87", "NUGC4", "SNU16","SNU601", "SNU638", "SNU668")
@@ -179,11 +177,8 @@ p_selected <- Heatmap(data_scaled_selected,
         column_names_side = "bottom")
 
 p_selected
-
-pdf("../Figures/p_cellLines_selected.pdf", width = 9.08, height = 3.89)
-p_selected
-dev.off()
 ```
+
 # MCF7MutSim
 ```{r MCF7MutSim}
 MCF7_colnames <- c("MCF7_MayC9", "MCF7_NovC9", "MCF7_Parental", "MCF7_WT3", "MCF7_WT4", "MCF7_WT5")
@@ -224,10 +219,6 @@ p_selected_MCF7 <- Heatmap(data_sim_scmut_MCF7,
         column_names_side = "bottom")
 
 p_selected_MCF7
-
-pdf("../Figures/p_selected_MCF7.pdf", width = 5.4, height = 5.4)
-p_selected_MCF7
-dev.off()
 ```
 
 # How to generate MCF7_merge_exp.rds
@@ -322,12 +313,23 @@ DimPlot(
 ) +
   ggtitle("tsne of MCF7 samples") +
   theme_classic(base_size = 14)
-s
+saveRDS(MCF7_Merge, file = "../Data/HumanCellline/MCF7_merge_exp.rds")
+
+# generate data for visualization
+MCF7_Merge_meta <- MCF7_Merge@meta.data
+MCF7_Merge_meta$cell_id <- rownames(MCF7_Merge_meta)
+MCF7_Merge_pca <- Embeddings(MCF7_exp, "pca")[, 1:20]
+MCF7_Merge_tSNE <- as.data.frame(MCF7_Merge@reductions$tsne@cell.embeddings)
+MCF7_Merge_tSNE$cell_id <- rownames(MCF7_Merge_tSNE)
+MCF7_Merge_meta_tTSNE <- merge(MCF7_Merge_meta, MCF7_Merge_tSNE, by = "cell_id")
+MCF7_exp_data <- list(meta = MCF7_Merge_meta_tTSNE,
+                     pca = MCF7_Merge_pca)
+saveRDS(MCF7_exp_data, file = "../Data/HumanCellline/MCF7_exp_data.rds")
 ```
 
 # MCF7ExpSim
 ```{r MCF7ExpSim}
-MCF7_exp <- readRDS("../Data/MCF7_merge_exp.rds")
+MCF7_exp <- readRDS("../Data/HumanCellline/MCF7_exp_data.rds")
 
 my_colors <- c(
   "May"       = "#D73027",
@@ -338,16 +340,16 @@ my_colors <- c(
   "WT5"       = "#ABD9E9"
 )
 
-p_dimplot <- DimPlot(
-  MCF7_exp,
-  group.by = "sample",
-  cols = my_colors,
-  reduction = "tsne") + ggtitle("TSNE of MCF7 samples") + theme_classic()
+p_tSNE <- ggplot(MCF7_exp$meta, aes(x = tSNE_1, y = tSNE_2, color = sample)) +
+  geom_point(size = 0.5, alpha = 0.8) +
+  scale_color_manual(values = my_colors) +
+  theme_classic()
+p_tSNE
 
 # distance
-pca_data <- Embeddings(MCF7_exp, "pca")[, 1:20]
+pca_data <- MCF7_exp$pca
+meta <- MCF7_exp$meta
 
-meta <- MCF7_exp@meta.data
 avg_pca <- as.data.frame(pca_data) %>%
   mutate(group = meta$orig.ident) %>%
   group_by(group) %>%
@@ -377,12 +379,6 @@ p_selected_MCF7_exp <- Heatmap(dist_mat,
         column_names_side = "bottom")
 
 p_selected_MCF7_exp
-
-pdf("../Figures/p_selected_MCF7_exp.pdf", width = 5.4, height = 5.4)
-p_selected_MCF7_exp
-dev.off()
-
-ggsave(filename = "../Figures/UMAP_MCF7_samples.pdf", plot = p_dimplot, width = 6, height = 5)
 ```
 
 

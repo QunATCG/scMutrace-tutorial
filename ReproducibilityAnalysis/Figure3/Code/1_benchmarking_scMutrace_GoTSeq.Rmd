@@ -13,8 +13,6 @@ output:
 knitr::opts_chunk$set(collapse = TRUE)
 ```
 
-
-
 #ENV
 ```{r envs}
 rm(list = ls())
@@ -200,8 +198,6 @@ group_count$Group <- ifelse(grepl("AML",  group_count$donor.id, ignore.case = TR
 ggplot(group_count, aes(x = Group, y = Count, fill = Group)) +
   geom_boxplot(width = 0.6, alpha = 0.8) +
   theme_classic() + labs(y = "Mean mutations per cell (bootstrap)", x = "")
-
-ggsave(filename = "../Figures/GoT/p_mutation_burden.pdf", width = 3.66, height = 4.21)
 ```
 
 # Census genes individual sample
