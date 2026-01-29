@@ -3,14 +3,14 @@ title: "noiseEST"
 author: "Qun Li"
 date: "20 Oct 2025 at 15:06:30"
 output:
-  html_document:
-    toc: true
-    toc_depth: '3'
-    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
