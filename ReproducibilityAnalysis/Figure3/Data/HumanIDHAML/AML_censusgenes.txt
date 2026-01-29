@@ -1,0 +1,85 @@
+GeneSymbol	Name	EntrezGeneId	GenomeLocation	Tier
+ABI1	abl-interactor 1	10006	10:26746593-26860935	1
+ABL2	c-abl oncogene 2, non-receptor tyrosine kinase	27	1:179099327-179229601	1
+ACSL6	acyl-CoA synthetase long-chain family member 6	23305	5:131949973-132011662	2
+ARHGAP26	Rho GTPase activating protein 26	23092	5:142770377-143229011	1
+ARHGEF12	RHO guanine nucleotide exchange factor (GEF) 12 (LARG)	23365	11:120337078-120489936	1
+ARNT	aryl hydrocarbon receptor nuclear translocator	405	1:150809705-150876768	1
+ASXL2	additional sex combs like 2, transcriptional regulator	55252	2:25741925-25780309	2
+BCOR	BCL6 corepressor	54880	X:40051248-40097403	1
+BCORL1	BCL6 corepressor-like 1	63035	X:130005188-130058083	1
+BCR	breakpoint cluster region	613	22:23180210-23318037	1
+CBFA2T3	core-binding factor, runt domain, alpha subunit 2; translocated to, 3 (MTG-16)	863	16:88874858-88977204	1
+CBFB	core-binding factor, beta subunit	865	16:67029245-67101022	1
+CBL	Cas-Br-M (murine) ecotropic retroviral transforming	867	11:119206276-119308149	1
+CBLB	Cas-Br-M (murine) ecotropic retroviral transforming sequence b	868	3:105655461-105869043	1
+CDX2	caudal type homeo box transcription factor 2	1045	13:27962137-27971139	1
+CEBPA	CCAAT/enhancer binding protein (C/EBP), alpha	1050	19:33299934-33302564	1
+CHIC2	cysteine-rich hydrophobic domain 2	26511	4:54009789-54064690	2
+CLP1	cleavage and polyadenylation factor I subunit 1	10978	11:57657158-57661868	2
+CREBBP	CREB binding protein (CBP)	1387	16:3725054-3880726	1
+CSF1R	colony stimulating factor 1 receptor	1436	5:150053291-150113372	2
+CSF3R	colony stimulating factor 3 receptor (granulocyte)	1441	1:36466043-36483278	1
+CTNNA1	Catenin Alpha 1	1495	5:138753423-138935034	2
+CUX1	cut-like homeobox 1	1523	7:101816011-102258233	1
+DDX10	DEAD (Asp-Glu-Ala-Asp) box polypeptide 10	1662	11:108665025-108940930	1
+DEK	DEK oncogene (DNA binding)	7913	6:18223868-18264823	1
+DNMT3A	DNA (cytosine-5-)-methyltransferase 3 alpha	1788	2:25227855-25342590	1
+ELF4	E74-like factor 4 (ets domain transcription factor)	2000	X:130064928-130110495	1
+EP300	300 kd E1A-Binding protein gene	2033	22:41091786-41180079	1
+ERG	v-ets erythroblastosis virus E26 oncogene like (avian)	2078	21:38380027-38661694	1
+FLT3	fms-related tyrosine kinase 3	2322	13:28003274-28100592	1
+FNBP1	formin binding protein 1 (FBP17)	23048	9:129887187-130043162	2
+FUS	fusion, derived from t(12;16) malignant liposarcoma	2521	16:31180110-31194871	1
+GAS7	growth arrest-specific 7	8522	17:9913850-10198551	1
+GATA2	GATA binding protein 2	2624	3:128479427-128493185	1
+GMPS	guanine monphosphate synthetase	8833	3:155870536-155944026	2
+HOXA13	homeo box A13	3209	7:27194364-27200106	1
+HOXA9	homeo box A9	3205	7:27162435-27165530	1
+HOXC11	homeo box C11	3227	12:53973126-53977643	1
+HOXC13	homeo box C13	3229	12:53938765-53946544	1
+HOXD11	homeo box D11	3237	2:176107286-176109588	1
+HOXD13	homeo box D13	3239	2:176092891-176095938	1
+JAK2	Janus kinase 2	3717	9:4985245-5128183	1
+KAT6A	K(lysine) acetyltransferase 6A	7994	8:41929479-42051987	1
+KAT6B	K(lysine) acetyltransferase 6B	23522	10:74826625-75032622	1
+KDM5A	lysine (K)-specific demethylase 5A, JARID1A	5927	12:280129-389454	1
+KIT	v-kit Hardy-Zuckerman 4 feline sarcoma viral oncogene homolog	3815	4:54657918-54740715	1
+KMT2A	lysine (K)-specific methyltransferase 2A	4297	11:118436490-118526832	1
+KNL1	cancer susceptibility candidate 5	57082	15:40594020-40664342	1
+KRAS	v-Ki-ras2 Kirsten rat sarcoma 2 viral oncogene homolog	3845	12:25209431-25250803	1
+LASP1	LIM and SH3 protein 1	3927	17:38869859-38921770	1
+LEF1	lymphoid enhancer binding factor 1	51176	4:108047545-108168422	1
+MECOM	MDS1 and EVI1 complex locus	2122	3:169083499-169146305	1
+MLF1	myeloid leukemia factor 1	4291	3:158582835-158606459	1
+MN1	MN1 proto-oncogene, transcriptional regulator	4330	22:27748277-27801498	1
+MNX1	motor neuron and pancreas homeobox 1	3110	7:157004853-157010651	2
+MYH11	myosin, heavy polypeptide 11, smooth muscle	4629	16:15703172-15857011	1
+NCOA2	nuclear receptor coactivator 2 (TIF2)	10499	8:70109762-70403805	1
+NPM1	nucleophosmin (nucleolar phosphoprotein B23, numatrin)	4869	5:171387648-171411137	1
+NRAS	neuroblastoma RAS viral (v-ras) oncogene homolog	4893	1:114704469-114716894	1
+NSD1	nuclear receptor binding SET domain protein 1	64324	5:177133925-177300215	1
+NSD3	Wolf-Hirschhorn syndrome candidate 1-like 1 (NSD3)	54904	8:38269697-38382272	1
+NUP214	nucleoporin 214kDa (CAN)	8021	9:131125561-131234670	1
+NUP98	nucleoporin 98kDa	4928	11:3675010-3797792	1
+PDGFRB	platelet-derived growth factor receptor, beta polypeptide	5159	5:150113837-150155860	1
+PER1	period homolog 1 (Drosophila)	5187	17:8140472-8152435	1
+PICALM	phosphatidylinositol binding clathrin assembly protein (CALM)	8301	11:85958814-86068929	1
+PRDM16	PR domain containing 16	63976	1:3069211-3438621	1
+PRRX1	paired related homeobox 1	5396	1:170663906-170739419	1
+PSIP1	PC4 and SFRS1 interacting protein 1 (LEDGF)	11168	9:15464066-15511019	1
+PTPN11	protein tyrosine phosphatase, non-receptor type 11	5781	12:112419112-112504764	1
+RAD21	RAD21 homolog (S. pombe)	5885	8:116845935-116874866	1
+RPL22	ribosomal protein L22 (EAP)	6146	1:6185020-6199612	1
+RPN1	ribophorin I	6184	3:128619970-128650849	1
+SEPTIN5	septin 5	5413	22:19714464-19723319	2
+SEPTIN6	septin 6	23157	X:119617639-119693370	2
+SEPTIN9	septin 9	10801	17:77281410-77500592	2
+SETBP1	SET binding protein 1	26040	18:44680898-45068510	1
+SH2B3	SH2B adaptor protein 3	10019	12:111405948-111451623	1
+SMC1A	structural maintenance of chromosomes 1A	8243	X:53374149-53422728	2
+STAG1	stromal antigen 1	10274	3:136336233-136752368	2
+TET1	tet methylcytosine dioxygenase 1	80312	10:68560656-68694482	1
+TNRC18	Trinucleotide repeat containing 18	84629	7:5306800-5423546	2
+TOP1	topoisomerase (DNA) I	7150	20:41028818-41124487	1
+TRIP11	thyroid hormone receptor interactor 11	9321	14:91965991-92040059	1

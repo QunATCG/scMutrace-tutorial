@@ -1,12 +1,16 @@
 ---
-title: Benchmarking scMutrace and XVseq
-author: Qun Li
-date: 12 Aug 2025 at 14:05:26
+title: "Benchmarking scMutrace and XVseq"
+author: "Qun Li"
+date: "12 Aug 2025 at 14:05:26"
 output:
-  pdf_document: 
+  pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
@@ -16,7 +20,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 # Envs
 ```{r envs}
 rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure3/")
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure3/")
 ```
 
 # Libraries
@@ -39,9 +43,9 @@ library(data.table)
 # Load Data
 ```{r loadData}
 # 0-wildtype, 1-mutant, 2-no call
-data_XVSeq_raw <- read.table("../Data/XVSeq/XVseq_PDC_meta.txt", header = T, sep = "\t")
+data_XVSeq_raw <- read.table("../Data/HumanBPDCN/XVseq_PDC_meta.txt", header = T, sep = "\t")
 # 0-wildtype, 1-mutant
-data_scMut_raw <- read.table("../Data/XVSeq/scMutrace_PDC_meta.txt", header = T, sep = "\t")
+data_scMut_raw <- read.table("../Data/HumanBPDCN/scMutrace_PDC_meta.txt", header = T, sep = "\t")
 ```
 
 # Process data
@@ -131,7 +135,7 @@ p_benchmarking <- ggplot(data = result_benchmarking) +
     alpha = 0.6,
     show.legend = TRUE
   ) +
-  scale_fill_manual(values = genesColor) +  # 注意这里用 scale_fill_manual 控制填充颜色
+  scale_fill_manual(values = genesColor) +  # scale_fill_manual
   xlab("Recall") + ylab("Precision") + 
   xlim(0, 0.6) +
   ylim(0, 1) +
@@ -145,21 +149,12 @@ p_benchmarking <- ggplot(data = result_benchmarking) +
 
 p_benchmarking
 
-pdf("../Figures/XVSeq/p_benchmarking.pdf", width = 8.45, height = 6.33)
-p_benchmarking
-dev.off()
 
 venn_list_SMARCD1 <- list(scMut = unique(data_scMut %>% filter(mutInfo_scMut == 1 & gene == "SMARCD1") %>% pull(tag)), 
                             scXV  = unique(data_XVSeq %>% filter(mutInfo_XVseq == 1 & gene == "SMARCD1") %>% pull(tag)))
 
 p_venn_SMARCD1 <- ggVennDiagram(venn_list_SMARCD1, category.names = c("scMut", "scXVSeq")) + scale_fill_distiller(palette = "RdBu")
 p_venn_SMARCD1
-
-pdf("../Figures/XVSeq/p_venn_SMARCD1.pdf", width = 8.45, height = 6.33)
-p_venn_SMARCD1
-dev.off()
-
-write.csv(result_benchmarking, "../Data/XVSeq/Benchmarking_data.csv")
 ```
 # Proportion
 ```{r proportion}
@@ -219,13 +214,8 @@ p_proportion <- Heatmap(
 )
 
 p_proportion
-
-pdf("../Figures/XVSeq/p_proportion.pdf", width = 6.21, height = 6.33)
-p_proportion
-dev.off()
-
-write.csv(result_proportion[, c("XVseqDx", "XVseqRe", "scMutraceDx", "scMutraceRe")], "../Data/XVSeq/Mutation_sample.csv")
 ```
+
 # CelltypeLevel
 ```{r celltypeLevel}
 # reshape
@@ -308,6 +298,7 @@ data_celltype_mut_count_wide$freq_scMut[is.nan(data_celltype_mut_count_wide$freq
 data_celltype_mut_count_wide$freq_XVSeq[is.nan(data_celltype_mut_count_wide$freq_XVSeq)] <- 0
 
 data_Dx_long <- data_celltype_mut_count_wide[data_celltype_mut_count_wide$stage == "Dx",]
+setDT(data_Dx_long)
 p_data_Dx_scMut <- dcast(
   data_Dx_long,
   Gene_clean ~ lineage,
@@ -317,6 +308,7 @@ p_data_Dx_scMut <- dcast(
 p_data_Dx_scMut[is.na(p_data_Dx_scMut)] <- 0
 
 data_Rel_long <- data_celltype_mut_count_wide[data_celltype_mut_count_wide$stage == "Rel",]
+setDT(data_Rel_long)
 p_data_Re_scMut <- dcast(
   data_Rel_long,
   Gene_clean ~ lineage,
@@ -434,10 +426,6 @@ p_proportion_Re_XVseq <- Heatmap(
 p_merge_proportion_celltype <- p_proportion_Dx_XVseq + p_proportion_Re_XVseq + p_proportion_Dx_scMut + p_proportion_Re_scMut
 
 p_merge_proportion_celltype
-
-pdf("../Figures/XVSeq/p_merge_proportion_celltype.pdf", width = 11.39, height = 6.33)
-p_merge_proportion_celltype
-dev.off()
 ```
 
 # UMAPLevel celltype annotation
@@ -517,11 +505,8 @@ p_Re_celltype_3
 
 p_celltype_4
 p_celltype_5
-
-pdf("../Figures/XVSeq/p_seurat_celltype.pdf", width = 7.65, height = 6.33)
-p_celltype_4
-dev.off()
 ```
+
 # UMAPLevel mutation
 ```{r UMAPMutation}
 # scMut
@@ -662,23 +647,9 @@ p_Dx_TET2_S792_XVSeq
 p_Re_TET2_S792_XVSeq
 p_Dx_allgene_XVSeq
 p_Re_allgene_XVSeq
-
-pdf("../Figures/XVSeq/p_Dx_allgene_scMut.pdf", width = 7.65, height = 6.33)
-p_Dx_allgene_scMut
-dev.off()
-
-pdf("../Figures/XVSeq/p_Re_allgene_scMut.pdf", width = 7.65, height = 6.33)
-p_Re_allgene_scMut
-dev.off()
-
-pdf("../Figures/XVSeq/p_Dx_allgene_XVSeq.pdf", width = 7.65, height = 6.33)
-p_Dx_allgene_XVSeq
-dev.off()
-
-pdf("../Figures/XVSeq/p_Re_allgene_XVSeq.pdf", width = 7.65, height = 6.33)
-p_Re_allgene_XVSeq
-dev.off()
 ```
+
+
 # PropotionMutCells
 ```{r countPropotionMutCells}
 order_geneNames <- c("ACAP2", "CWF19L2", "HNRNPUL1", "RPS24", "SMARCD1", "TET2_H1380Y", "TET2_Q1034", "TET2_R1216", "TET2_S792")
@@ -705,7 +676,7 @@ data_propotionMutCells_XVSeq_Dx <- matrix(c(num_XVSeq_Dx_Malignant_mut, num_XVSe
 chisq.test(data_propotionMutCells_XVSeq_Dx,correct = T)
 fisher.test(data_propotionMutCells_XVSeq_Dx)
 
-data_propotionMutCells_XVSeq_Dx_long <- melt(data_propotionMutCells_XVSeq_Dx, id.vars = "Group", variable.name = "MutType", value.name = "Count")
+data_propotionMutCells_XVSeq_Dx_long <- reshape2::melt(data_propotionMutCells_XVSeq_Dx, id.vars = "Group", variable.name = "MutType", value.name = "Count")
 ggplot(data_propotionMutCells_XVSeq_Dx_long, aes(x = group, y = Count, fill = effect)) +
   geom_bar(stat = "identity", position = "fill") +
   scale_y_continuous(labels = scales::percent_format()) +
@@ -725,7 +696,7 @@ data_propotionMutCells_XVSeq_Re <- matrix(c(num_XVSeq_Re_Malignant_mut, num_XVSe
 chisq.test(data_propotionMutCells_XVSeq_Re,correct = T)
 fisher.test(data_propotionMutCells_XVSeq_Re)
 
-data_propotionMutCells_XVSeq_Re_long <- melt(data_propotionMutCells_XVSeq_Re, id.vars = "Group", variable.name = "MutType", value.name = "Count")
+data_propotionMutCells_XVSeq_Re_long <- reshape2::melt(data_propotionMutCells_XVSeq_Re, id.vars = "Group", variable.name = "MutType", value.name = "Count")
 ggplot(data_propotionMutCells_XVSeq_Re_long, aes(x = group, y = Count, fill = effect)) +
   geom_bar(stat = "identity", position = "fill") +
   scale_y_continuous(labels = scales::percent_format()) +
@@ -754,7 +725,7 @@ data_propotionMutCells_scMut_Dx <- matrix(c(num_scMut_Dx_Malignant_mut, num_scMu
 chisq.test(data_propotionMutCells_scMut_Dx,correct = T)
 fisher.test(data_propotionMutCells_scMut_Dx)
 
-data_propotionMutCells_scMut_Dx_long <- melt(data_propotionMutCells_scMut_Dx, id.vars = "Group", variable.name = "MutType", value.name = "Count")
+data_propotionMutCells_scMut_Dx_long <- reshape2::melt(data_propotionMutCells_scMut_Dx, id.vars = "Group", variable.name = "MutType", value.name = "Count")
 ggplot(data_propotionMutCells_scMut_Dx_long, aes(x = group, y = Count, fill = effect)) +
   geom_bar(stat = "identity", position = "fill") +
   scale_y_continuous(labels = scales::percent_format()) +
@@ -774,7 +745,7 @@ data_propotionMutCells_scMut_Re <- matrix(c(num_scMut_Re_Malignant_mut, num_scMu
 chisq.test(data_propotionMutCells_scMut_Re,correct = T)
 fisher.test(data_propotionMutCells_scMut_Re)
 
-data_propotionMutCells_scMut_Re_long <- melt(data_propotionMutCells_scMut_Re, id.vars = "Group", variable.name = "MutType", value.name = "Count")
+data_propotionMutCells_scMut_Re_long <- reshape2::melt(data_propotionMutCells_scMut_Re, id.vars = "Group", variable.name = "MutType", value.name = "Count")
 ggplot(data_propotionMutCells_scMut_Re_long, aes(x = group, y = Count, fill = effect)) +
   geom_bar(stat = "identity", position = "fill") +
   scale_y_continuous(labels = scales::percent_format()) +

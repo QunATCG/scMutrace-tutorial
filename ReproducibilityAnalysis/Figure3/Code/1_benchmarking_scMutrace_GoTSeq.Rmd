@@ -1,12 +1,16 @@
 ---
-title: Benchmarking scMutrace and GoT
-author: Qun Li
-date: 13 Aug 2025 at 14:07:57
+title: "Benchmarking scMutrace and other genotyping methods"
+author: "Qun Li"
+date: "13 Aug 2025 at 14:07:57"
 output:
-  pdf_document: 
+  pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
@@ -16,7 +20,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 #ENV
 ```{r envs}
 rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure3/")
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure3/")
 ```
 
 # Libraries
@@ -73,12 +77,12 @@ count_cellNum_byTag <- function(allCells, tag){
 # Load Data
 ```{r loadData}
 # mutation data
-IDH_patient_scMut <- readRDS("../Data/GoT/IDH_Patient_Mutation.rds")
+IDH_patient_scMut <- readRDS("../Data/HumanIDHAML/IDH_Patient_Mutation.rds")
 IDH_patient_CSM <- IDH_patient_scMut$CSM
 IDH_patient_SSM <- IDH_patient_scMut$SSM
 IDH_patient_ANN <- IDH_patient_scMut$ANN
 
-IDH_healthy_scMut <- readRDS("../Data/GoT/IDH_Healthy_Mutation.rds")
+IDH_healthy_scMut <- readRDS("../Data/HumanIDHAML/IDH_Healthy_Mutation.rds")
 IDH_healthy_CSM <- IDH_healthy_scMut$CSM
 IDH_healthy_SSM <- IDH_healthy_scMut$SSM
 IDH_healthy_ANN <- IDH_healthy_scMut$ANN
@@ -87,7 +91,7 @@ IDH_healthy_ANN$Mutation_hg19 <- paste0("chr", IDH_healthy_ANN$Mutation_hg19)
 # meta data
 # SampleID from original .rds file.
 # SampleIDQun from original bam file name
-IDH_meta <- read.table("../Data/GoT/GoT_IDH_meta.txt", header = T, sep = "\t")
+IDH_meta <- read.table("../Data/HumanIDHAML/GoT_IDH_meta.txt", header = T, sep = "\t")
 IDH_meta$CellBarcode <- paste(IDH_meta$SampleIDQun, IDH_meta$Barcode, sep = "_")
 ```
 
@@ -209,7 +213,7 @@ ggplot(group_count, aes(x = Group, y = Count, fill = Group)) +
 # AML_06_Dx_LymphDepleted AML_06_Dx_Live
 # AML_06_postTx_Live  AML_06_postTx_LymphDepleted
 
-AML_censusgenes <- read.table("../Data/GoT/AML_censusgenes.txt", header = T, sep = "\t")
+AML_censusgenes <- read.table("../Data/HumanIDHAML/AML_censusgenes.txt", header = T, sep = "\t")
 AML_censusgenes_genes <- unique(c(AML_censusgenes$GeneSymbol, "IDH1", "IDH2", "DNMT3A", "NPM1",
                                   "SRSF2", "ASXL1", "CEBPA", "NRAS", "FLT3", "PTPN11", "BCOR",
                                   "SMC1A", "U2AF1"))
@@ -352,10 +356,6 @@ p_IDH_individual_merge_fraq <- Heatmap(
 p_IDH_individual_scMut_fraq
 p_IDH_individual_GoT_fraq
 p_IDH_individual_merge_fraq
-
-pdf("../Figures/GoT/p_IDH_individual_merge_fraq.pdf", width = 8.12, height = 8.23)
-p_IDH_individual_merge_fraq
-dev.off()
 ```
 
 # Census genes stage level
@@ -521,10 +521,6 @@ p_IDH_individual_merge_stage_fraq <- Heatmap(
 p_IDH_individual_scMut_stage_fraq
 p_IDH_individual_GoT_stage_fraq
 p_IDH_individual_merge_stage_fraq
-
-pdf("../Figures/GoT/p_IDH_individual_merge_stage_fraq.pdf", width = 8.12, height = 8.23)
-p_IDH_individual_merge_stage_fraq
-dev.off()
 ```
 
 # Census genes sample level
@@ -651,12 +647,6 @@ p_IDH_individual_mergeSample_fraq <- Heatmap(
 )
 
 p_IDH_individual_mergeSample_fraq
-
-pdf("../Figures/GoT/p_IDH_individual_mergeSample_fraq.pdf", width = 8.12, height = 8.23)
-p_IDH_individual_mergeSample_fraq
-dev.off()
-
-write.csv(data_censusgene_mergeSample_fraq[out_order_genes_row,], "../Data/GoT/Mutation_sample.csv")
 ```
 
 
@@ -817,20 +807,6 @@ p_benchmarking_summary <- ggplot(data = data_benchmarking_summary) + geom_point(
           axis.text.x = element_text(size=20), legend.text=element_text(size=15))
 
 p_benchmarking_summary
-
-pdf("../Figures/GoT/p_benchmarking.pdf", width = 6.18, height = 3.89)
-p_benchmarking
-dev.off()
-
-pdf("../Figures/GoT/p_benchmarking_summary.pdf", width = 6.18, height = 3.89)
-p_benchmarking_summary
-dev.off()
-
-pdf("../Figures/GoT/p_venn_CH02_IDH2_R140Q.pdf", width = 6.18, height = 3.89)
-p_venn_CH02_IDH2_R140Q
-dev.off()
-
-write.csv(data_benchmarking_res, "../Data/GoT/Benchmarking_data.csv")
 ```
 
 # co mutation cells
@@ -1023,10 +999,6 @@ p_seurat_cellType <- ggplot(IDH_meta_sub, mapping = aes(rpca_UMAP_1, rpca_UMAP_2
   )
 
 p_seurat_cellType
-
-pdf("../Figures/GoT/p_seurat_cellType.pdf", width = 7.31, height = 6.18)
-p_seurat_cellType
-dev.off()
 ```
 
 # CellTypespecificmutation
@@ -1120,12 +1092,8 @@ colors_setting_enrichMut <- c(
 )
 
 p_celltype_enrich <- ggplot(data_celltype_enrich_mutate_gene, aes(x = ID, y = type)) +
-  #geom_point(aes(size = mut.num, color = bin)) +
   geom_point(aes(color = bin)) +
-  #facet_wrap(~ sampleIDMerge, scales = "free_y") +
-  #scale_color_gradientn(colors = c("#bababa", "#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ca0020")) +
   scale_color_manual(values = colors_setting_enrichMut) +
-  #scale_size(range = c(1, 2)) +
   theme_bw() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
@@ -1140,18 +1108,10 @@ p_celltype_enrich <- ggplot(data_celltype_enrich_mutate_gene, aes(x = ID, y = ty
   )
 
 p_celltype_enrich
-
-pdf("../Figures/GoT/p_celltype_Mutenrich.pdf", width = 17, height = 4.75)
-p_celltype_enrich
-dev.off()
-
-pdf("../Figures/GoT/p_celltype_Mutenrich_show.pdf", width = 8.56, height = 4.44)
-p_celltype_enrich
-dev.off()
 ```
+
 # HealthyCellTypeSpecificMutation
 ```{r HealthyCellTypeSpecificMutation}
-library(dplyr)
 IDH_meta_selected_columns <- IDH_meta %>% dplyr::select(CellBarcode, SampleIDQun, CellType)
 
 muts_healthy_all <- unique(IDH_healthy_SSM$Location)
@@ -1264,10 +1224,6 @@ p_celltype_healthy_enrich <- ggplot(data_celltype_healthy_enrich_mutate_gene, ae
   )
 
 p_celltype_healthy_enrich
-
-pdf("../Figures/GoT/p_celltype_healthy_enrich.pdf", width = 5.485714, height = 4.75)
-p_celltype_healthy_enrich
-dev.off()
 ```
 
 # allEnrichCelltype
@@ -1290,7 +1246,7 @@ p_data_celltype_patient_healthy_enrich <- ggplot(data_celltype_patient_healthy_e
     size = "Mutant cell number"
   )
 
-ggsave("../Figures/p_data_celltype_patient_healthy_enrich.pdf", width = 9.96, height = 4.53)
+p_data_celltype_patient_healthy_enrich
 ```
 
 
@@ -1385,7 +1341,7 @@ data_celltype_healthy_enrich_all <- data_celltype_healthy_enrich_all %>% filter(
 ```
 
 # GO 
-```{r GO}
+```{r GO, eval=FALSE}
 # backgroud genes
 # GSE230559_sirenko_CSC_2025_final_object.rds was download from geo page
 # data_obj <- readRDS("GSE230559_sirenko_CSC_2025_final_object.rds")
@@ -1399,7 +1355,7 @@ data_celltype_healthy_enrich_all <- data_celltype_healthy_enrich_all %>% filter(
 # gene_means <- rowMeans(mat)
 # genes_high <- names(gene_means[gene_means > 0])
 
-genes_background <- unique(read.csv("../Data/GoT/genes_high.csv", header = T)$geneSymbol)
+genes_background <- unique(read.csv("../Data/HumanIDHAML/genes_high.csv", header = T)$geneSymbol)
 
 AML_sites <- IDH_patient_SSM[rowSums(IDH_patient_SSM[, c("AML_01_Dx_Blasts", "AML_01_Dx_LymphDepleted", "AML_01_postTx_LymphDepleted",
                                                       "AML_02_Dx_Blasts", "AML_02_Dx_LymphDepleted", "AML_02_postTx_LymphDepleted",
@@ -1455,57 +1411,17 @@ enrich_results_healthy <- as.data.frame(enrich.go_healthy) %>% filter(ONTOLOGY =
 enrich_results_patient$type <- "patient"
 enrich_results_healthy$type <- "healthy"
 
-# remove dup ids
-goids_patient <- c("GO:0032870", "GO:0007264", "GO:1901652",
-                   "GO:0051249", "GO:0019439", "GO:0002757",
-                   "GO:1903706", "GO:0030099", "GO:0030522",
-                   "GO:1902105")
-
-# healthy only one record
-goids_healthy <- c("GO:0071901")
-
-enrich_results_patient_healthy <- rbind(enrich_results_patient[enrich_results_patient$ID %in% goids_patient,],
-                                        enrich_results_healthy[enrich_results_healthy$ID %in% goids_healthy])
-
-enrich_results_patient_healthy <- rbind(enrich_results_patient,
-                                        enrich_results_healthy)
-
-p_go_mut_patient_healthy_results_top10 <- ggplot(enrich_results_patient_healthy, aes(x = reorder(Description, Count), y = Count)) +
-  geom_bar(stat = "identity", width = 0.7) +
-  coord_flip() +
-  geom_text(aes(label = Count), hjust = -0.1, size = 4, color = "black") +
-  labs(
-    x = "GO Term",
-    y = "Gene Count",
-    title = "Top 10 (patient and healthy)"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text = element_text(size = 12, color = "black"),
-    axis.title = element_text(size = 14, face = "bold"),
-    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
-    legend.position = "none",
-    panel.grid.major.y = element_blank()
-  ) +
-  ylim(0, max(enrich_results_patient_healthy$Count)*1.15)
-
-p_go_mut_patient_healthy_results_top10
-
-pdf("../Figures/GoT/p_go_mut_patient_healthy_results_top10.pdf", width = 8.55, height = 3.74)
-p_go_mut_patient_healthy_results_top10
-dev.off()
-
 # save go terms
-write.csv(enrich_results_patientAML, "../Results/enrich_results_patientAML.csv", quote = F)
-write.csv(enrich_results_patientCH, "../Results/enrich_results_patientCH.csv", quote = F)
-write.csv(enrich_results_healthy, "../Results/enrich_results_healthy.csv", quote = F)
+# write.csv(enrich_results_patientAML, "../Data/HumanIDHAML/enrich_results_patientAML.csv", quote = F)
+# write.csv(enrich_results_patientCH, "../Data/HumanIDHAML/enrich_results_patientCH.csv", quote = F)
+# write.csv(enrich_results_healthy, "../Data/HumanIDHAML/enrich_results_healthy.csv", quote = F)
 ```
 
 # plot GO
 ```{r plotGO}
-enrich_results_patientAML <- read.csv("../Results/enrich_results_patientAML.csv")
-enrich_results_patientCH <-  read.csv("../Results/enrich_results_patientCH.csv")
-enrich_results_healthy <-  read.csv("../Results/enrich_results_healthy.csv")
+enrich_results_patientAML <- read.csv("../Data/HumanIDHAML/enrich_results_patientAML.csv")
+enrich_results_patientCH <-  read.csv("../Data/HumanIDHAML/enrich_results_patientCH.csv")
+enrich_results_healthy <-  read.csv("../Data/HumanIDHAML/enrich_results_healthy.csv")
 
 enrich_results_patientAML$type <- "AML"
 enrich_results_patientCH$type <- "CH"
@@ -1543,9 +1459,7 @@ p_go_mut_patient_healthy_results_top10 <- ggplot(enrich_results_merged, aes(x = 
     panel.grid.major.y = element_blank()
   )
 
-pdf("../Figures/GoT/p_go_mut_patient_healthy_results_top10.pdf", width = 8.55, height = 3.74)
 p_go_mut_patient_healthy_results_top10
-dev.off()
 ```
 
 # sessionInfo

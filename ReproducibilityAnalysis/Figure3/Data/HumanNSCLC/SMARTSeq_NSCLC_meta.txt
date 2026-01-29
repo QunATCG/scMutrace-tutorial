@@ -1,0 +1,1074 @@
+cell_id	nonimmune_general_annotation	sample_name	patient_id	inferCNV_annotation	type	SRR	CellTag	sampleCellType
+A10_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10777366	SRR10777366	LT_S74_noncancer
+A10_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10777368	SRR10777368	LT_S79_noncancer
+A10_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10777395	SRR10777395	LT_S58_cancer
+A10_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10777397	SRR10777397	LT_S58_noncancer
+A11_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10777457	SRR10777457	LT_S58_noncancer
+A12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777522	SRR10777522	LT_S69_cancer
+A13_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777572	SRR10777572	LT_S69_cancer
+A14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777635	SRR10777635	LT_S69_cancer
+A14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777636	SRR10777636	LT_S69_cancer
+A14_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777637	SRR10777637	LT_S69_cancer
+A15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777701	SRR10777701	LT_S69_cancer
+A16_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777765	SRR10777765	LT_S69_cancer
+A16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777766	SRR10777766	LT_S69_cancer
+A16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777767	SRR10777767	LT_S69_cancer
+A17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777832	SRR10777832	LT_S69_cancer
+A17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777833	SRR10777833	LT_S69_cancer
+A17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777834	SRR10777834	LT_S69_cancer
+A18_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795784	SRR10795784	LT_S69_cancer
+A18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795785	SRR10795785	LT_S69_cancer
+A18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795786	SRR10795786	LT_S69_cancer
+A19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777867	SRR10777867	LT_S69_cancer
+A19_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10777868	SRR10777868	LT_S69_cancer
+A1_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10777322	SRR10777322	LT_S79_cancer
+A1_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10777340	SRR10777340	LT_S58_cancer
+A21_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778057	SRR10778057	LT_S69_cancer
+A21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778058	SRR10778058	LT_S69_cancer
+A22_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10778123	SRR10778123	LT_S69_noncancer
+A22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778124	SRR10778124	LT_S69_cancer
+A22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778125	SRR10778125	LT_S69_cancer
+A2_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10777889	SRR10777889	LT_S79_cancer
+A5_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10778253	SRR10778253	LT_S74_cancer
+A6_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10778310	SRR10778310	LT_S74_cancer
+A7_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10791363	SRR10791363	LT_S58_noncancer
+A7_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10791365	SRR10791365	LT_S58_noncancer
+A8_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10791389	SRR10791389	LT_S74_cancer
+A8_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10791390	SRR10791390	LT_S79_cancer
+A8_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10791422	SRR10791422	LT_S58_cancer
+A8_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10778368	SRR10778368	LT_S58_cancer
+A9_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10778398	SRR10778398	LT_S74_cancer
+A9_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10778399	SRR10778399	LT_S74_cancer
+A9_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10778400	SRR10778400	LT_S79_noncancer
+A9_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10778401	SRR10778401	LT_S79_noncancer
+A9_B001557	epithelial	LT_S80	TH179	noncancer cell	noncancer	SRR10778405	SRR10778405	LT_S80_noncancer
+A9_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10778429	SRR10778429	LT_S58_cancer
+B10_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10778515	SRR10778515	LT_S79_cancer
+B10_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10778544	SRR10778544	LT_S58_noncancer
+B10_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10778546	SRR10778546	LT_S58_cancer
+B11_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10778600	SRR10778600	LT_S58_cancer
+B12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795859	SRR10795859	LT_S69_cancer
+B13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778642	SRR10778642	LT_S69_cancer
+B13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778643	SRR10778643	LT_S69_cancer
+B14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778688	SRR10778688	LT_S69_cancer
+B14_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778689	SRR10778689	LT_S69_cancer
+B15_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10778745	SRR10778745	LT_S69_noncancer
+B15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778746	SRR10778746	LT_S69_cancer
+B15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778747	SRR10778747	LT_S69_cancer
+B16_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795912	SRR10795912	LT_S69_cancer
+B16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795913	SRR10795913	LT_S69_cancer
+B16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795914	SRR10795914	LT_S69_cancer
+B17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795978	SRR10795978	LT_S69_cancer
+B18_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10794638	SRR10794638	LT_S69_noncancer
+B18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794639	SRR10794639	LT_S69_cancer
+B18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794640	SRR10794640	LT_S69_cancer
+B19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791449	SRR10791449	LT_S69_cancer
+B21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778926	SRR10778926	LT_S69_cancer
+B21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778927	SRR10778927	LT_S69_cancer
+B22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778986	SRR10778986	LT_S69_cancer
+B22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10778987	SRR10778987	LT_S69_cancer
+B3_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10779005	SRR10779005	LT_S79_noncancer
+B4_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10779069	SRR10779069	LT_S79_cancer
+B5_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10779134	SRR10779134	LT_S79_cancer
+B5_B001559	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10779138	SRR10779138	LT_S80_cancer
+B5_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10779161	SRR10779161	LT_S58_cancer
+B6_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10779194	SRR10779194	LT_S74_cancer
+B6_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10779195	SRR10779195	LT_S79_cancer
+B6_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10779196	SRR10779196	LT_S79_noncancer
+B7_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10779251	SRR10779251	LT_S79_noncancer
+B7_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10779253	SRR10779253	LT_S79_cancer
+B7_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10779278	SRR10779278	LT_S58_noncancer
+B8_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10779311	SRR10779311	LT_S74_cancer
+B8_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10779342	SRR10779342	LT_S58_cancer
+B9_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10779376	SRR10779376	LT_S74_cancer
+B9_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10779404	SRR10779404	LT_S58_noncancer
+C10_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10779494	SRR10779494	LT_S74_cancer
+C10_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10779496	SRR10779496	LT_S79_cancer
+C10_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10779497	SRR10779497	LT_S79_cancer
+C10_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10779522	SRR10779522	LT_S58_noncancer
+C11_B001556	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10779556	SRR10779556	LT_S80_cancer
+C11_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10779579	SRR10779579	LT_S58_cancer
+C13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791527	SRR10791527	LT_S69_cancer
+C14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791589	SRR10791589	LT_S69_cancer
+C14_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791590	SRR10791590	LT_S69_cancer
+C15_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10779739	SRR10779739	LT_S69_cancer
+C15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10779740	SRR10779740	LT_S69_cancer
+C15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10779741	SRR10779741	LT_S69_cancer
+C16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791639	SRR10791639	LT_S69_cancer
+C16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791640	SRR10791640	LT_S69_cancer
+C17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791713	SRR10791713	LT_S69_cancer
+C17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791714	SRR10791714	LT_S69_cancer
+C17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791715	SRR10791715	LT_S69_cancer
+C18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10779774	SRR10779774	LT_S69_cancer
+C18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10779775	SRR10779775	LT_S69_cancer
+C19_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10779842	SRR10779842	LT_S69_cancer
+C1_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10779435	SRR10779435	LT_S74_cancer
+C1_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10779461	SRR10779461	LT_S58_noncancer
+C20_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10779983	SRR10779983	LT_S69_cancer
+C21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780051	SRR10780051	LT_S69_cancer
+C22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780116	SRR10780116	LT_S69_cancer
+C4_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10780192	SRR10780192	LT_S74_cancer
+C6_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10780312	SRR10780312	LT_S79_cancer
+C6_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10780313	SRR10780313	LT_S79_noncancer
+C6_B001556	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10780316	SRR10780316	LT_S80_cancer
+C7_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10780373	SRR10780373	LT_S79_noncancer
+C7_B001556	epithelial	LT_S80	TH179	noncancer cell	noncancer	SRR10780375	SRR10780375	LT_S80_noncancer
+C7_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10780402	SRR10780402	LT_S58_cancer
+C7_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10780404	SRR10780404	LT_S58_noncancer
+C8_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10780436	SRR10780436	LT_S79_noncancer
+C8_B001556	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10780438	SRR10780438	LT_S80_cancer
+C8_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10780468	SRR10780468	LT_S58_cancer
+C8_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10780470	SRR10780470	LT_S58_noncancer
+C8_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10780472	SRR10780472	LT_S58_noncancer
+C9_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10780499	SRR10780499	LT_S74_noncancer
+C9_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10780501	SRR10780501	LT_S79_noncancer
+C9_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10780530	SRR10780530	LT_S58_noncancer
+C9_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10780532	SRR10780532	LT_S58_cancer
+D10_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10780619	SRR10780619	LT_S74_noncancer
+D10_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10780620	SRR10780620	LT_S74_cancer
+D10_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10780621	SRR10780621	LT_S74_cancer
+D10_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10780622	SRR10780622	LT_S79_cancer
+D10_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10780641	SRR10780641	LT_S58_cancer
+D10_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10780643	SRR10780643	LT_S58_cancer
+D11_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10780673	SRR10780673	LT_S74_cancer
+D12_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780758	SRR10780758	LT_S69_cancer
+D12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780759	SRR10780759	LT_S69_cancer
+D12_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780760	SRR10780760	LT_S69_cancer
+D13_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10780777	SRR10780777	LT_S74_noncancer
+D13_B001557	epithelial	LT_S80	TH179	noncancer cell	noncancer	SRR10780782	SRR10780782	LT_S80_noncancer
+D13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780815	SRR10780815	LT_S69_cancer
+D13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780816	SRR10780816	LT_S69_cancer
+D14_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10780834	SRR10780834	LT_S74_noncancer
+D14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780883	SRR10780883	LT_S69_cancer
+D15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10780950	SRR10780950	LT_S69_cancer
+D16_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10780967	SRR10780967	LT_S74_noncancer
+D16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781018	SRR10781018	LT_S69_cancer
+D17_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10781038	SRR10781038	LT_S74_noncancer
+D17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781086	SRR10781086	LT_S69_cancer
+D17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781087	SRR10781087	LT_S69_cancer
+D18_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10791788	SRR10791788	LT_S74_noncancer
+D18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791834	SRR10791834	LT_S69_cancer
+D19_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10791857	SRR10791857	LT_S74_noncancer
+D19_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10781134	SRR10781134	LT_S69_noncancer
+D20_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10781208	SRR10781208	LT_S74_noncancer
+D20_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781257	SRR10781257	LT_S69_cancer
+D20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781258	SRR10781258	LT_S69_cancer
+D20_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781259	SRR10781259	LT_S69_cancer
+D21_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10781282	SRR10781282	LT_S74_cancer
+D22_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10781352	SRR10781352	LT_S74_noncancer
+D22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781395	SRR10781395	LT_S69_cancer
+D22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781396	SRR10781396	LT_S69_cancer
+D22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10781397	SRR10781397	LT_S69_cancer
+D3_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10781419	SRR10781419	LT_S74_cancer
+D4_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10781479	SRR10781479	LT_S74_noncancer
+D5_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10781571	SRR10781571	LT_S58_cancer
+D6_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10781599	SRR10781599	LT_S74_noncancer
+D6_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10781602	SRR10781602	LT_S79_cancer
+D7_B001475	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10781663	SRR10781663	LT_S74_noncancer
+D7_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10781665	SRR10781665	LT_S79_noncancer
+D8_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10781724	SRR10781724	LT_S74_cancer
+D8_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10781725	SRR10781725	LT_S74_cancer
+D8_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10781726	SRR10781726	LT_S74_cancer
+D8_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10781727	SRR10781727	LT_S79_cancer
+D8_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10781761	SRR10781761	LT_S58_cancer
+D9_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10781791	SRR10781791	LT_S74_noncancer
+D9_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10781793	SRR10781793	LT_S79_noncancer
+D9_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10781822	SRR10781822	LT_S58_noncancer
+E10_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10781914	SRR10781914	LT_S74_cancer
+E10_B001559	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10781920	SRR10781920	LT_S80_cancer
+E10_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10781943	SRR10781943	LT_S58_noncancer
+E10_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10781945	SRR10781945	LT_S58_noncancer
+E11_B001556	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10781980	SRR10781980	LT_S80_cancer
+E11_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10782000	SRR10782000	LT_S58_noncancer
+E11_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10782003	SRR10782003	LT_S58_cancer
+E12_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782070	SRR10782070	LT_S69_cancer
+E13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782130	SRR10782130	LT_S69_cancer
+E13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782131	SRR10782131	LT_S69_cancer
+E14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782193	SRR10782193	LT_S69_cancer
+E15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782255	SRR10782255	LT_S69_cancer
+E16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782319	SRR10782319	LT_S69_cancer
+E17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782387	SRR10782387	LT_S69_cancer
+E17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782388	SRR10782388	LT_S69_cancer
+E17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782389	SRR10782389	LT_S69_cancer
+E18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782448	SRR10782448	LT_S69_cancer
+E19_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782517	SRR10782517	LT_S69_cancer
+E19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782518	SRR10782518	LT_S69_cancer
+E19_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782519	SRR10782519	LT_S69_cancer
+E20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782655	SRR10782655	LT_S69_cancer
+E21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791916	SRR10791916	LT_S69_cancer
+E21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791917	SRR10791917	LT_S69_cancer
+E22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782699	SRR10782699	LT_S69_cancer
+E22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10782700	SRR10782700	LT_S69_cancer
+E3_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10782725	SRR10782725	LT_S79_noncancer
+E5_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10782845	SRR10782845	LT_S74_noncancer
+E5_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10782847	SRR10782847	LT_S79_cancer
+E6_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10782907	SRR10782907	LT_S79_noncancer
+E7_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10782972	SRR10782972	LT_S74_cancer
+E7_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10782973	SRR10782973	LT_S74_cancer
+E7_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10783006	SRR10783006	LT_S58_cancer
+E8_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10783075	SRR10783075	LT_S58_cancer
+E8_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10783077	SRR10783077	LT_S58_cancer
+E9_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10783110	SRR10783110	LT_S74_cancer
+E9_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10783136	SRR10783136	LT_S58_noncancer
+E9_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10783138	SRR10783138	LT_S58_noncancer
+F10_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10783228	SRR10783228	LT_S74_cancer
+F10_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10783230	SRR10783230	LT_S79_cancer
+F11_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10783290	SRR10783290	LT_S79_noncancer
+F11_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10783315	SRR10783315	LT_S58_cancer
+F12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796019	SRR10796019	LT_S69_cancer
+F13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796080	SRR10796080	LT_S69_cancer
+F13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796081	SRR10796081	LT_S69_cancer
+F13_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796082	SRR10796082	LT_S69_cancer
+F14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10783438	SRR10783438	LT_S69_cancer
+F14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10783439	SRR10783439	LT_S69_cancer
+F14_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10783440	SRR10783440	LT_S69_cancer
+F15_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10783503	SRR10783503	LT_S69_cancer
+F15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10783504	SRR10783504	LT_S69_cancer
+F16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791975	SRR10791975	LT_S69_cancer
+F17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10783550	SRR10783550	LT_S69_cancer
+F19_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10783691	SRR10783691	LT_S69_cancer
+F1_B001470	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10783173	SRR10783173	LT_S74_noncancer
+F20_B003777	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10792047	SRR10792047	LT_S69_noncancer
+F21_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10792117	SRR10792117	LT_S69_noncancer
+F21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792118	SRR10792118	LT_S69_cancer
+F22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796928	SRR10796928	LT_S69_cancer
+F3_B001556	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10796955	SRR10796955	LT_S80_cancer
+F5_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10783935	SRR10783935	LT_S74_cancer
+F5_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10783937	SRR10783937	LT_S79_noncancer
+F6_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10783996	SRR10783996	LT_S74_cancer
+F7_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10784060	SRR10784060	LT_S74_cancer
+F7_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10784092	SRR10784092	LT_S58_cancer
+F7_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10784094	SRR10784094	LT_S58_cancer
+F8_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10784125	SRR10784125	LT_S74_cancer
+F8_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10784127	SRR10784127	LT_S79_cancer
+F9_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10792151	SRR10792151	LT_S79_noncancer
+G10_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10792273	SRR10792273	LT_S79_cancer
+G10_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10792296	SRR10792296	LT_S58_noncancer
+G10_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10792298	SRR10792298	LT_S58_cancer
+G11_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10784184	SRR10784184	LT_S74_cancer
+G11_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10784185	SRR10784185	LT_S79_cancer
+G11_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10784208	SRR10784208	LT_S58_cancer
+G12_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796106	SRR10796106	LT_S69_cancer
+G12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796107	SRR10796107	LT_S69_cancer
+G13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796169	SRR10796169	LT_S69_cancer
+G13_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796170	SRR10796170	LT_S69_cancer
+G14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784310	SRR10784310	LT_S69_cancer
+G14_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784311	SRR10784311	LT_S69_cancer
+G15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784377	SRR10784377	LT_S69_cancer
+G16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794694	SRR10794694	LT_S69_cancer
+G16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794695	SRR10794695	LT_S69_cancer
+G17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794757	SRR10794757	LT_S69_cancer
+G17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794758	SRR10794758	LT_S69_cancer
+G18_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784478	SRR10784478	LT_S69_cancer
+G18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784479	SRR10784479	LT_S69_cancer
+G19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784545	SRR10784545	LT_S69_cancer
+G19_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784546	SRR10784546	LT_S69_cancer
+G1_B001474	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10792217	SRR10792217	LT_S74_noncancer
+G20_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784672	SRR10784672	LT_S69_cancer
+G20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784673	SRR10784673	LT_S69_cancer
+G20_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784674	SRR10784674	LT_S69_cancer
+G21_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784737	SRR10784737	LT_S69_cancer
+G21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10784738	SRR10784738	LT_S69_cancer
+G22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792330	SRR10792330	LT_S69_cancer
+G22_B003776	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10792331	SRR10792331	LT_S69_noncancer
+G3_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10792355	SRR10792355	LT_S79_noncancer
+G5_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10796967	SRR10796967	LT_S74_cancer
+G5_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10796968	SRR10796968	LT_S74_cancer
+G6_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10797029	SRR10797029	LT_S74_cancer
+G7_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10784824	SRR10784824	LT_S74_cancer
+G7_B001557	epithelial	LT_S80	TH179	noncancer cell	noncancer	SRR10784828	SRR10784828	LT_S80_noncancer
+G7_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10784854	SRR10784854	LT_S58_cancer
+G8_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10784885	SRR10784885	LT_S79_cancer
+G8_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10784886	SRR10784886	LT_S79_cancer
+G8_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10784916	SRR10784916	LT_S58_cancer
+G8_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10784920	SRR10784920	LT_S58_noncancer
+G9_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10784952	SRR10784952	LT_S74_cancer
+G9_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10794880	SRR10794880	LT_S58_cancer
+H10_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10784979	SRR10784979	LT_S74_cancer
+H10_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10785009	SRR10785009	LT_S58_cancer
+H11_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10785038	SRR10785038	LT_S79_cancer
+H11_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10785039	SRR10785039	LT_S79_cancer
+H11_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10797423	SRR10797423	LT_S58_cancer
+H11_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10797426	SRR10797426	LT_S58_cancer
+H12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792392	SRR10792392	LT_S69_cancer
+H13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792455	SRR10792455	LT_S69_cancer
+H14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792518	SRR10792518	LT_S69_cancer
+H14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792519	SRR10792519	LT_S69_cancer
+H15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785062	SRR10785062	LT_S69_cancer
+H16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794945	SRR10794945	LT_S69_cancer
+H17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795017	SRR10795017	LT_S69_cancer
+H17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795018	SRR10795018	LT_S69_cancer
+H17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795019	SRR10795019	LT_S69_cancer
+H18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796235	SRR10796235	LT_S69_cancer
+H18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796236	SRR10796236	LT_S69_cancer
+H19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785178	SRR10785178	LT_S69_cancer
+H1_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10794907	SRR10794907	LT_S79_cancer
+H20_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785308	SRR10785308	LT_S69_cancer
+H20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785309	SRR10785309	LT_S69_cancer
+H21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785377	SRR10785377	LT_S69_cancer
+H22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785438	SRR10785438	LT_S69_cancer
+H22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785439	SRR10785439	LT_S69_cancer
+H2_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10785205	SRR10785205	LT_S74_cancer
+H2_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10785234	SRR10785234	LT_S58_noncancer
+H3_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10785463	SRR10785463	LT_S74_cancer
+H3_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10785465	SRR10785465	LT_S79_noncancer
+H5_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10792587	SRR10792587	LT_S79_cancer
+H6_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10792647	SRR10792647	LT_S79_cancer
+H6_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10792648	SRR10792648	LT_S79_cancer
+H7_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10785624	SRR10785624	LT_S79_noncancer
+H7_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10785656	SRR10785656	LT_S58_noncancer
+H8_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10785686	SRR10785686	LT_S74_cancer
+H8_B001474	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10785687	SRR10785687	LT_S74_noncancer
+H8_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10785688	SRR10785688	LT_S74_cancer
+H8_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10785690	SRR10785690	LT_S79_cancer
+H8_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10785715	SRR10785715	LT_S58_noncancer
+H8_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10785719	SRR10785719	LT_S58_cancer
+H9_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10792657	SRR10792657	LT_S74_cancer
+H9_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10792660	SRR10792660	LT_S79_noncancer
+I10_B001557	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10785777	SRR10785777	LT_S80_cancer
+I10_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10785800	SRR10785800	LT_S58_cancer
+I10_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10785803	SRR10785803	LT_S58_noncancer
+I11_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10785829	SRR10785829	LT_S79_noncancer
+I11_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10785858	SRR10785858	LT_S58_noncancer
+I11_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10785859	SRR10785859	LT_S58_cancer
+I12_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785922	SRR10785922	LT_S69_cancer
+I13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785985	SRR10785985	LT_S69_cancer
+I13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785986	SRR10785986	LT_S69_cancer
+I13_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10785987	SRR10785987	LT_S69_cancer
+I14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786054	SRR10786054	LT_S69_cancer
+I15_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792764	SRR10792764	LT_S69_cancer
+I15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792765	SRR10792765	LT_S69_cancer
+I15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792766	SRR10792766	LT_S69_cancer
+I16_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786097	SRR10786097	LT_S69_cancer
+I16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786098	SRR10786098	LT_S69_cancer
+I16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786099	SRR10786099	LT_S69_cancer
+I17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786160	SRR10786160	LT_S69_cancer
+I17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786161	SRR10786161	LT_S69_cancer
+I17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786162	SRR10786162	LT_S69_cancer
+I18_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10786224	SRR10786224	LT_S69_noncancer
+I18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786225	SRR10786225	LT_S69_cancer
+I18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786226	SRR10786226	LT_S69_cancer
+I19_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10786285	SRR10786285	LT_S58_noncancer
+I19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786297	SRR10786297	LT_S69_cancer
+I1_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10792708	SRR10792708	LT_S74_cancer
+I1_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10792710	SRR10792710	LT_S79_noncancer
+I20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786430	SRR10786430	LT_S69_cancer
+I20_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786431	SRR10786431	LT_S69_cancer
+I21_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786498	SRR10786498	LT_S69_cancer
+I21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786499	SRR10786499	LT_S69_cancer
+I21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786500	SRR10786500	LT_S69_cancer
+I22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10786566	SRR10786566	LT_S69_cancer
+I4_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10786635	SRR10786635	LT_S74_cancer
+I5_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10786695	SRR10786695	LT_S74_cancer
+I5_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10786696	SRR10786696	LT_S79_noncancer
+I5_B001557	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10786699	SRR10786699	LT_S80_cancer
+I6_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10786752	SRR10786752	LT_S79_noncancer
+I6_B001551	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10786753	SRR10786753	LT_S80_cancer
+I7_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10786804	SRR10786804	LT_S74_cancer
+I7_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10786806	SRR10786806	LT_S74_cancer
+I7_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10786807	SRR10786807	LT_S79_cancer
+I8_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10786867	SRR10786867	LT_S79_noncancer
+I8_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10786869	SRR10786869	LT_S79_noncancer
+I8_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10786900	SRR10786900	LT_S58_cancer
+I8_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10786902	SRR10786902	LT_S58_cancer
+I9_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10786926	SRR10786926	LT_S79_cancer
+I9_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10786953	SRR10786953	LT_S58_noncancer
+I9_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10786955	SRR10786955	LT_S58_cancer
+J10_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10787037	SRR10787037	LT_S79_cancer
+J10_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10787065	SRR10787065	LT_S58_cancer
+J10_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10787066	SRR10787066	LT_S58_cancer
+J11_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10787092	SRR10787092	LT_S74_cancer
+J11_B001475	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10787093	SRR10787093	LT_S74_noncancer
+J12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787184	SRR10787184	LT_S69_cancer
+J13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787240	SRR10787240	LT_S69_cancer
+J14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787299	SRR10787299	LT_S69_cancer
+J14_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787301	SRR10787301	LT_S69_cancer
+J15_B003776	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10787363	SRR10787363	LT_S69_noncancer
+J15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787364	SRR10787364	LT_S69_cancer
+J16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787426	SRR10787426	LT_S69_cancer
+J17_B003776	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10787489	SRR10787489	LT_S69_noncancer
+J17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787490	SRR10787490	LT_S69_cancer
+J18_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787550	SRR10787550	LT_S69_cancer
+J18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787551	SRR10787551	LT_S69_cancer
+J1_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10787006	SRR10787006	LT_S58_noncancer
+J21_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787806	SRR10787806	LT_S69_cancer
+J21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787807	SRR10787807	LT_S69_cancer
+J21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787808	SRR10787808	LT_S69_cancer
+J22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10787869	SRR10787869	LT_S69_cancer
+J5_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10788009	SRR10788009	LT_S74_cancer
+J7_B001474	epithelial	LT_S74	TH248	noncancer cell	noncancer	SRR10788112	SRR10788112	LT_S74_noncancer
+J7_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10792860	SRR10792860	LT_S58_cancer
+J8_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10792884	SRR10792884	LT_S74_cancer
+J8_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10792887	SRR10792887	LT_S79_cancer
+J8_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10792914	SRR10792914	LT_S58_noncancer
+J9_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10788140	SRR10788140	LT_S74_cancer
+J9_B001557	epithelial	LT_S80	TH179	noncancer cell	noncancer	SRR10788143	SRR10788143	LT_S80_noncancer
+K10_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10788265	SRR10788265	LT_S58_cancer
+K11_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10797504	SRR10797504	LT_S58_noncancer
+K11_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10797506	SRR10797506	LT_S58_cancer
+K11_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10797508	SRR10797508	LT_S58_cancer
+K12_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797575	SRR10797575	LT_S69_cancer
+K12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798456	SRR10798456	LT_S69_cancer
+K12_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798457	SRR10798457	LT_S69_cancer
+K13_B001557	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10798478	SRR10798478	LT_S80_cancer
+K13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798510	SRR10798510	LT_S69_cancer
+K13_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798511	SRR10798511	LT_S69_cancer
+K14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788323	SRR10788323	LT_S69_cancer
+K14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788324	SRR10788324	LT_S69_cancer
+K15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788392	SRR10788392	LT_S69_cancer
+K15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788393	SRR10788393	LT_S69_cancer
+K16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788456	SRR10788456	LT_S69_cancer
+K16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788457	SRR10788457	LT_S69_cancer
+K17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792965	SRR10792965	LT_S69_cancer
+K17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792966	SRR10792966	LT_S69_cancer
+K17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10792967	SRR10792967	LT_S69_cancer
+K18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796283	SRR10796283	LT_S69_cancer
+K18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796284	SRR10796284	LT_S69_cancer
+K19_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10796343	SRR10796343	LT_S69_noncancer
+K19_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796344	SRR10796344	LT_S69_cancer
+K20_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793031	SRR10793031	LT_S69_cancer
+K20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793032	SRR10793032	LT_S69_cancer
+K20_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793033	SRR10793033	LT_S69_cancer
+K21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793098	SRR10793098	LT_S69_cancer
+K22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793163	SRR10793163	LT_S69_cancer
+K22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793164	SRR10793164	LT_S69_cancer
+K3_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10793183	SRR10793183	LT_S79_cancer
+K4_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10793241	SRR10793241	LT_S74_cancer
+K5_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10793300	SRR10793300	LT_S79_cancer
+K6_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10793352	SRR10793352	LT_S74_cancer
+K6_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10793353	SRR10793353	LT_S79_cancer
+K6_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10793354	SRR10793354	LT_S79_cancer
+K7_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10793405	SRR10793405	LT_S74_cancer
+K7_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10793407	SRR10793407	LT_S79_noncancer
+K7_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10793437	SRR10793437	LT_S58_noncancer
+K8_B001559	epithelial	LT_S80	TH179	noncancer cell	noncancer	SRR10795055	SRR10795055	LT_S80_noncancer
+K8_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10795075	SRR10795075	LT_S58_cancer
+K9_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10795097	SRR10795097	LT_S74_cancer
+K9_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10795098	SRR10795098	LT_S74_cancer
+K9_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10795099	SRR10795099	LT_S79_cancer
+K9_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10795100	SRR10795100	LT_S79_noncancer
+K9_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10788563	SRR10788563	LT_S58_noncancer
+L10_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10793453	SRR10793453	LT_S74_cancer
+L10_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10793456	SRR10793456	LT_S79_cancer
+L10_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10793481	SRR10793481	LT_S58_noncancer
+L10_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10793483	SRR10793483	LT_S58_cancer
+L11_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10793510	SRR10793510	LT_S74_cancer
+L11_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10793511	SRR10793511	LT_S74_cancer
+L11_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10788644	SRR10788644	LT_S58_cancer
+L12_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788707	SRR10788707	LT_S69_cancer
+L13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795153	SRR10795153	LT_S69_cancer
+L13_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795154	SRR10795154	LT_S69_cancer
+L14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796364	SRR10796364	LT_S69_cancer
+L15_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796426	SRR10796426	LT_S69_cancer
+L15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796427	SRR10796427	LT_S69_cancer
+L15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796428	SRR10796428	LT_S69_cancer
+L16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788793	SRR10788793	LT_S69_cancer
+L17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788858	SRR10788858	LT_S69_cancer
+L17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788859	SRR10788859	LT_S69_cancer
+L17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788860	SRR10788860	LT_S69_cancer
+L18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788929	SRR10788929	LT_S69_cancer
+L19_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10788990	SRR10788990	LT_S69_cancer
+L20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797088	SRR10797088	LT_S69_cancer
+L20_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797089	SRR10797089	LT_S69_cancer
+L21_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795225	SRR10795225	LT_S69_cancer
+L21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795226	SRR10795226	LT_S69_cancer
+L21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795227	SRR10795227	LT_S69_cancer
+L22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795301	SRR10795301	LT_S69_cancer
+L22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795302	SRR10795302	LT_S69_cancer
+L3_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10795324	SRR10795324	LT_S79_cancer
+L4_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10795377	SRR10795377	LT_S74_cancer
+L4_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10795378	SRR10795378	LT_S79_cancer
+L4_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10795413	SRR10795413	LT_S58_cancer
+L5_B001551	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10795440	SRR10795440	LT_S80_cancer
+L6_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10789118	SRR10789118	LT_S79_noncancer
+L6_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10789119	SRR10789119	LT_S79_noncancer
+L7_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10789176	SRR10789176	LT_S79_cancer
+L7_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10789177	SRR10789177	LT_S79_cancer
+L8_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10789235	SRR10789235	LT_S79_noncancer
+L9_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10793594	SRR10793594	LT_S58_cancer
+L9_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10793595	SRR10793595	LT_S58_cancer
+M10_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10789318	SRR10789318	LT_S74_cancer
+M10_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10789320	SRR10789320	LT_S79_cancer
+M10_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10789321	SRR10789321	LT_S79_cancer
+M10_B001559	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10789324	SRR10789324	LT_S80_cancer
+M10_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10789343	SRR10789343	LT_S58_cancer
+M11_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10789369	SRR10789369	LT_S74_cancer
+M12_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793650	SRR10793650	LT_S69_cancer
+M13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793708	SRR10793708	LT_S69_cancer
+M13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793709	SRR10793709	LT_S69_cancer
+M14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793774	SRR10793774	LT_S69_cancer
+M14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793775	SRR10793775	LT_S69_cancer
+M15_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10789469	SRR10789469	LT_S69_noncancer
+M15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789470	SRR10789470	LT_S69_cancer
+M15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789471	SRR10789471	LT_S69_cancer
+M16_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789532	SRR10789532	LT_S69_cancer
+M16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789533	SRR10789533	LT_S69_cancer
+M16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789534	SRR10789534	LT_S69_cancer
+M17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789593	SRR10789593	LT_S69_cancer
+M17_B003776	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10789594	SRR10789594	LT_S69_noncancer
+M17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789595	SRR10789595	LT_S69_cancer
+M18_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789656	SRR10789656	LT_S69_cancer
+M19_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10789722	SRR10789722	LT_S69_noncancer
+M19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789723	SRR10789723	LT_S69_cancer
+M19_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789724	SRR10789724	LT_S69_cancer
+M21_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789902	SRR10789902	LT_S69_cancer
+M22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789962	SRR10789962	LT_S69_cancer
+M22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789963	SRR10789963	LT_S69_cancer
+M22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10789964	SRR10789964	LT_S69_cancer
+M2_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10789740	SRR10789740	LT_S74_cancer
+M3_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10789984	SRR10789984	LT_S79_cancer
+M4_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10790041	SRR10790041	LT_S79_cancer
+M6_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10790150	SRR10790150	LT_S74_cancer
+M6_B001551	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10790152	SRR10790152	LT_S80_cancer
+M7_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10790201	SRR10790201	LT_S79_cancer
+M7_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10790203	SRR10790203	LT_S79_noncancer
+M7_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10790233	SRR10790233	LT_S58_noncancer
+M8_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10790260	SRR10790260	LT_S79_noncancer
+M8_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10790284	SRR10790284	LT_S58_cancer
+M8_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10790287	SRR10790287	LT_S58_cancer
+M9_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10790309	SRR10790309	LT_S74_cancer
+M9_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10790310	SRR10790310	LT_S74_cancer
+M9_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10790311	SRR10790311	LT_S79_noncancer
+M9_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10790312	SRR10790312	LT_S79_cancer
+M9_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10790343	SRR10790343	LT_S58_cancer
+N10_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10793816	SRR10793816	LT_S79_cancer
+N11_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10793862	SRR10793862	LT_S74_cancer
+N11_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10795475	SRR10795475	LT_S58_cancer
+N11_B003577	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10795477	SRR10795477	LT_S58_cancer
+N12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795540	SRR10795540	LT_S69_cancer
+N13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790432	SRR10790432	LT_S69_cancer
+N13_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790433	SRR10790433	LT_S69_cancer
+N14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790499	SRR10790499	LT_S69_cancer
+N14_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790500	SRR10790500	LT_S69_cancer
+N15_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790558	SRR10790558	LT_S69_cancer
+N15_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790559	SRR10790559	LT_S69_cancer
+N16_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793935	SRR10793935	LT_S69_cancer
+N16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10793936	SRR10793936	LT_S69_cancer
+N17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794003	SRR10794003	LT_S69_cancer
+N18_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790580	SRR10790580	LT_S69_cancer
+N18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790581	SRR10790581	LT_S69_cancer
+N18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790582	SRR10790582	LT_S69_cancer
+N19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790642	SRR10790642	LT_S69_cancer
+N1_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10790373	SRR10790373	LT_S79_cancer
+N20_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790759	SRR10790759	LT_S69_cancer
+N20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790760	SRR10790760	LT_S69_cancer
+N21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790826	SRR10790826	LT_S69_cancer
+N21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10790827	SRR10790827	LT_S69_cancer
+N22_B003775	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10797620	SRR10797620	LT_S69_noncancer
+N22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797621	SRR10797621	LT_S69_cancer
+N22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797622	SRR10797622	LT_S69_cancer
+N5_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10790841	SRR10790841	LT_S74_cancer
+N5_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10790842	SRR10790842	LT_S79_noncancer
+N7_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10794079	SRR10794079	LT_S74_cancer
+N8_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10790937	SRR10790937	LT_S58_noncancer
+N9_B001475	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10790963	SRR10790963	LT_S74_cancer
+N9_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10790964	SRR10790964	LT_S79_noncancer
+O10_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10796497	SRR10796497	LT_S79_cancer
+O10_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10796520	SRR10796520	LT_S58_noncancer
+O11_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10797178	SRR10797178	LT_S58_cancer
+O11_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10797182	SRR10797182	LT_S58_noncancer
+O12_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10791030	SRR10791030	LT_S58_noncancer
+O12_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791038	SRR10791038	LT_S69_cancer
+O12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791039	SRR10791039	LT_S69_cancer
+O13_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10791082	SRR10791082	LT_S58_noncancer
+O13_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791086	SRR10791086	LT_S69_cancer
+O13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791087	SRR10791087	LT_S69_cancer
+O14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797276	SRR10797276	LT_S69_cancer
+O14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797277	SRR10797277	LT_S69_cancer
+O15_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791123	SRR10791123	LT_S69_cancer
+O15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791124	SRR10791124	LT_S69_cancer
+O16_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10791181	SRR10791181	LT_S58_noncancer
+O16_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791188	SRR10791188	LT_S69_cancer
+O16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791189	SRR10791189	LT_S69_cancer
+O16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796523	SRR10796523	LT_S69_cancer
+O17_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10796579	SRR10796579	LT_S58_noncancer
+O17_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796587	SRR10796587	LT_S69_cancer
+O17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796588	SRR10796588	LT_S69_cancer
+O18_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798059	SRR10798059	LT_S69_cancer
+O18_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798060	SRR10798060	LT_S69_cancer
+O19_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10795572	SRR10795572	LT_S58_noncancer
+O19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10795582	SRR10795582	LT_S69_cancer
+O20_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10797713	SRR10797713	LT_S58_noncancer
+O20_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797721	SRR10797721	LT_S69_cancer
+O21_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10794171	SRR10794171	LT_S58_noncancer
+O21_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794182	SRR10794182	LT_S69_cancer
+O21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794183	SRR10794183	LT_S69_cancer
+O21_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794184	SRR10794184	LT_S69_cancer
+O22_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10794234	SRR10794234	LT_S58_noncancer
+O22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798107	SRR10798107	LT_S69_cancer
+O22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798108	SRR10798108	LT_S69_cancer
+O22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798109	SRR10798109	LT_S69_cancer
+O3_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10798130	SRR10798130	LT_S79_noncancer
+O5_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10798590	SRR10798590	LT_S79_cancer
+O6_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10777229	SRR10777229	LT_S74_cancer
+O6_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10777230	SRR10777230	LT_S79_cancer
+O7_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10777278	SRR10777278	LT_S74_cancer
+O7_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10777280	SRR10777280	LT_S79_noncancer
+O8_B001545	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10794248	SRR10794248	LT_S79_cancer
+O8_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10794249	SRR10794249	LT_S79_noncancer
+O8_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10794277	SRR10794277	LT_S58_noncancer
+O9_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10794300	SRR10794300	LT_S79_noncancer
+O9_B003528	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10795647	SRR10795647	LT_S58_noncancer
+P10_B001470	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10795720	SRR10795720	LT_S74_cancer
+P10_B001474	epithelial	LT_S74	TH248	cancer cell	cancer	SRR10795721	SRR10795721	LT_S74_cancer
+P10_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10795723	SRR10795723	LT_S79_cancer
+P10_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10795724	SRR10795724	LT_S79_noncancer
+P10_B003528	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10796628	SRR10796628	LT_S58_cancer
+P11_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10796657	SRR10796657	LT_S79_noncancer
+P11_B001548	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10796659	SRR10796659	LT_S79_noncancer
+P11_B003523	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10796674	SRR10796674	LT_S58_noncancer
+P12_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794369	SRR10794369	LT_S69_cancer
+P12_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794370	SRR10794370	LT_S69_cancer
+P12_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794371	SRR10794371	LT_S69_cancer
+P13_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794430	SRR10794430	LT_S69_cancer
+P14_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794491	SRR10794491	LT_S69_cancer
+P14_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794492	SRR10794492	LT_S69_cancer
+P15_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797364	SRR10797364	LT_S69_cancer
+P15_B003777	epithelial	LT_S69	TH248	noncancer cell	noncancer	SRR10797365	SRR10797365	LT_S69_noncancer
+P16_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798217	SRR10798217	LT_S69_cancer
+P16_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798218	SRR10798218	LT_S69_cancer
+P16_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798219	SRR10798219	LT_S69_cancer
+P17_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791192	SRR10791192	LT_S69_cancer
+P17_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10791193	SRR10791193	LT_S69_cancer
+P19_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796737	SRR10796737	LT_S69_cancer
+P19_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10796738	SRR10796738	LT_S69_cancer
+P1_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10795676	SRR10795676	LT_S79_noncancer
+P20_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10794574	SRR10794574	LT_S69_cancer
+P21_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10797802	SRR10797802	LT_S69_cancer
+P22_B003775	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798298	SRR10798298	LT_S69_cancer
+P22_B003776	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798299	SRR10798299	LT_S69_cancer
+P22_B003777	epithelial	LT_S69	TH248	cancer cell	cancer	SRR10798300	SRR10798300	LT_S69_cancer
+P3_B001559	epithelial	LT_S80	TH179	cancer cell	cancer	SRR10798329	SRR10798329	LT_S80_cancer
+P5_B001543	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10796853	SRR10796853	LT_S79_cancer
+P5_B001548	epithelial	LT_S79	TH179	cancer cell	cancer	SRR10796855	SRR10796855	LT_S79_cancer
+P6_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10797876	SRR10797876	LT_S79_noncancer
+P7_B001543	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10798369	SRR10798369	LT_S79_noncancer
+P7_B003523	epithelial	LT_S58	TH179	cancer cell	cancer	SRR10798391	SRR10798391	LT_S58_cancer
+P8_B001545	epithelial	LT_S79	TH179	noncancer cell	noncancer	SRR10798424	SRR10798424	LT_S79_noncancer
+P9_B003577	epithelial	LT_S58	TH179	noncancer cell	noncancer	SRR10791325	SRR10791325	LT_S58_noncancer
+A10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777371	SRR10777371	LT_S78_normal
+A10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10777374	SRR10777374	LT_S78_normal
+A11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777434	SRR10777434	LT_S78_normal
+A11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10777437	SRR10777437	LT_S78_normal
+A12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777492	SRR10777492	LT_S78_normal
+A13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777541	SRR10777541	LT_S78_normal
+A14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777594	SRR10777594	LT_S78_normal
+A17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777795	SRR10777795	LT_S78_normal
+A18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795747	SRR10795747	LT_S78_normal
+A18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795748	SRR10795748	LT_S78_normal
+A19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795808	SRR10795808	LT_S78_normal
+A19_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795811	SRR10795811	LT_S78_normal
+A1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10777324	SRR10777324	LT_S78_normal
+A20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777951	SRR10777951	LT_S78_normal
+A21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778020	SRR10778020	LT_S78_normal
+A22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778086	SRR10778086	LT_S78_normal
+A2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10777893	SRR10777893	LT_S78_normal
+A3_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778142	SRR10778142	LT_S78_normal
+A3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778144	SRR10778144	LT_S78_normal
+A4_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778195	SRR10778195	LT_S78_normal
+A4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778197	SRR10778197	LT_S78_normal
+A5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778257	SRR10778257	LT_S78_normal
+A6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778315	SRR10778315	LT_S78_normal
+A6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778317	SRR10778317	LT_S78_normal
+A7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791336	SRR10791336	LT_S78_normal
+A7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791339	SRR10791339	LT_S78_normal
+A8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791394	SRR10791394	LT_S78_normal
+A8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791397	SRR10791397	LT_S78_normal
+A9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778403	SRR10778403	LT_S78_normal
+B10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778516	SRR10778516	LT_S78_normal
+B10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778518	SRR10778518	LT_S78_normal
+B11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778580	SRR10778580	LT_S78_normal
+B11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778583	SRR10778583	LT_S78_normal
+B12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795825	SRR10795825	LT_S78_normal
+B12_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795828	SRR10795828	LT_S78_normal
+B14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778662	SRR10778662	LT_S78_normal
+B16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778773	SRR10778773	LT_S78_normal
+B17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795942	SRR10795942	LT_S78_normal
+B18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794602	SRR10794602	LT_S78_normal
+B1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778462	SRR10778462	LT_S78_normal
+B20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778831	SRR10778831	LT_S78_normal
+B21_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10778894	SRR10778894	LT_S78_normal
+B21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10778897	SRR10778897	LT_S78_normal
+B2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791478	SRR10791478	LT_S78_normal
+B3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779008	SRR10779008	LT_S78_normal
+B4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779074	SRR10779074	LT_S78_normal
+B5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779136	SRR10779136	LT_S78_normal
+B5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779137	SRR10779137	LT_S78_normal
+B6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779197	SRR10779197	LT_S78_normal
+B6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779200	SRR10779200	LT_S78_normal
+B7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779254	SRR10779254	LT_S78_normal
+B7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779255	SRR10779255	LT_S78_normal
+B8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779316	SRR10779316	LT_S78_normal
+B9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779379	SRR10779379	LT_S78_normal
+B9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779381	SRR10779381	LT_S78_normal
+C10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779499	SRR10779499	LT_S78_normal
+C10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779502	SRR10779502	LT_S78_normal
+C11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779555	SRR10779555	LT_S78_normal
+C11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779558	SRR10779558	LT_S78_normal
+C13_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779667	SRR10779667	LT_S78_normal
+C14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791552	SRR10791552	LT_S78_normal
+C14_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791555	SRR10791555	LT_S78_normal
+C15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779696	SRR10779696	LT_S78_normal
+C16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779766	SRR10779766	LT_S78_normal
+C16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779768	SRR10779768	LT_S78_normal
+C17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791668	SRR10791668	LT_S78_normal
+C17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791671	SRR10791671	LT_S78_normal
+C18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791741	SRR10791741	LT_S78_normal
+C19_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779804	SRR10779804	LT_S78_normal
+C1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779440	SRR10779440	LT_S78_normal
+C20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10779936	SRR10779936	LT_S78_normal
+C20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10779939	SRR10779939	LT_S78_normal
+C21_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780013	SRR10780013	LT_S78_normal
+C21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780016	SRR10780016	LT_S78_normal
+C4_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780194	SRR10780194	LT_S78_normal
+C5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780255	SRR10780255	LT_S78_normal
+C6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780315	SRR10780315	LT_S78_normal
+C7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780374	SRR10780374	LT_S78_normal
+C7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780377	SRR10780377	LT_S78_normal
+C8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780440	SRR10780440	LT_S78_normal
+C9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780505	SRR10780505	LT_S78_normal
+D10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780624	SRR10780624	LT_S78_normal
+D10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780626	SRR10780626	LT_S78_normal
+D11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780676	SRR10780676	LT_S78_normal
+D11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780678	SRR10780678	LT_S78_normal
+D12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780728	SRR10780728	LT_S78_normal
+D13_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780783	SRR10780783	LT_S78_normal
+D15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780909	SRR10780909	LT_S78_normal
+D15_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780912	SRR10780912	LT_S78_normal
+D16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10780973	SRR10780973	LT_S78_normal
+D16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780976	SRR10780976	LT_S78_normal
+D17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781044	SRR10781044	LT_S78_normal
+D17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781047	SRR10781047	LT_S78_normal
+D18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791794	SRR10791794	LT_S78_normal
+D19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781094	SRR10781094	LT_S78_normal
+D1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10780569	SRR10780569	LT_S78_normal
+D21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781290	SRR10781290	LT_S78_normal
+D22_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781357	SRR10781357	LT_S78_normal
+D22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781360	SRR10781360	LT_S78_normal
+D2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781158	SRR10781158	LT_S78_normal
+D3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781423	SRR10781423	LT_S78_normal
+D4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781484	SRR10781484	LT_S78_normal
+D5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781545	SRR10781545	LT_S78_normal
+D6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781604	SRR10781604	LT_S78_normal
+D7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781667	SRR10781667	LT_S78_normal
+D7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781669	SRR10781669	LT_S78_normal
+D8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781730	SRR10781730	LT_S78_normal
+D8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781731	SRR10781731	LT_S78_normal
+D9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781796	SRR10781796	LT_S78_normal
+D9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781799	SRR10781799	LT_S78_normal
+E10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781918	SRR10781918	LT_S78_normal
+E10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781919	SRR10781919	LT_S78_normal
+E11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10781979	SRR10781979	LT_S78_normal
+E11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781982	SRR10781982	LT_S78_normal
+E13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782092	SRR10782092	LT_S78_normal
+E14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782158	SRR10782158	LT_S78_normal
+E15_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10782218	SRR10782218	LT_S78_normal
+E16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782280	SRR10782280	LT_S78_normal
+E18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10782412	SRR10782412	LT_S78_normal
+E19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782474	SRR10782474	LT_S78_normal
+E1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10781851	SRR10781851	LT_S78_normal
+E20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782609	SRR10782609	LT_S78_normal
+E20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10782612	SRR10782612	LT_S78_normal
+E21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791872	SRR10791872	LT_S78_normal
+E22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791950	SRR10791950	LT_S78_normal
+E3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10782729	SRR10782729	LT_S78_normal
+E4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10782791	SRR10782791	LT_S78_normal
+E5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782850	SRR10782850	LT_S78_normal
+E6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782909	SRR10782909	LT_S78_normal
+E6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10782911	SRR10782911	LT_S78_normal
+E7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10782978	SRR10782978	LT_S78_normal
+E7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10782981	SRR10782981	LT_S78_normal
+E8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783045	SRR10783045	LT_S78_normal
+E8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783046	SRR10783046	LT_S78_normal
+E9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783114	SRR10783114	LT_S78_normal
+E9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783117	SRR10783117	LT_S78_normal
+F10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783232	SRR10783232	LT_S78_normal
+F11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783292	SRR10783292	LT_S78_normal
+F12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783358	SRR10783358	LT_S78_normal
+F13_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796046	SRR10796046	LT_S78_normal
+F15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783466	SRR10783466	LT_S78_normal
+F16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783529	SRR10783529	LT_S78_normal
+F16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783532	SRR10783532	LT_S78_normal
+F17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792003	SRR10792003	LT_S78_normal
+F17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792006	SRR10792006	LT_S78_normal
+F18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10783581	SRR10783581	LT_S78_normal
+F19_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783651	SRR10783651	LT_S78_normal
+F1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783177	SRR10783177	LT_S78_normal
+F22_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796890	SRR10796890	LT_S78_normal
+F2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783722	SRR10783722	LT_S78_normal
+F3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796956	SRR10796956	LT_S78_normal
+F4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783870	SRR10783870	LT_S78_normal
+F5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10783941	SRR10783941	LT_S78_normal
+F6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784001	SRR10784001	LT_S78_normal
+F7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784066	SRR10784066	LT_S78_normal
+F8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784128	SRR10784128	LT_S78_normal
+F8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784130	SRR10784130	LT_S78_normal
+F9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792152	SRR10792152	LT_S78_normal
+F9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792154	SRR10792154	LT_S78_normal
+G10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792275	SRR10792275	LT_S78_normal
+G11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784186	SRR10784186	LT_S78_normal
+G11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784189	SRR10784189	LT_S78_normal
+G12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784241	SRR10784241	LT_S78_normal
+G13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796133	SRR10796133	LT_S78_normal
+G16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784402	SRR10784402	LT_S78_normal
+G17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794721	SRR10794721	LT_S78_normal
+G17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794724	SRR10794724	LT_S78_normal
+G18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784444	SRR10784444	LT_S78_normal
+G19_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784508	SRR10784508	LT_S78_normal
+G1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792219	SRR10792219	LT_S78_normal
+G20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784633	SRR10784633	LT_S78_normal
+G22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784767	SRR10784767	LT_S78_normal
+G3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792358	SRR10792358	LT_S78_normal
+G4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794800	SRR10794800	LT_S78_normal
+G5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796973	SRR10796973	LT_S78_normal
+G6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797034	SRR10797034	LT_S78_normal
+G7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784827	SRR10784827	LT_S78_normal
+G8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784887	SRR10784887	LT_S78_normal
+G8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784889	SRR10784889	LT_S78_normal
+G9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794852	SRR10794852	LT_S78_normal
+G9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794853	SRR10794853	LT_S78_normal
+H10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10784983	SRR10784983	LT_S78_normal
+H10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10784986	SRR10784986	LT_S78_normal
+H11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785041	SRR10785041	LT_S78_normal
+H11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797401	SRR10797401	LT_S78_normal
+H12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797462	SRR10797462	LT_S78_normal
+H12_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797465	SRR10797465	LT_S78_normal
+H13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792419	SRR10792419	LT_S78_normal
+H14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792478	SRR10792478	LT_S78_normal
+H14_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792480	SRR10792480	LT_S78_normal
+H15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792543	SRR10792543	LT_S78_normal
+H16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785090	SRR10785090	LT_S78_normal
+H16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785093	SRR10785093	LT_S78_normal
+H17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794973	SRR10794973	LT_S78_normal
+H17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794976	SRR10794976	LT_S78_normal
+H18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796191	SRR10796191	LT_S78_normal
+H18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796194	SRR10796194	LT_S78_normal
+H19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785139	SRR10785139	LT_S78_normal
+H19_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785142	SRR10785142	LT_S78_normal
+H1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794910	SRR10794910	LT_S78_normal
+H20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785266	SRR10785266	LT_S78_normal
+H22_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785403	SRR10785403	LT_S78_normal
+H3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785469	SRR10785469	LT_S78_normal
+H4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785530	SRR10785530	LT_S78_normal
+H5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792591	SRR10792591	LT_S78_normal
+H6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792650	SRR10792650	LT_S78_normal
+H6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792652	SRR10792652	LT_S78_normal
+H7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785627	SRR10785627	LT_S78_normal
+H7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785630	SRR10785630	LT_S78_normal
+H8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785691	SRR10785691	LT_S78_normal
+H8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785694	SRR10785694	LT_S78_normal
+H9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792662	SRR10792662	LT_S78_normal
+H9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792664	SRR10792664	LT_S78_normal
+I11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785831	SRR10785831	LT_S78_normal
+I11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785833	SRR10785833	LT_S78_normal
+I13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10785943	SRR10785943	LT_S78_normal
+I13_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10785946	SRR10785946	LT_S78_normal
+I14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10786013	SRR10786013	LT_S78_normal
+I14_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786015	SRR10786015	LT_S78_normal
+I15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10786081	SRR10786081	LT_S78_normal
+I16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792789	SRR10792789	LT_S78_normal
+I16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792792	SRR10792792	LT_S78_normal
+I17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10786121	SRR10786121	LT_S78_normal
+I18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786186	SRR10786186	LT_S78_normal
+I1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792714	SRR10792714	LT_S78_normal
+I20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786387	SRR10786387	LT_S78_normal
+I2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786320	SRR10786320	LT_S78_normal
+I4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786638	SRR10786638	LT_S78_normal
+I5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786700	SRR10786700	LT_S78_normal
+I6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10786754	SRR10786754	LT_S78_normal
+I6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786756	SRR10786756	LT_S78_normal
+I7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786811	SRR10786811	LT_S78_normal
+I8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10786871	SRR10786871	LT_S78_normal
+I8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786874	SRR10786874	LT_S78_normal
+I9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10786928	SRR10786928	LT_S78_normal
+I9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786930	SRR10786930	LT_S78_normal
+J10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787039	SRR10787039	LT_S78_normal
+J10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787041	SRR10787041	LT_S78_normal
+J11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787095	SRR10787095	LT_S78_normal
+J12_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787151	SRR10787151	LT_S78_normal
+J13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787209	SRR10787209	LT_S78_normal
+J13_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787211	SRR10787211	LT_S78_normal
+J14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787264	SRR10787264	LT_S78_normal
+J14_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787266	SRR10787266	LT_S78_normal
+J15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787326	SRR10787326	LT_S78_normal
+J16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787386	SRR10787386	LT_S78_normal
+J16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787389	SRR10787389	LT_S78_normal
+J19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787574	SRR10787574	LT_S78_normal
+J1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10786984	SRR10786984	LT_S78_normal
+J20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787700	SRR10787700	LT_S78_normal
+J21_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787772	SRR10787772	LT_S78_normal
+J21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787774	SRR10787774	LT_S78_normal
+J22_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10787831	SRR10787831	LT_S78_normal
+J22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787834	SRR10787834	LT_S78_normal
+J2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787634	SRR10787634	LT_S78_normal
+J3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787895	SRR10787895	LT_S78_normal
+J4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10787957	SRR10787957	LT_S78_normal
+J5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788014	SRR10788014	LT_S78_normal
+J6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788066	SRR10788066	LT_S78_normal
+J6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788068	SRR10788068	LT_S78_normal
+J7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792832	SRR10792832	LT_S78_normal
+J8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792890	SRR10792890	LT_S78_normal
+J8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792892	SRR10792892	LT_S78_normal
+J9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788142	SRR10788142	LT_S78_normal
+J9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788144	SRR10788144	LT_S78_normal
+K10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788246	SRR10788246	LT_S78_normal
+K11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788287	SRR10788287	LT_S78_normal
+K11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788289	SRR10788289	LT_S78_normal
+K12_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797539	SRR10797539	LT_S78_normal
+K14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10798534	SRR10798534	LT_S78_normal
+K15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788350	SRR10788350	LT_S78_normal
+K16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788420	SRR10788420	LT_S78_normal
+K16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788422	SRR10788422	LT_S78_normal
+K18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10792994	SRR10792994	LT_S78_normal
+K18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10792996	SRR10792996	LT_S78_normal
+K19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796307	SRR10796307	LT_S78_normal
+K1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788200	SRR10788200	LT_S78_normal
+K20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788540	SRR10788540	LT_S78_normal
+K21_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793062	SRR10793062	LT_S78_normal
+K22_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793121	SRR10793121	LT_S78_normal
+K22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793122	SRR10793122	LT_S78_normal
+K2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788488	SRR10788488	LT_S78_normal
+K4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793246	SRR10793246	LT_S78_normal
+K5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793303	SRR10793303	LT_S78_normal
+K6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793355	SRR10793355	LT_S78_normal
+K6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793358	SRR10793358	LT_S78_normal
+K7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793411	SRR10793411	LT_S78_normal
+K8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795051	SRR10795051	LT_S78_normal
+K8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795054	SRR10795054	LT_S78_normal
+K9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795102	SRR10795102	LT_S78_normal
+K9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795105	SRR10795105	LT_S78_normal
+L10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793458	SRR10793458	LT_S78_normal
+L11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793514	SRR10793514	LT_S78_normal
+L11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793516	SRR10793516	LT_S78_normal
+L12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788673	SRR10788673	LT_S78_normal
+L16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788751	SRR10788751	LT_S78_normal
+L18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788886	SRR10788886	LT_S78_normal
+L19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10788950	SRR10788950	LT_S78_normal
+L19_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788953	SRR10788953	LT_S78_normal
+L1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10788596	SRR10788596	LT_S78_normal
+L20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789078	SRR10789078	LT_S78_normal
+L21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797118	SRR10797118	LT_S78_normal
+L22_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795260	SRR10795260	LT_S78_normal
+L22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795262	SRR10795262	LT_S78_normal
+L2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789014	SRR10789014	LT_S78_normal
+L3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795328	SRR10795328	LT_S78_normal
+L4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795383	SRR10795383	LT_S78_normal
+L5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10795441	SRR10795441	LT_S78_normal
+L5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795444	SRR10795444	LT_S78_normal
+L6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789121	SRR10789121	LT_S78_normal
+L6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789122	SRR10789122	LT_S78_normal
+L7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789179	SRR10789179	LT_S78_normal
+L7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789180	SRR10789180	LT_S78_normal
+L8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789239	SRR10789239	LT_S78_normal
+L9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793567	SRR10793567	LT_S78_normal
+L9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793570	SRR10793570	LT_S78_normal
+M10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789322	SRR10789322	LT_S78_normal
+M10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789323	SRR10789323	LT_S78_normal
+M11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789371	SRR10789371	LT_S78_normal
+M12_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789429	SRR10789429	LT_S78_normal
+M13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793674	SRR10793674	LT_S78_normal
+M15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789434	SRR10789434	LT_S78_normal
+M17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789555	SRR10789555	LT_S78_normal
+M17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789558	SRR10789558	LT_S78_normal
+M18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10789622	SRR10789622	LT_S78_normal
+M18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789625	SRR10789625	LT_S78_normal
+M20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789803	SRR10789803	LT_S78_normal
+M22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789930	SRR10789930	LT_S78_normal
+M2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789745	SRR10789745	LT_S78_normal
+M3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10789988	SRR10789988	LT_S78_normal
+M4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790044	SRR10790044	LT_S78_normal
+M5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790101	SRR10790101	LT_S78_normal
+M6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790153	SRR10790153	LT_S78_normal
+M6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790156	SRR10790156	LT_S78_normal
+M7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790205	SRR10790205	LT_S78_normal
+M8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790261	SRR10790261	LT_S78_normal
+M8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790263	SRR10790263	LT_S78_normal
+M9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790315	SRR10790315	LT_S78_normal
+N10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793818	SRR10793818	LT_S78_normal
+N10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793820	SRR10793820	LT_S78_normal
+N11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793866	SRR10793866	LT_S78_normal
+N11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793869	SRR10793869	LT_S78_normal
+N13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790407	SRR10790407	LT_S78_normal
+N14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790456	SRR10790456	LT_S78_normal
+N14_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790459	SRR10790459	LT_S78_normal
+N15_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790524	SRR10790524	LT_S78_normal
+N16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10793895	SRR10793895	LT_S78_normal
+N16_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793897	SRR10793897	LT_S78_normal
+N17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10793964	SRR10793964	LT_S78_normal
+N18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794027	SRR10794027	LT_S78_normal
+N19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790609	SRR10790609	LT_S78_normal
+N1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790376	SRR10790376	LT_S78_normal
+N20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790722	SRR10790722	LT_S78_normal
+N21_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790791	SRR10790791	LT_S78_normal
+N22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797589	SRR10797589	LT_S78_normal
+N2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790662	SRR10790662	LT_S78_normal
+N3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797645	SRR10797645	LT_S78_normal
+N4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797969	SRR10797969	LT_S78_normal
+N5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790846	SRR10790846	LT_S78_normal
+N6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790896	SRR10790896	LT_S78_normal
+N6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790898	SRR10790898	LT_S78_normal
+N7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794081	SRR10794081	LT_S78_normal
+N7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794082	SRR10794082	LT_S78_normal
+N8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794135	SRR10794135	LT_S78_normal
+N9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10790968	SRR10790968	LT_S78_normal
+N9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10790971	SRR10790971	LT_S78_normal
+O10_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796500	SRR10796500	LT_S78_normal
+O10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796502	SRR10796502	LT_S78_normal
+O11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797159	SRR10797159	LT_S78_normal
+O11_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797162	SRR10797162	LT_S78_normal
+O12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797213	SRR10797213	LT_S78_normal
+O12_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797216	SRR10797216	LT_S78_normal
+O13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791059	SRR10791059	LT_S78_normal
+O13_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791061	SRR10791061	LT_S78_normal
+O15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797298	SRR10797298	LT_S78_normal
+O15_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797301	SRR10797301	LT_S78_normal
+O17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796549	SRR10796549	LT_S78_normal
+O17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796551	SRR10796551	LT_S78_normal
+O18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10798021	SRR10798021	LT_S78_normal
+O19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10798087	SRR10798087	LT_S78_normal
+O19_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10798090	SRR10798090	LT_S78_normal
+O1_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796446	SRR10796446	LT_S78_normal
+O20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797687	SRR10797687	LT_S78_normal
+O20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797690	SRR10797690	LT_S78_normal
+O2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795610	SRR10795610	LT_S78_normal
+O3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10798133	SRR10798133	LT_S78_normal
+O4_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10798187	SRR10798187	LT_S78_normal
+O5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10798592	SRR10798592	LT_S78_normal
+O6_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777234	SRR10777234	LT_S78_normal
+O6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10777236	SRR10777236	LT_S78_normal
+O7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10777281	SRR10777281	LT_S78_normal
+O8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794253	SRR10794253	LT_S78_normal
+O9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794303	SRR10794303	LT_S78_normal
+O9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794305	SRR10794305	LT_S78_normal
+P10_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10795727	SRR10795727	LT_S78_normal
+P11_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796660	SRR10796660	LT_S78_normal
+P12_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794337	SRR10794337	LT_S78_normal
+P12_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794339	SRR10794339	LT_S78_normal
+P13_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794394	SRR10794394	LT_S78_normal
+P13_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794397	SRR10794397	LT_S78_normal
+P14_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794453	SRR10794453	LT_S78_normal
+P15_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797327	SRR10797327	LT_S78_normal
+P15_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797329	SRR10797329	LT_S78_normal
+P16_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797391	SRR10797391	LT_S78_normal
+P17_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10798245	SRR10798245	LT_S78_normal
+P17_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10798248	SRR10798248	LT_S78_normal
+P18_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791220	SRR10791220	LT_S78_normal
+P18_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791222	SRR10791222	LT_S78_normal
+P19_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796701	SRR10796701	LT_S78_normal
+P20_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10794538	SRR10794538	LT_S78_normal
+P20_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10794541	SRR10794541	LT_S78_normal
+P21_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797766	SRR10797766	LT_S78_normal
+P22_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10797825	SRR10797825	LT_S78_normal
+P22_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797828	SRR10797828	LT_S78_normal
+P2_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796764	SRR10796764	LT_S78_normal
+P3_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10798328	SRR10798328	LT_S78_normal
+P4_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796800	SRR10796800	LT_S78_normal
+P5_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10796857	SRR10796857	LT_S78_normal
+P5_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10796859	SRR10796859	LT_S78_normal
+P6_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10797882	SRR10797882	LT_S78_normal
+P7_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10798371	SRR10798371	LT_S78_normal
+P7_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10798373	SRR10798373	LT_S78_normal
+P8_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10798425	SRR10798425	LT_S78_normal
+P8_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10798427	SRR10798427	LT_S78_normal
+P9_B001554	normal	LT_S78	TH179_NAT	normal	normal	SRR10791303	SRR10791303	LT_S78_normal
+P9_B001558	normal	LT_S78	TH179_NAT	normal	normal	SRR10791305	SRR10791305	LT_S78_normal

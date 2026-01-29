@@ -1,12 +1,16 @@
 ---
-title: Figure 2
-author: Qun Li
-date: 13 Aug 2025 at 14:07:57
+title: "Figure 3"
+author: "Qun Li"
+date: "13 Aug 2025 at 14:07:57"
 output:
-  pdf_document: 
+  pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
@@ -16,7 +20,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 #ENV
 ```{r envs}
 rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure2/")
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure3/")
 ```
 
 # Libraries
@@ -30,10 +34,6 @@ library(ComplexHeatmap)
 library(circlize)
 ```
 
-# def function
-```{r defFunction}
-# def function
-```
 
 # Load Data
 ```{r loadData}
@@ -73,10 +73,10 @@ library(circlize)
 # write.csv(Merged_mutation, "../Data/0_Mutation_sample_merge.csv")
 
 # load Mutation sample matrix
-Merged_mutation <- read.csv("../Data/0_Mutation_sample_merge.csv")
+Merged_mutation <- read.csv("../Data/MergeData/0_Mutation_sample_merge.csv")
 
 # load Mutant cell fraction
-Mutation_fraction <- read.csv("../Data/0_Benchmarking_MutCellFrac.csv", header = T)
+Mutation_fraction <- read.csv("../Data/MergeData/0_Benchmarking_MutCellFrac.csv", header = T)
 
 rownames(Merged_mutation) <- Merged_mutation$Gene
 Merged_mutation_Ann <- Merged_mutation[, c("Gene", "Tag")]
@@ -117,29 +117,15 @@ p_correlation_scMut_OtherMethods <- ggplot(Mutation_fraction, aes(x = scMutrace,
 
 cor.test(Mutation_fraction$scMutrace, Mutation_fraction$OtherMethod, method = "pearson")
 
-pdf("../Figures/p_Mutation_Sample_heatmap.pdf", width = 14.54, height = 4.88)
-Heatmap(
-  t(bin_mat),
-  name = "Mutation",
-  col = col_fun2,
-  cluster_rows = FALSE,
-  cluster_columns = FALSE,
-  row_names_side = "left",
-  column_names_side = "top",
-  rect_gp = gpar(col = "white", lwd = 1)
-)
-dev.off()
-
 p_correlation_scMut_OtherMethods
 
-ggsave("../Figures/p_correlation_scMut_OtherMethods.pdf", width = 3.08, height = 3.08)
 # clean mat
 rm(mat, bin_mat)
 ```
 
 # benchmarking
 ```{r lmFracMutCells}
-benchmarking_data <- read.csv("../Data/0_Benchmarking_Data.csv", header = T)
+benchmarking_data <- read.csv("../Data/MergeData/0_Benchmarking_Data.csv", header = T)
 
 p_benchmarking_res <- ggplot(data = benchmarking_data) + 
   geom_point(mapping = aes(x = Recall, y = Precision, fill = Tag),
@@ -155,12 +141,11 @@ p_benchmarking_res <- ggplot(data = benchmarking_data) +
   )
 
 p_benchmarking_res
-ggsave("../Figures/p_benchmarking_res.pdf", p_benchmarking_res, width = 4.9, height = 3.08)
 ```
 
 # GO
 ```{r GO}
-GO_mutation <- read.csv("../Data/1_GO.csv", header = T)
+GO_mutation <- read.csv("../Data/MergeData/1_GO.csv", header = T)
 
 p_GOs_mutation <- ggplot(GO_mutation, aes(x = reorder(Description, Count), y = Count, fill = Type)) +
   geom_bar(stat = "identity", width = 0.7) +
@@ -184,13 +169,11 @@ p_GOs_mutation <- ggplot(GO_mutation, aes(x = reorder(Description, Count), y = C
     "Healthy" = "#7570b3"))
 
 p_GOs_mutation
-
-ggsave("../Figures/p_GOs_mutation.pdf", p_GOs_mutation, width = 5.20, height = 4.21)
 ```
 
 # SBS mutation signatures
 ```{r SBS}
-SBS_data <- read.csv("../Data/XVSeq/Signature_contributions_PDC.csv", header = T)
+SBS_data <- read.csv("../Data/MergeData/Signature_contributions_PDC.csv", header = T)
 df_long <- SBS_data %>%
   tidyr::pivot_longer(cols = c(DX, RE), 
                names_to = "Stage", 
@@ -215,7 +198,7 @@ p_SBS_XVSeq <- ggplot(df_long, aes(x = Stage, y = Contribution, fill = Signature
     y = "Contribution"
   )
 
-ggsave("../Figures/p_SBS_XVSeq.pdf", width = 3.34, height = 4.22)
+p_SBS_XVSeq
 ```
 
 # sessionInfo

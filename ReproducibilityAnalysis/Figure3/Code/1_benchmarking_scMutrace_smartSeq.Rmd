@@ -1,12 +1,16 @@
 ---
-title: Benchmarking scMutrace and smartSeq
-author: Qun Li
-date: 13 Aug 2025 at 14:07:57
+title: "Benchmarking scMutrace and smartSeq"
+author: "Qun Li"
+date: "13 Aug 2025 at 14:07:57"
 output:
-  pdf_document: 
+  pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
@@ -16,7 +20,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 #ENV
 ```{r envs}
 rm(list = ls())
-setwd("/Users/liqun/Desktop/scMutraceReproducibility/Figure3/")
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure3/")
 ```
 
 # Libraries
@@ -64,17 +68,17 @@ retriveLocsByCells <- function(CSM, cellList){
 
 # Load Data
 ```{r loadData}
-data_CSM <- readRDS("../Data/SMARTSeq/data_CSM_NSCLC_SMARTSeq.rds")
+data_CSM <- readRDS("../Data/HumanNSCLC/data_CSM_NSCLC_SMARTSeq.rds")
 data_CSM_TH179 <- data_CSM$TH179
 data_CSM_TH179NAT <- data_CSM$TH179NAT
 data_CSM_TH248 <- data_CSM$TH248
 
-data_SSM <- readRDS("../Data/SMARTSeq/data_SSM_NSCLC_SMARTSeq.rds")
+data_SSM <- readRDS("../Data/HumanNSCLC/data_SSM_NSCLC_SMARTSeq.rds")
 data_SSM_TH179_ann <- data_SSM$TH179
 data_SSM_TH179NAT_ann <- data_SSM$TH179NAT
 data_SSM_TH248_ann <- data_SSM$TH248
 
-data_meta <- read.table("../Data/SMARTSeq/SMARTSeq_NSCLC_meta.txt", header = T, sep = "\t")
+data_meta <- read.table("../Data/HumanNSCLC/SMARTSeq_NSCLC_meta.txt", header = T, sep = "\t")
 ```
 
 # Mutation burden
@@ -255,7 +259,6 @@ data_MutPerCell_TH248_TH179_TH179NAT_ann_$sampleCellType <- factor(data_MutPerCe
                                                                               "LT_S78_normal"))
 p_TH248_TH179_TH179NAT_sampleCellType <- ggplot(data_MutPerCell_TH248_TH179_TH179NAT_ann_, aes(x=as.factor(sampleCellType), y=MutNum_somatic, fill=as.factor(sampleCellType))) + 
   geom_boxplot(outliers = FALSE) + 
-  #geom_jitter(width=0.2, size=1, alpha=0.5) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   scale_fill_manual(values = c("LT_S69_cancer" = "#ca0020", 
@@ -281,24 +284,12 @@ p_TH179_sampleCellType
 p_TH179_TH179NAT_sampleCellType
 p_TH248_sampleCellType
 p_TH248_TH179_TH179NAT_sampleCellType
-
-pdf("../Figures/SMARTSeq/p_TH179_TH179NAT_sampleCellType_Mut.pdf", )
-p_TH179_TH179NAT_sampleCellType
-dev.off()
-
-pdf("../Figures/SMARTSeq/p_TH248_sampleCellType_Mut.pdf", )
-p_TH248_sampleCellType
-dev.off()
-
-pdf("../Figures/SMARTSeq/p_TH248_TH179_TH179NAT_sampleCellType_Mut.pdf", width = 5.17, height = 3.73)
-p_TH248_TH179_TH179NAT_sampleCellType
-dev.off()
 ```
 
 
 # Benchmarking
 ```{r benchmarking}
-data_benchmarking <- read.table("../Data/SMARTSeq/data_benchmarking_NSCLC.txt", sep = "\t", header = T)
+data_benchmarking <- read.table("../Data/HumanNSCLC/data_benchmarking_NSCLC.txt", sep = "\t", header = T)
 data_benchmarking_meta <- merge(data_benchmarking, data_meta, by = "CellTag")
 data_benchmarking_meta$Gene <- sub("_.*", "", data_benchmarking_meta$Mutation)
 
@@ -346,16 +337,6 @@ venn_list_TP53_P72R <- list(scMut = unique(data_benchmarking_meta %>% filter(Mut
 
 p_venn_TP53_P72R <- ggVennDiagram(venn_list_TP53_P72R, category.names = c("scMut", "GATK")) + scale_fill_distiller(palette = "RdBu")
 p_venn_TP53_P72R
-
-pdf("../Figures/SMARTSeq/p_benchmarking.pdf", width = 8.21, height = 4.75)
-p_benchmarking
-dev.off()
-
-pdf("../Figures/SMARTSeq/p_venn_TP53_P72R.pdf", width = 8.21, height = 4.75)
-p_venn_TP53_P72R
-dev.off()
-
-write.csv(data_benchmarking_res, "../Data/SMARTSeq/Benchmarking_data.csv")
 ```
 
 # Census genes celltypelevel
@@ -457,10 +438,6 @@ p_proportion <- pheatmap(data_census_fraction,
                          color = col_fun_v1)
 
 p_proportion
-
-pdf("../Figures/SMARTSeq/p_proportion_cellType.pdf", width = 8.21, height = 5.04)
-p_proportion
-dev.off()
 ```
 
 # Census genes samplelevel
@@ -567,17 +544,13 @@ p_proportion_sample <- pheatmap(data_census_fraction_sample,
                          color = col_fun_v1)
 
 p_proportion_sample
-
-pdf("../Figures/SMARTSeq/p_proportion_sample.pdf", width = 8.21, height = 5.04)
-p_proportion_sample
-dev.off()
-
-write.csv(data_census_fraction_sample, "../Data/SMARTSeq/Mutation_sample.csv")
 ```
+
 # GermlinePopulation
 ```{r population}
-data_population <- readRDS("../Data/SMARTSeq/data_populationData_NSCLC.rds")
-data_1kgenome_ann <- read.table("../Data/SMARTSeq/1000genomeSampleInfo.txt", header = T, sep = "\t")
+# data_populationData_NSCLC.rds was generated using https://github.com/QunATCG/scMutrace-tutorial/tree/main/AdvancedFunctions/PopulationGermline
+data_population <- readRDS("../Data/HumanNSCLC/data_populationData_NSCLC.rds")
+data_1kgenome_ann <- read.table("../Data/HumanNSCLC/1000genomeSampleInfo.txt", header = T, sep = "\t")
 TH179_population_count <- data_population$TH179Count
 TH179_population_fraq <- data_population$TH179Fraq
 
@@ -642,13 +615,13 @@ boxplot(data_count_sexPopulation_TH179_resample[, sorted_cols],
         ylab = "Number of High-Frequency Mutations",
         main = "Resampled Mutation Frequencies Across Populations")
 
-pdf("../Figures/SMARTSeq/p_TH179_resample_population.pdf", width = 8.21, height = 5.04)
+
 boxplot(data_count_sexPopulation_TH179_resample[, sorted_cols],
         las = 2,                    
         col = "#bababa",  
         ylab = "Number of High-Frequency Mutations",
         main = "Resampled Mutation Frequencies Across Populations")
-dev.off()
+
 
 medians <- apply(data_count_sexPopulation_TH179NAT_resample, 2, median)
 sorted_cols <- names(sort(medians, decreasing = TRUE))
@@ -658,15 +631,12 @@ boxplot(data_count_sexPopulation_TH179NAT_resample[, sorted_cols],
         col = "#bababa",  
         ylab = "Number of High-Frequency Mutations",
         main = "Resampled Mutation Frequencies Across Populations")
-dev.off()
 
-pdf("../Figures/SMARTSeq/p_TH179NAT_resample_population.pdf", width = 8.21, height = 5.04)
 boxplot(data_count_sexPopulation_TH179NAT_resample[, sorted_cols],
         las = 2,                    
         col = "#bababa",  
         ylab = "Number of High-Frequency Mutations",
         main = "Resampled Mutation Frequencies Across Populations")
-dev.off()
 
 medians <- apply(data_count_sexPopulation_TH248_resample, 2, median)
 sorted_cols <- names(sort(medians, decreasing = TRUE))
@@ -676,13 +646,11 @@ boxplot(data_count_sexPopulation_TH248_resample[, sorted_cols],
         ylab = "Number of High-Frequency Mutations",
         main = "Resampled Mutation Frequencies Across Populations")
 
-pdf("../Figures/SMARTSeq/p_TH248_resample_population.pdf", width = 8.21, height = 5.04)
 boxplot(data_count_sexPopulation_TH248_resample[, sorted_cols],
         las = 2,                    
         col = "#bababa",  
         ylab = "Number of High-Frequency Mutations",
         main = "Resampled Mutation Frequencies Across Populations")
-dev.off()
 ```
 # sessionInfo
 ```{r sessionInfo}
