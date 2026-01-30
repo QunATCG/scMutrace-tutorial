@@ -45,8 +45,8 @@ set -euo pipefail
 ref_hg19="path/to/chr17.fa"
 bam_directory="path/to/Data/"
 contig_hg19_chr17="path/to/chr17.contig"
-removeItems_hg19="path/to/hg19_nochr_excludeitems.txt"
-includeItems_hg19="path/to/hg19_nochr_includeitems.txt"
+removeItems_hg19="path/to/excludeitems.txt"
+includeItems_hg19="path/to/includeitems.txt"
 outDir="path/to/OutPut/"
 
 mkdir -p "${outDir}"
