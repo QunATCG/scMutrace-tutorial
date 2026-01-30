@@ -1,12 +1,16 @@
 ---
-title: functions for pipeline
-author: Qun Li
-date: 22 Aug 2025 at 10:12:37
+title: "functions for pipeline"
+author: "Qun Li"
+date: "22 Aug 2025 at 10:12:37"
 output:
-  pdf_document: 
+  pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
 ---
 
 ```{r, setup, include=FALSE}
@@ -423,7 +427,7 @@ for (sample in names(sample_selected_scATA)){
 ```
 
 # pipelines for trajectory analysis of scATAC-seq data
-```{r scATAC_trajectory_analysis, eval=TRUE}
+```{r scATAC_trajectory_analysis, eval=FALSE}
 library(ArchR)
 library(Seurat)
 library(magrittr)

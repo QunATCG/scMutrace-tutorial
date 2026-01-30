@@ -3,9 +3,11 @@
 ```shell
 Figure4
 ├── Code                                        # Code for reproducibility analysis
-│   ├── 0_pAML_reproducibilityAnalysis.Rmd      # Code for reproducibility analysis (figures)
 │   ├── 0_pAML_reproducibilityAnalysis.html     # Code for reproducibility analysis (figures)
 │   ├── 0_pAML_reproducibilityAnalysis.pdf      # Code for reproducibility analysis (figures)
+│   ├── 0_pAML_reproducibilityAnalysis.Rmd      # Code for reproducibility analysis (figures)
+│   ├── 0_pipelineFunctions.html                # Code for reproducibility analysis (batch processing)
+│   ├── 0_pipelineFunctions.pdf                 # Code for reproducibility analysis (batch processing)
 │   └── 0_pipelineFunctions.Rmd                 # Code for reproducibility analysis (batch processing)
 ├── Data                                        # Data for reproducibility analysis
 │   └── HumanpAML
