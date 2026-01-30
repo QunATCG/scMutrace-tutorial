@@ -9,7 +9,7 @@
 - `Example 4`: Datasets provided by scMutrace (three samples for joint calling), generated from public scRNA and WES sequencing data. Due to ethical considerations, the BAM file headers and other metadata have been masked.
 
 
-## Codes for generating example data 
+## Codes for generating scMutrace example data 
 Due to ethical considerations, the BAM file headers and other metadata have been masked.
 `Example_tumor.reheader.RG.bam`
 
@@ -26,8 +26,6 @@ samtools index Example_tumor.reheader.RG.bam
 ```
 
 
-
-
 If you encounter coding issues along the way, you can refer to the shell script examples provided here:
 
 https://github.com/QunATCG/shell-scripting-tutorial
@@ -35,6 +33,10 @@ https://github.com/QunATCG/shell-scripting-tutorial
 https://github.com/QunATCG/linux-command
 
 https://github.com/QunATCG/scMutrace
+
+If you have any questions or encounter problems, please open an issue here: [scMutrace-tutorial Issues](https://github.com/QunATCG/scMutrace-tutorial/issues)
+
+Or contact us: qun.li@ki.se and claudia.kutter@ki.se
 
 ## Resources
 - COSMIC and 1000 Genomes–Based Mutation Annotation: https://doi.org/10.5281/zenodo.16925906
