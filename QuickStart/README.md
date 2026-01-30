@@ -9,6 +9,25 @@
 - `Example 4`: Datasets provided by scMutrace (three samples for joint calling), generated from public scRNA and WES sequencing data. Due to ethical considerations, the BAM file headers and other metadata have been masked.
 
 
+## Codes for generating example data 
+
+`Example_tumor.reheader.RG.bam`
+
+```bash
+# extract target region bam files
+samtools view -hb -L path/to/target.bed path/to/tumor.bam > Example_tumor.bam
+samtools index Example_tumor.bam
+
+# reheader bam files
+samtools reheader /path/to/clean_header.txt Example_tumor.bam > Example_tumor.reheader.bam
+samtools index Example_tumor.reheader.bam
+samtools addreplacerg -r ID:Example_tumor -r SM:Example_tumor -r PL:ILLUMINA -r LB:lib1 -r PU:unit1 -o Example_tumor.reheader.RG.bam Example_tumor.reheader.bam
+samtools index Example_tumor.reheader.RG.bam
+```
+
+
+
+
 If you encounter coding issues along the way, you can refer to the shell script examples provided here:
 
 https://github.com/QunATCG/shell-scripting-tutorial
