@@ -164,3 +164,9 @@ Jointcall
 
 When no control samples are present in the dataset, the final `excludeControlSites` and `includeControlSites` files will contain the same entries.
 
+# You can check all SNVs using IGV tool
+example scMutrace output can be found [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example4/outputExample/)
+
+somatic mutations [scRNA](../../Figures/Example4/scMutrace_scRNA.png)
+
+somatic mutations [WES](../../Figures/Example4/scMutrace_WES.png)
