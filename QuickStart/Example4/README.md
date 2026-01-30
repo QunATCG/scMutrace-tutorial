@@ -78,3 +78,87 @@ path/to/step5_gCellSNPMatrix.sh -g ${contig_joincall} -O ${outputJoint} -f ${ref
 ```
 
 ![scMutrace code](../../Figures/Example4/Example4_code.png)
+
+> awk is a powerful Unix command-line tool—best thought of as a mini programming language—designed for text processing and data extraction. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
+[sed, awk, vmstat and nestat commands](https://www.youtube.com/watch?v=4hJorSKg9E0)
+
+
+## Step 4: Check output files
+
+**We keep all temporary files for debugging when issues occur, and you can check the log files or send them to us**
+
+In output folder, you can find following files.
+
+
+```
+OutPut
+├── Jointcall
+│   └── tmp
+├── S1
+│   ├── VCFPOS
+│   ├── filterVCF
+│   ├── tmp
+│   └── tmpVCF
+├── S2
+│   ├── VCFPOS
+│   ├── filterVCF
+│   ├── tmp
+│   └── tmpVCF
+└── S3
+    ├── VCFPOS
+    ├── filterVCF
+    ├── tmp
+    └── tmpVCF
+```
+
+For each samples (S1, S2 and S3), you will find files like these
+
+| Name | Description |
+| -------- | ------- |
+| barcodeList.txt | List of all cell barcodes used to filter BAM reads |
+| ExcludeBG_S1.picard_dup_metrics.txt | Metrics file from Picard marking duplicated reads |
+| ExcludeBG_S1.sort.bam | Filtered BAM file based on the cell barcode list |
+| ExcludeBG_S1.sort.bam.bai | index file of ExcludeBG_S1.sort.bam |
+| ExcludeBG_S1.sort.rmdupicard.bam | BAM file after removing duplicated reads using Picard |
+| ExcludeBG_S1.sort.rmdupicard.bam.bai | index file of ExcludeBG_S1.sort.rmdupicard.bam |
+| filterVCF folder | Folder containing filtered SNPs produced by scMutrace |
+| tmp folder | Temporary working directory |
+| tmpVCF folder | Temporary files related to VCF generation |
+| VCFPOS folder | Temporary files related to VCF generation |
+| Tumor_scmutrace.vcf | all SNPs |
+| Tumor.scmutrace.clean.vcf | output of scMutrace with all annotations |
+| Tumor.final.vcf | final result of scMutrace |
+
+In `Jointcall` folder, you will find following files:
+```bash
+Jointcall
+├── gCellSNPMatrix.step0.txt
+├── gCellSNPMatrix.step0_0.txt
+├── gCellSNPMatrix.step1.txt
+├── gCellSNPMatrix.step2.txt
+├── gCellSNPMatrix.step3.1_excludeControlSites.csv
+├── gCellSNPMatrix.step3.2_includeControlSites.csv
+├── gSNPSampleMatrix.step2.1.txt
+├── gSNPSampleMatrix.step2.2.txt
+├── gSNPSampleMatrix.step3.1_excludeControlSites.csv
+├── gSNPSampleMatrix.step3.2_includeControlSites.csv
+├── mutinfo.txt
+└── tmp
+```
+| Name | Description |
+| -------- | ------- |
+| gCellSNPMatrix.step0.txt | Temporary files |
+| gCellSNPMatrix.step0_0.txt | Temporary files |
+| gCellSNPMatrix.step1.txt | Temporary files |
+| gCellSNPMatrix.step2.txt | Temporary files |
+| gCellSNPMatrix.step3.1_excludeControlSites.csv | **final cell x snp matrix without control mutations** |
+| gCellSNPMatrix.step3.2_includeControlSites.csv | **final cell x snp matrix with control mutations** |
+| gSNPSampleMatrix.step2.1.txt | Temporary files |
+| gSNPSampleMatrix.step2.2.txt | Temporary files |
+| gSNPSampleMatrix.step3.1_excludeControlSites.csv | **final snp x sample matrix without control mutations** |
+| gSNPSampleMatrix.step3.2_includeControlSites.csv | **final snp x sample matrix with control mutations** |
+| mutinfo.txt | all SNPs |
+| tmp | Temporary working directory |
+
+When no control samples are present in the dataset, the final `excludeControlSites` and `includeControlSites` files will contain the same entries.
+
