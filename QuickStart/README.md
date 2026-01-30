@@ -10,7 +10,7 @@
 
 
 ## Codes for generating example data 
-
+Due to ethical considerations, the BAM file headers and other metadata have been masked.
 `Example_tumor.reheader.RG.bam`
 
 ```bash
