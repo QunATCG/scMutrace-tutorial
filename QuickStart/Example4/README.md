@@ -6,16 +6,16 @@
     - `Example_S1_normal_scRNA.bam`: scRNA sequencing normal tissue of sample1
     - `Example_S2_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample2 (We only use this file in our script)
     - `Example_S2_normal_scRNA.bam`: scRNA sequencing normal tissue of sample2
-    - `Example_S3_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample2 (We only use this file in our script)
-    - `Example_S3_normal_scRNA.bam`: scRNA sequencing normal tissue of sample1
+    - `Example_S3_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample3 (We only use this file in our script)
+    - `Example_S3_normal_scRNA.bam`: scRNA sequencing normal tissue of sample3
 
 - WES
     - `Example_S1_tumor_WES.bam`: WES sequencing tumor tissue of sample1
     - `Example_S1_normal_WES.bam`: WES sequencing normal tissue of sample1
     - `Example_S2_tumor_WES.bam`: WES sequencing tumor tissue of sample2
     - `Example_S2_normal_WES.bam`: WES sequencing normal tissue of sample2
-    - `Example_S3_tumor_WES.bam`: WES sequencing tumor tissue of sample2
-    - `Example_S3_normal_WES.bam`: WES sequencing normal tissue of sample1
+    - `Example_S3_tumor_WES.bam`: WES sequencing tumor tissue of sample3
+    - `Example_S3_normal_WES.bam`: WES sequencing normal tissue of sample3
 
 ## Step 1: Install scMutrace
 Install scMutrace following the instructions provided at:
