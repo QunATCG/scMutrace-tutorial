@@ -42,6 +42,8 @@ reference_use="path/to/chr17.fa"
 cellbarcode="path/to/CellBarcode.tsv"
 sampleID="Tumor"
 contig_references="path/to/chr17.contig"
+# Check database paths in excludeitems.txt and includeitems.txt before running the script
+# Check database paths in excludeitems.txt and includeitems.txt before running the script
 removeItems="path/to/excludeitems.txt"
 includeItems="path/to/includeitems.txt"
 outDir="directory/to/OutPut/"

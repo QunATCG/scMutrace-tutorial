@@ -45,6 +45,8 @@ set -euo pipefail
 ref_hg19="path/to/chr17.fa"
 bam_directory="path/to/Data/"
 contig_hg19_chr17="path/to/chr17.contig"
+# Check database paths in excludeitems.txt and includeitems.txt before running the script
+# Check database paths in excludeitems.txt and includeitems.txt before running the script
 removeItems_hg19="path/to/excludeitems.txt"
 includeItems_hg19="path/to/includeitems.txt"
 outDir="path/to/OutPut/"
