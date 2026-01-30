@@ -1,10 +1,12 @@
 ## Example Datasets for scMutrace
 
-- Example 1: Datasets provided by scMutrace, generated from public scRNA and WES sequencing data. Due to ethical considerations, the BAM file headers and other metadata have been masked.
+- Example 1: Datasets provided by scMutrace (one sample), generated from public scRNA and WES sequencing data. Due to ethical considerations, the BAM file headers and other metadata have been masked.
 
 - Example 2: Datasets provided by SComatic. For comparison between SComatic and scMutrace, you can run this example.
 
 - Example 3: Datasets provided by Monopogen. For comparison between Monopogen and scMutrace, you can run this example.
+
+- Example 4: Datasets provided by scMutrace (three samples for joint calling), generated from public scRNA and WES sequencing data. Due to ethical considerations, the BAM file headers and other metadata have been masked.
 
 
 If you encounter coding issues along the way, you can refer to the shell script examples provided here:
