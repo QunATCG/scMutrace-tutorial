@@ -1,5 +1,15 @@
 # For smartseq without cell barcodes
 
+## Codes for smartseq data
+```bash
+SMARTSeq
+├── README.md
+├── Step0_mapping.slurm             # mapping sequencing data to reference
+├── Step1_setCellBarcode.slurm      # add cellbarcode to bam file
+└── Step2_scMutrace.slurm           # run scMutrace
+```
+
+## Example data for scMutrace
 Example: ung_cancer_manifest_TH179_NAT.tsv
 ```bash
 qunli@login1:~/qundir/smartSeqLungCancer> head lung_cancer_manifest_TH179_NAT.tsv
