@@ -265,6 +265,34 @@ p_background_est_read <- ggplot(
   )
 
 
+p_background_est_read_aveHuman <- ggplot(
+  data_merge_noiseEST_Plot[
+    data_merge_noiseEST_Plot$Tag %in% c(
+      "Human_Tenx_scATAC_DX_random",
+      "Human_Tenx_scRNA_DX_random",
+      "Human_Tenx_scATAC_REM_random",
+      "Human_Tenx_scRNA_REM_random",
+      "Human_Tenx_scATAC_REL_random",
+      "Human_Tenx_scRNA_REL_random"
+    ),],
+  aes(
+    x = mutRead_scMutrace
+  )
+) +
+  geom_density(aes(alpha = 0.4)) +
+  theme_classic(base_size = 14) +
+  labs(
+    x = "Mutation Read Ratio",
+    y = "Density",
+    title = "Density plot of Mutation Read Ratio by Tag"
+  )  +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "right",
+    legend.title = element_blank()
+  )
+
+
 p_background_est_cell <- ggplot(
   data_merge_noiseEST_Plot[
     data_merge_noiseEST_Plot$Tag %in% c(
@@ -319,8 +347,50 @@ p_background_est_cell <- ggplot(
     legend.title = element_blank()
   )
 
+p_background_est_cell_aveHuman <- ggplot(
+  data_merge_noiseEST_Plot[
+    data_merge_noiseEST_Plot$Tag %in% c(
+      "Human_Tenx_scATAC_DX_random",
+      "Human_Tenx_scRNA_DX_random",
+      "Human_Tenx_scATAC_REM_random",
+      "Human_Tenx_scRNA_REM_random",
+      "Human_Tenx_scATAC_REL_random",
+      "Human_Tenx_scRNA_REL_random"
+    ),],
+  aes(
+    x = mutCell_scMutrace
+  )
+) +
+  geom_density(aes(alpha = 0.4)) +
+  theme_classic(base_size = 14) +
+  labs(
+    x = "Mutation Cell Ratio",
+    y = "Density",
+    title = "Density plot of Mutation Cell Ratio by Tag"
+  )   +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "right",
+    legend.title = element_blank()
+  )
+
 p_background_est_read
+p_background_est_read_aveHuman
 p_background_est_cell
+p_background_est_cell_aveHuman
+
+Example_Human <- data_merge_noiseEST_Plot[
+    data_merge_noiseEST_Plot$Tag %in% c(
+      "Human_Tenx_scATAC_DX_random",
+      "Human_Tenx_scRNA_DX_random",
+      "Human_Tenx_scATAC_REM_random",
+      "Human_Tenx_scRNA_REM_random",
+      "Human_Tenx_scATAC_REL_random",
+      "Human_Tenx_scRNA_REL_random"
+    ),]
+
+quantile(Example_Human$mutRead_scMutrace, probs = c(0.10, 0.25, 0.5, 0.75, 0.90))
+quantile(Example_Human$mutCell_scMutrace, probs = c(0.10, 0.25, 0.5, 0.75, 0.90))
 ```
 
 # Mouse background
