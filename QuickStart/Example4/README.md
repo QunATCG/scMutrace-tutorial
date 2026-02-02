@@ -169,6 +169,6 @@ example scMutrace output can be found [here](https://github.com/QunATCG/scMutrac
 
 ![SNP_sample_Matrix](../../Figures/Example4/scMutrace_SNP_Sample.png)
 
-somatic mutations **scRNA** [17_7951909_G_A](../../Figures/Example4/scMutrace_scRNA_7951909.png)
+somatic mutations **scRNA** [17_7951909_G_A](../../Figures/Example4/scMutrace_scRNA_7951909.png), [17_76967708_G_A](../../Figures/Example4/scMutrace_scRNA_76967708.png)
 
-somatic mutations **WES** [17_7951909_G_A](../../Figures/Example4/scMutrace_WES_7951909.png)
+somatic mutations **WES** [17_7951909_G_A](../../Figures/Example4/scMutrace_WES_7951909.png), [17_76967708_G_A](../../Figures/Example4/scMutrace_WES_76967708.png)
