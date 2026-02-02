@@ -15,6 +15,7 @@
 ml bioinfo-tools
 ml star/2.7.11a
 
+# https://scg-lib-structs.readthedocs.io/en/latest/ge/SMART-seq2.html
 STAR --runThreadN 10 \
 	--genomeDir /cfs/klemming/home/q/qunli/qundir/reference/homo/GRCh38_STAR/ \
 	--readFilesCommand zcat \
