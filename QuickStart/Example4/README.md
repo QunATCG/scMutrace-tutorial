@@ -2,11 +2,11 @@
 > Example BAM files from same sample (Data folder) were derived from 10x Genomics single-cell sequencing data, and contain a small region of human chromosome 17 (hg19), which harbors one somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
 
 - scRNA
-    - `Example_S1_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample1 (We only use this file in our script)
+    - `Example_S1_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample1 (**We only use this file in our script**)
     - `Example_S1_normal_scRNA.bam`: scRNA sequencing normal tissue of sample1
-    - `Example_S2_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample2 (We only use this file in our script)
+    - `Example_S2_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample2 (**We only use this file in our script**)
     - `Example_S2_normal_scRNA.bam`: scRNA sequencing normal tissue of sample2
-    - `Example_S3_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample3 (We only use this file in our script)
+    - `Example_S3_tumor_scRNA.bam`: scRNA sequencing tumor tissue of sample3 (**We only use this file in our script**)
     - `Example_S3_normal_scRNA.bam`: scRNA sequencing normal tissue of sample3
 
 - WES
@@ -169,6 +169,9 @@ example scMutrace output can be found [here](https://github.com/QunATCG/scMutrac
 
 ![SNP_sample_Matrix](../../Figures/Example4/scMutrace_SNP_Sample.png)
 
-somatic mutations **scRNA** [17_7951909_G_A](../../Figures/Example4/scMutrace_scRNA_7951909.png), [17_76967708_G_A](../../Figures/Example4/scMutrace_scRNA_76967708.png), [17_80015989_G_A](../../Figures/Example4/scMutrace_scRNA_80015989.png)
-
-somatic mutations **WES** [17_7951909_G_A](../../Figures/Example4/scMutrace_WES_7951909.png), [17_76967708_G_A](../../Figures/Example4/scMutrace_WES_76967708.png), [17_80015989_G_A](../../Figures/Example4/scMutrace_WES_80015989.png)
+| SNP | scRNA | WES |
+| -------- | ------- | ------- |
+| 17_29109685_G_A | [17_29109685_G_A](../../Figures/Example4/scMutrace_scRNA_29109685.png) |[17_29109685_G_A](../../Figures/Example4/scMutrace_WES_29109685.png) |
+| 17_76967708_G_A | [17_76967708_G_A](../../Figures/Example4/scMutrace_scRNA_76967708.png) | [17_76967708_G_A](../../Figures/Example4/scMutrace_WES_76967708.png) |
+| 17_7951909_G_A | [17_7951909_G_A](../../Figures/Example4/scMutrace_scRNA_7951909.png) | [17_7951909_G_A](../../Figures/Example4/scMutrace_WES_7951909.png) |
+| 17_80015989_C_T | [17_80015989_G_A](../../Figures/Example4/scMutrace_scRNA_80015989.png) | [17_80015989_G_A](../../Figures/Example4/scMutrace_WES_80015989.png) |
