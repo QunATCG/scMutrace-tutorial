@@ -167,6 +167,8 @@ When no control samples are present in the dataset, the final `excludeControlSit
 # You can check all SNVs using IGV tool
 example scMutrace output can be found [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example4/outputExample/)
 
+![SNP_sample_Matrix](../../Figures/Example4/scMutrace_SNP_Sample.png)
+
 somatic mutations [scRNA](../../Figures/Example4/scMutrace_scRNA.png)
 
 somatic mutations [WES](../../Figures/Example4/scMutrace_WES.png)
