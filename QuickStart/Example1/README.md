@@ -99,4 +99,3 @@ example scMutrace output can be downloaded from [here](https://github.com/QunATC
 - Other noisy mutation (can be found in Tumor.scmutrace.clean.vcf):
     - [17_4475803_C_A](../../Figures/Example1/17_4475803_C_A.png)
     - [17_59147579_C_G](../../Figures/Example1/17_59147579_C_G.png)
-    - [17_17772276_C_T](../../Figures/Example1/17_17772276_C_T.png)
