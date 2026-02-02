@@ -1,2 +1,5 @@
-Location,S1
-17_7951909_G_A,Mut
+Location,S1,S2,S3
+17_29109685_G_A,Mut,Mut,Mut
+17_76967708_G_A,NoCall,Mut,NoCall
+17_7951909_G_A,Mut,NoCall,NoCall
+17_80015989_C_T,NoCall,NoCall,Mut
