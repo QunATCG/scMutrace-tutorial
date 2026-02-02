@@ -167,6 +167,16 @@ When no control samples are present in the dataset, the final `excludeControlSit
 # You can check all SNVs using IGV tool
 example scMutrace output can be found [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example4/outputExample/)
 
+S1.final.vcf
+![S1](../../Figures/Example4/scMutrace_S1.png)
+
+S2.final.vcf
+![S2](../../Figures/Example4/scMutrace_S2.png)
+
+S3.final.vcf
+![S3](../../Figures/Example4/scMutrace_S3.png)
+
+snp x sample matrix
 ![SNP_sample_Matrix](../../Figures/Example4/scMutrace_SNP_Sample.png)
 
 | SNP | scRNA | WES |
@@ -175,3 +185,5 @@ example scMutrace output can be found [here](https://github.com/QunATCG/scMutrac
 | 17_76967708_G_A | [17_76967708_G_A](../../Figures/Example4/scMutrace_scRNA_76967708.png) | [17_76967708_G_A](../../Figures/Example4/scMutrace_WES_76967708.png) |
 | 17_7951909_G_A | [17_7951909_G_A](../../Figures/Example4/scMutrace_scRNA_7951909.png) | [17_7951909_G_A](../../Figures/Example4/scMutrace_WES_7951909.png) |
 | 17_80015989_C_T | [17_80015989_G_A](../../Figures/Example4/scMutrace_scRNA_80015989.png) | [17_80015989_G_A](../../Figures/Example4/scMutrace_WES_80015989.png) |
+
+SNP [17_29109685_G_A](../../Figures/Example4/scMutrace_scRNA_29109685.png) was detected only in S2 prior to joint calling. However, after joint calling, it appeared in all three samples and was thus classified as a germline variant or a technical artifact. Notably, it was also detected in the S3 normal scRNA sample.
