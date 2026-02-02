@@ -176,7 +176,12 @@ S2.final.vcf
 S3.final.vcf
 ![S3](../../Figures/Example4/scMutrace_S3.png)
 
+cell x snp matrix
+
+![Cell_SNP_Matrix](../../Figures/Example4/scMutrace_Cell_SNP.png)
+
 snp x sample matrix
+
 ![SNP_sample_Matrix](../../Figures/Example4/scMutrace_SNP_Sample.png)
 
 | SNP | scRNA | WES |
