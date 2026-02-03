@@ -115,3 +115,5 @@ Example Monopogen outputs, including both the [raw](./outputExample/Monopogen_ch
 - [Version issue backup](../../Figures/Example3/VersionIssue.pdf)
 
 Example Monopogen output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)
+
+*Because Monopogen outputs can vary substantially, we recommend manually inspecting the identified somatic mutations using IGV.*
