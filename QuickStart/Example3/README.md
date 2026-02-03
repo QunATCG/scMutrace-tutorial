@@ -112,8 +112,10 @@ Example Monopogen outputs, including both the [raw](./outputExample/Monopogen_ch
 
 - [Different somatic calls across Monopogen v.1.0 and v1.6.0 #58](https://github.com/KChen-lab/Monopogen/issues/58)
 
+![Monopogen version issue](../../Figures/Example3/Monopogen_version.png)
+
 - [Version issue backup](../../Figures/Example3/VersionIssue.pdf)
 
-Example Monopogen output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)
+Example Monopogen Github page output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)
 
 *Because Monopogen outputs can vary substantially, we recommend manually inspecting the identified somatic mutations using IGV.*
