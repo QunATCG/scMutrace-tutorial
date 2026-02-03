@@ -94,11 +94,15 @@ In output folder, you can find following files.
 
 **output of scMutrace**:
 
-example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example3/outputExample/scMutrace.vcf)
+Example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example3/outputExample/scMutrace.vcf)
+
+Example [log file](./outputExample/log.txt)
 
 ![scMutrace](../../Figures/Example3/scMutrace.png)
 
 **output of Monopogen**:
+
+[Example output of Monopogen](./outputExample/Monopogen)
 
 *This example is expected to complete in about 46 minutes when using Monopogen (using 36 GB of memory and 1 CPU core), Note, the option -t enables users to run mulitple chromosomes simultaneously. Set -t=1 if you are working on only one chromosome*
 
@@ -110,4 +114,4 @@ example scMutrace output can be downloaded from [here](https://github.com/QunATC
 
 - [Version issue backup](../../Figures/Example3/VersionIssue.pdf)
 
-example Monopogen output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)
+Example Monopogen output can be found [here](https://github.com/KChen-lab/Monopogen/tree/main/example)

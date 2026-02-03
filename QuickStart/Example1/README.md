@@ -89,7 +89,10 @@ In output folder, you can find following files.
 | Tumor.final.vcf | final result of scMutrace |
 
 # You can check all SNVs using IGV tool
-example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/outputExample/scMutrace.vcf)
+Example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/outputExample/scMutrace.vcf)
+
+Example [log file](./outputExample/log.txt)
+
 - Four somatic mutations:
     - scRNA specific [17_1549588_G_A](../../Figures/Example1/17_1549588_G_A.png)
     - both scRNA and WES [17_7951909_G_A](../../Figures/Example1/17_7951909_G_A.png)
