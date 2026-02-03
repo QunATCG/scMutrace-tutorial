@@ -94,7 +94,7 @@ In output folder, you can find following files.
 
 **output of scMutrace**:
 
-Example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example3/outputExample/scMutrace.vcf)
+Example scMutrace output can be downloaded from [here](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example3/outputExample/Tumor.final.vcf)
 
 Example [log file](./outputExample/log.txt)
 
