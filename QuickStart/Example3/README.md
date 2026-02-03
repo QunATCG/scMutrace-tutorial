@@ -102,11 +102,11 @@ Example [log file](./outputExample/log.txt)
 
 **output of Monopogen**:
 
-[Example output of Monopogen](./outputExample/Monopogen)
-
-*This example is expected to complete in about 46 minutes when using Monopogen (using 36 GB of memory and 1 CPU core), Note, the option -t enables users to run mulitple chromosomes simultaneously. Set -t=1 if you are working on only one chromosome*
+*This example is expected to complete in about 45 minutes when using Monopogen (using 80 GB of memory and 1 CPU core), Note, the option -t enables users to run mulitple chromosomes simultaneously. Set -t=1 if you are working on only one chromosome*
 
 *Due to differences in the version of Monopogen and in the annotation files (imputation_panel and LDrefinement step), the results may vary substantially (~25% of the variants differ between versions). We recommend consulting the Monopogen documentation for details.*
+
+Example Monopogen outputs, including both the [raw](./outputExample/Monopogen_chr20.putativeSNVs_raw.csv) and [filtered](./outputExample/Monopogen_chr20.putativeSNVs_filtered.csv)￼ result files.
 
 - [Monopogen Document](https://github.com/KChen-lab/Monopogen)
 
