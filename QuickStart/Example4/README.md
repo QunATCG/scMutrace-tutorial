@@ -41,6 +41,9 @@ conda activate scMutrace
 You must **replace the paths below with your own local paths** (shown here as examples and highlighted for clarity)
 ![scMutrace code](../../Figures/Example4/Example4_code.png)
 
+Create a bash script named run_example_4.sh with the following content, then execute it using `bash run_example_4.sh` in your terminal. Before running the script, replace all paths (shown above) with your own local paths.
+Make sure the paths specified in `excludeitems.txt` and `includeitems.txt` are valid
+
 ```bash
 #!/bin/bash
 set -euo pipefail
