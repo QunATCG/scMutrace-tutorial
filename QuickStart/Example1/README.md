@@ -105,6 +105,10 @@ Example [log file](./outputExample/log.txt)
     - both scRNA and WES [17_40169488_C_T](../../Figures/Example1/17_40169488_C_T.png)
     - both scRNA and WES [17_65688765_C_T](../../Figures/Example1/17_65688765_C_T.png)
 
+- One germline mutations (can be found in Tumor.scmutrace.clean.vcf):
+    - [17_40169519_G_T](../../Figures/Example1/17_40169519_G_T.png)
+
 - Other noisy mutation (can be found in Tumor.scmutrace.clean.vcf):
     - [17_4475803_C_A](../../Figures/Example1/17_4475803_C_A.png)
-    - [17_59147579_C_G](../../Figures/Example1/17_59147579_C_G.png)
+    - [17_59667948_A_G](../../Figures/Example1/17_59667948_A_G.png)
+
