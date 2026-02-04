@@ -185,11 +185,11 @@ snp x sample matrix
 
 ![SNP_sample_Matrix](../../Figures/Example4/scMutrace_SNP_Sample.png)
 
-| SNP | scRNA | WES |
-| -------- | ------- | ------- |
-| 17_29109685_G_A | [17_29109685_G_A](../../Figures/Example4/scMutrace_scRNA_29109685.png) |[17_29109685_G_A](../../Figures/Example4/scMutrace_WES_29109685.png) |
-| 17_76967708_G_A | [17_76967708_G_A](../../Figures/Example4/scMutrace_scRNA_76967708.png) | [17_76967708_G_A](../../Figures/Example4/scMutrace_WES_76967708.png) |
-| 17_7951909_G_A | [17_7951909_G_A](../../Figures/Example4/scMutrace_scRNA_7951909.png) | [17_7951909_G_A](../../Figures/Example4/scMutrace_WES_7951909.png) |
-| 17_80015989_C_T | [17_80015989_G_A](../../Figures/Example4/scMutrace_scRNA_80015989.png) | [17_80015989_G_A](../../Figures/Example4/scMutrace_WES_80015989.png) |
+| SNP | scRNA | WES | isSomatic |
+| -------- | ------- | ------- | ------- |
+| 17_29109685_G_A | [17_29109685_G_A](../../Figures/Example4/scMutrace_scRNA_29109685.png) |[17_29109685_G_A](../../Figures/Example4/scMutrace_WES_29109685.png) | No |
+| 17_76967708_G_A | [17_76967708_G_A](../../Figures/Example4/scMutrace_scRNA_76967708.png) | [17_76967708_G_A](../../Figures/Example4/scMutrace_WES_76967708.png) | Yes |
+| 17_7951909_G_A | [17_7951909_G_A](../../Figures/Example4/scMutrace_scRNA_7951909.png) | [17_7951909_G_A](../../Figures/Example4/scMutrace_WES_7951909.png) | Yes |
+| 17_80015989_C_T | [17_80015989_G_A](../../Figures/Example4/scMutrace_scRNA_80015989.png) | [17_80015989_G_A](../../Figures/Example4/scMutrace_WES_80015989.png) | Yes |
 
-SNP [17_29109685_G_A](../../Figures/Example4/scMutrace_scRNA_29109685.png) was detected only in S2 prior to joint calling. However, after joint calling, it appeared in all three samples and was thus classified as a germline variant or a technical artifact. Notably, it was also detected in the S3 normal scRNA sample.
+Because S2 had sufficient read coverage, the SNP [17_29109685_G_A](../../Figures/Example4/scMutrace_scRNA_29109685.png) was detected only in S2 prior to joint calling. However, after joint calling, this variant appeared in all three samples and was therefore classified as a germline variant or a technical artifact. Notably, it was also detected in the S3 normal scRNA-seq sample.
