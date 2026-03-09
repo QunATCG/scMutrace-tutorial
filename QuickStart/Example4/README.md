@@ -1,4 +1,4 @@
-# Example 3: Identify somatic mutations with joint calling strategy
+# Example 4: Identify somatic mutations with joint calling strategy
 > Example BAM files from same sample (Data folder) were derived from 10x Genomics single-cell sequencing data, and contain a small region of human chromosome 17 (hg19), which harbors one somatic mutations. (Due to ethical considerations, the BAM file headers and other metadata have been masked)
 
 - scRNA
