@@ -22,9 +22,12 @@ If you have any questions or encounter problems, please open an issue here: [scM
 Or contact us: qun.li@ki.se and claudia.kutter@ki.se
 
 # Resources
-- COSMIC and 1000 Genomes–Based Mutation Annotation: https://doi.org/10.5281/zenodo.16925906
+- COSMIC and 1000 Genomes–Based Mutation Annotation https://doi.org/10.5281/zenodo.16925906
+-	Databases for scMutrace Calling (generated from public databases)
 
-- Databases for scMutrace calling: https://doi.org/10.5281/zenodo.16962722  or https://drive.google.com/file/d/18DEmJ2CbmFV7vpADlLIxdHVpxw31DTWI/view?usp=drive_link
+    Zenodo: https://doi.org/10.5281/zenodo.16962722
+
+    Google Drive (mirror): https://drive.google.com/file/d/18DEmJ2CbmFV7vpADlLIxdHVpxw31DTWI/view?usp=drive_link
 
 # Citing scMutrace
 
