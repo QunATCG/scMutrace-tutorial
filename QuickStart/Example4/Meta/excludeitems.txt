@@ -1,7 +1,7 @@
-/Users/liqun/reference/database/commonSNP/hg19_snp151Common.txt	commonSNP
-/Users/liqun/reference/database/gapRegion/hg19_gap.txt	gap
-/Users/liqun/reference/database/gnomAD/hg19_haf.txt	gnomAD
-/Users/liqun/reference/database/problematicRegion/hg19_problematicRegion.txt	problem
-/Users/liqun/reference/database/repeatMask/hg19_repeatMasker.txt	repeat
-/Users/liqun/reference/database/rnaEditing/hg19_RNAedit.txt	rnaedit
-/Users/liqun/reference/database/segmentalDup/hg19_SegmentalDup.txt	segdup
+/path/to/database_v0.0.1/commonSNP/hg19_snp151Common.txt	commonSNP
+/path/to/database_v0.0.1/gapRegion/hg19_gap.txt	gap
+/path/to/database_v0.0.1/gnomAD/hg19_haf.txt	gnomAD
+/path/to/database_v0.0.1/problematicRegion/hg19_problematicRegion.txt	problem
+/path/to/database_v0.0.1/repeatMask/hg19_repeatMasker.txt	repeat
+/path/to/database_v0.0.1/rnaEditing/hg19_RNAedit.txt	rnaedit
+/path/to/database_v0.0.1/segmentalDup/hg19_SegmentalDup.txt	segdup

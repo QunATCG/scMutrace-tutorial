@@ -1,1 +1,1 @@
-/Users/liqun/reference/database/COSMIC/hg38_Cosmic.txt	COSMIC
+/path/to/database_v0.0.1/COSMIC/hg38_Cosmic.txt	COSMIC

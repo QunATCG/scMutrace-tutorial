@@ -1,7 +1,7 @@
-/Users/liqun/reference/database/commonSNP/hg38_snp151Common_Addchr.txt	commonSNP
-/Users/liqun/reference/database/gapRegion/hg38_gap_Addchr.txt	gap
-/Users/liqun/reference/database/gnomAD/hg38_haf_Addchr.txt	gnomAD
-/Users/liqun/reference/database/problematicRegion/hg38_problematicRegion_Addchr.txt	problem
-/Users/liqun/reference/database/repeatMask/hg38_repeatMasker_Addchr.txt	repeat
-/Users/liqun/reference/database/rnaEditing/hg38_RNAedit_Addchr.txt	rnaedit
-/Users/liqun/reference/database/segmentalDup/hg38_SegmentalDup_Addchr.txt	segdup
+/path/to/database_v0.0.1/commonSNP/hg38_snp151Common_Addchr.txt	commonSNP
+/path/to/database_v0.0.1/gapRegion/hg38_gap_Addchr.txt	gap
+/path/to/database_v0.0.1/gnomAD/hg38_haf_Addchr.txt	gnomAD
+/path/to/database_v0.0.1/problematicRegion/hg38_problematicRegion_Addchr.txt	problem
+/path/to/database_v0.0.1/repeatMask/hg38_repeatMasker_Addchr.txt	repeat
+/path/to/database_v0.0.1/rnaEditing/hg38_RNAedit_Addchr.txt	rnaedit
+/path/to/database_v0.0.1/segmentalDup/hg38_SegmentalDup_Addchr.txt	segdup
