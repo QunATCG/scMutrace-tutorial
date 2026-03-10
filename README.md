@@ -29,6 +29,7 @@ Or contact us: qun.li@ki.se and claudia.kutter@ki.se
 # Citing scMutrace
 
 # License
+[MIT License](./LICENSE)
 
 # References
 
