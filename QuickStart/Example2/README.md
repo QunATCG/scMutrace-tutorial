@@ -64,7 +64,7 @@ awk 'NR==1 || (!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repea
 echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
 ```
 
-> awk is a powerful Unix command-line tool—best thought of as a mini programming language—designed for text processing and data extraction. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
+> awk is a powerful Unix command-line tool designed for text processing and data extraction and is often regarded as a lightweight programming language. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
 [sed, awk, vmstat and nestat commands](https://www.youtube.com/watch?v=4hJorSKg9E0)
 
 ## Step 4: Check output files

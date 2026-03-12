@@ -75,7 +75,7 @@ awk 'NR==1 || (!/INDEL|MultiAlleles|NonePASS_(commonSNP|gap|gnomAD|problem|repea
 echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
 ```
 
-> awk is a powerful Unix command-line tool—best thought of as a mini programming language—designed for text processing and data extraction. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
+> awk is a powerful Unix command-line tool designed for text processing and data extraction and is often regarded as a lightweight programming language. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
 [sed, awk, vmstat and nestat commands](https://www.youtube.com/watch?v=4hJorSKg9E0)
 
 ## Step 4: Check output files
@@ -106,14 +106,13 @@ Example [log file](./outputExample/log.txt)
 ![scMutrace](../../Figures/Example3/scMutrace.png)
 
 **output of Monopogen**:
+- [Monopogen Document](https://github.com/KChen-lab/Monopogen)
+
+Example Monopogen outputs, including both the [raw](./outputExample/Monopogen_chr20.putativeSNVs_raw.csv) and [filtered](./outputExample/Monopogen_chr20.putativeSNVs_filtered.csv)￼ result files.
 
 *This example is expected to complete in about 45 minutes when using Monopogen (using 80 GB of memory and 1 CPU core), Note, the option -t enables users to run mulitple chromosomes simultaneously. Set -t=1 if you are working on only one chromosome*
 
 *Due to differences in the version of Monopogen and in the annotation files (imputation_panel and LDrefinement step), the results may vary substantially (~25% of the variants differ between versions). We recommend consulting the Monopogen documentation for details.*
-
-Example Monopogen outputs, including both the [raw](./outputExample/Monopogen_chr20.putativeSNVs_raw.csv) and [filtered](./outputExample/Monopogen_chr20.putativeSNVs_filtered.csv)￼ result files.
-
-- [Monopogen Document](https://github.com/KChen-lab/Monopogen)
 
 - [Different somatic calls across Monopogen v.1.0 and v1.6.0 #58](https://github.com/KChen-lab/Monopogen/issues/58)
 

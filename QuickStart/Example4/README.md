@@ -78,6 +78,7 @@ do
 done
 
 # joint call
+# Check paths in jointCall.contig before running the script
 echo "[joint call] Running scMutrace Step 5..."
 contig_joincall="path/to/jointCall.contig"
 outputJoint="${outDir}/Jointcall/"
@@ -85,7 +86,7 @@ mkdir -p "${outputJoint}"
 path/to/step5_gCellSNPMatrix.sh -g ${contig_joincall} -O ${outputJoint} -f ${ref_hg19} -p 1 -q 20 -Q 60
 ```
 
-> awk is a powerful Unix command-line tool—best thought of as a mini programming language—designed for text processing and data extraction. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
+> awk is a powerful Unix command-line tool designed for text processing and data extraction and is often regarded as a lightweight programming language. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
 [sed, awk, vmstat and nestat commands](https://www.youtube.com/watch?v=4hJorSKg9E0)
 
 
