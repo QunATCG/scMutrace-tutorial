@@ -75,7 +75,7 @@ excel_sheets(path_encode_excel)
 
 # init res
 col_benchmarking <- c("sampleID", "Iteration", "Tool", "Precision", "Recall", "F1Score")
-SampleIDs_HumanColon <- c("ENCDO451RUA", "ENCDO793LXB", "ENCDO845WKR", "ENCDO271OUW")
+SampleIDs_HumanColon <- c("ENCDO451RUA", "ENCDO793LXB", "ENCDO845WKR")
 Tools_benchmarking_germline <- c("freebayes", "Monopogen", "SAMtools", "scAllele",
                         "scMutrace", "Strelka2", "VarScan2")
 data_benchmarking_humanColon_res <- as.data.frame(matrix(data = 0, nrow = length(SampleIDs_HumanColon) * length(Tools_benchmarking_germline) * iteration_times, ncol = length(col_benchmarking)))
