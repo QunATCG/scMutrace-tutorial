@@ -1,0 +1,76 @@
+---
+title: "benchmarking tools ENCODE data correlation for checking sample mate"
+author: "Qun Li"
+date: "15 Aug 2025 at 14:26:31"
+output:
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# How to generate correlation input data
+```{bash}
+#Step1: for each sample
+#samtools mpileup -f /cfs/klemming/home/q/qunli/qunl/Qun/publicData/reference/hg38/addChr/bwaIndex/hg38.fa -l SNP_GRCh38_hg38_wChr.bed ENCFF912PKL.bam > check/ATAC.mileup
+#java -jar /cfs/klemming/home/q/qunli/Software/benchmarkingTools/VarScan.v2.4.6.jar mpileup2snp check/ATAC.mileup --min-coverage 3 --min-reads2 1 --output-vcf 1 --strand-filter 0 --p-value 0.1  > check/ATAC.vcf
+#bgzip ATAC.vcf
+#bcftools index ATAC.vcf.gz
+#bcftools reheader -s <(echo "Sample1_ATAC") ATAC.vcf.gz -o ATAC_renamed.vcf.gz
+#bcftools index ATAC_renamed.vcf.gz
+
+#Step2: merge all samples and extract freq
+#bcftools merge -Oz --force-samples -o merged_samples.vcf.gz ATAC_renamed.vcf.gz RNA_renamed.vcf.gz snATAC_renamed.vcf.gz WGS_renamed.vcf.gz....
+#bcftools query -f '%CHROM\t%POS[\t%FREQ]\n' merged_samples.vcf.gz > merged_samples_freq.vcf
+```
+
+# ENV
+```{r envs}
+rm(list = ls())
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure2/")
+```
+
+# libraries
+```{r libraries}
+library(pheatmap)
+```
+
+# Load data
+```{r loadData}
+VAF <- read.table("../Data/HumanColon/ENCODE_merged_samples_freq.vcf", sep = "\t")
+colnames(VAF) <- c("chr", "pos", "ENCDO271OUW_ATAC", "ENCDO271OUW_RNA", "ENCDO271OUW_snATAC", "ENCDO271OUW_WGS", 
+                   "ENCDO845WKR_ATAC", "ENCDO845WKR_snATAC", 
+                   "ENCDO451RUA_ATAC", "ENCDO451RUA_snATAC", 
+                   "ENCDO793LXB_ATAC", "ENCDO793LXB_snATAC")
+VAF_frq <- VAF[,c("ENCDO271OUW_RNA", "ENCDO271OUW_ATAC", "ENCDO271OUW_WGS", "ENCDO271OUW_snATAC", 
+                  "ENCDO845WKR_ATAC", "ENCDO845WKR_snATAC", 
+                  "ENCDO451RUA_ATAC", "ENCDO451RUA_snATAC",
+                  "ENCDO793LXB_ATAC", "ENCDO793LXB_snATAC")]
+
+vaf_num <- VAF_frq
+vaf_num <- apply(vaf_num, 2, function(x) {
+  x <- gsub("%","", x)
+  x[x=="."] <- NA
+  as.numeric(x)
+})
+
+cor_matrix <- cor(vaf_num, use="pairwise.complete.obs", method="pearson")
+```
+
+# plot correlation
+```{r plot}
+pheatmap(cor_matrix, cluster_rows = F, cluster_cols = F)
+pheatmap(cor_matrix)
+```
+
+SNP-based allele fraction correlation analysis revealed that sample ENCDO271OUW_snATAC showed high genetic concordance with ENCDO793LXB, suggesting a potential sample mislabeling event.
+ 
+ 
