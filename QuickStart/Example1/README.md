@@ -15,7 +15,7 @@ Install scMutrace following the instructions provided at:
 
 https://github.com/QunATCG/scMutrace#installation
 
-## Step 2: Download example data and prerequisite files
+## Step 2: Download example data and run the pipeline
 <details>
 <summary> <b> Option 1: One-step setup (recommended) </b> </summary>
 
@@ -32,6 +32,9 @@ This example is expected to complete in about 2 minutes, using 36 GB of memory
 You can run this example in your terminal using
 
 ```{bash}
+# Activate conda environment if needed
+conda activate scMutrace
+
 bash run.sh -d scMutrace_databases_directory
 ```
 </details>
