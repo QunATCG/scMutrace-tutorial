@@ -16,7 +16,7 @@ https://github.com/QunATCG/scMutrace#installation
 <summary> <b> Option 1: One-step setup (recommended) </b> </summary>
 
 ### Option 1.1 Download example data
-- 1. Download scMutrace example from [here](./Data/Example2.zip)
+- 1. Download scMutrace example from [here](https://drive.google.com/file/d/1uhFgZCbTDzwvCLiJHv9hKuVjXPHDPhVy/view?usp=sharing)
 - 2. Download scMutrace databases from [here](https://doi.org/10.5281/zenodo.16962722). (input file format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/Meta/excludeitems.txt))
 
 ### Option 1.2 Run scMutrace
