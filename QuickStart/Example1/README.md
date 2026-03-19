@@ -23,13 +23,16 @@ https://github.com/QunATCG/scMutrace#installation
 1. Download scMutrace example from [here](./Data/Example1.zip)
 2. Download scMutrace databases from [here](https://doi.org/10.5281/zenodo.16962722). (input file format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/Meta/excludeitems.txt))
 
-### Option 1.2 Run scMutrace with one-step mode
-</details>
-You can run this example using
+### Option 1.2 Run scMutrace
+
+Replace the `scMutrace_databases_directory` with your own file locations.
+
+You can run this example in your terminal using
 
 ```{bash}
 bash run.sh -d scMutrace_databases_directory
 ```
+</details>
 
 <details>
 <summary> <b> Option 2: Step-by-step script configuration </b> </summary>
