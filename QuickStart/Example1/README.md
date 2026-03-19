@@ -37,7 +37,7 @@ bash run.sh -d scMutrace_databases_directory
 </details>
 
 <details>
-<summary> <b> Option 2: Step-by-step script configuration </b> </summary>
+<summary> <b> Option 2: Step-by-step customizable script configuration </b> </summary>
 
 ### Option 2.1 Download example data
 
