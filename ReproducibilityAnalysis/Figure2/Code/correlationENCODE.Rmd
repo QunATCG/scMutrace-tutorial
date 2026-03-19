@@ -19,6 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # How to generate correlation input data
 ```{bash}
+# option 1
 #Step1: for each sample
 #samtools mpileup -f /cfs/klemming/home/q/qunli/qunl/Qun/publicData/reference/hg38/addChr/bwaIndex/hg38.fa -l SNP_GRCh38_hg38_wChr.bed ENCFF912PKL.bam > check/ATAC.mileup
 #java -jar /cfs/klemming/home/q/qunli/Software/benchmarkingTools/VarScan.v2.4.6.jar mpileup2snp check/ATAC.mileup --min-coverage 3 --min-reads2 1 --output-vcf 1 --strand-filter 0 --p-value 0.1  > check/ATAC.vcf
@@ -30,6 +31,37 @@ knitr::opts_chunk$set(echo = TRUE)
 #Step2: merge all samples and extract freq
 #bcftools merge -Oz --force-samples -o merged_samples.vcf.gz ATAC_renamed.vcf.gz RNA_renamed.vcf.gz snATAC_renamed.vcf.gz WGS_renamed.vcf.gz....
 #bcftools query -f '%CHROM\t%POS[\t%FREQ]\n' merged_samples.vcf.gz > merged_samples_freq.vcf
+
+# option 2
+#for sample in ENCFF260XKB ENCFF413SRZ ENCFF422XWI ENCFF455YNB ENCFF491HQL ENCFF692LTO ENCFF354SCV ENCFF593YGT
+#do
+#  java -jar /cfs/klemming/home/q/qunli/Private/scmutrace/software/picard.jar AddOrReplaceReadGroups \
+#    I=${sample}.bam \
+#    O=${sample}.RG.bam \
+#    RGID=${sample} \
+#    RGLB=lib1 \
+#    RGPL=ILLUMINA \
+#    RGPU=unit1 \
+#    RGSM=${sample}
+
+#  samtools index ${sample}.RG.bam
+#done
+
+
+#java -jar /cfs/klemming/home/q/qunli/Private/scmutrace/software/picard.jar CrosscheckFingerprints \
+#  INPUT=ENCFF260XKB.RG.bam \
+#  INPUT=ENCFF422XWI.RG.bam \
+#  INPUT=ENCFF413SRZ.RG.bam \
+#  INPUT=ENCFF692LTO.RG.bam \
+#  INPUT=ENCFF491HQL.RG.bam \
+#  INPUT=ENCFF455YNB.RG.bam \
+#  INPUT=ENCFF354SCV.RG.bam \
+#  INPUT=ENCFF593YGT.RG.bam \
+#  HAPLOTYPE_MAP=Homo_sapiens_assembly38.haplotype_database.txt \
+#  CROSSCHECK_BY=SAMPLE \
+#  LOD_THRESHOLD=-5 \
+#  EXPECT_ALL_GROUPS_TO_MATCH=true \
+#  OUTPUT=sample.crosscheck_metrics
 ```
 
 # ENV
