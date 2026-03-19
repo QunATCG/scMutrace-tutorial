@@ -35,7 +35,7 @@ https://github.com/QunATCG/scMutrace#installation
 
 Replace the `scMutrace_databases_directory` and `scMutrace_script_directory` with your own file locations.
 
-This example is expected to complete in about 15 minutes, using 36 GB of memory and 4 CPU cores.
+*This example is expected to complete in about 2 minutes, using 36 GB of memory and 1 CPU core.*
 
 You can run this example in your terminal using
 
