@@ -27,7 +27,7 @@ This example is expected to complete in about 1 minutes, using 36 GB of memory
 
 You can run this example in your terminal using
 
-```{bash}
+```bash
 # Activate conda environment if needed
 conda activate scMutrace
 

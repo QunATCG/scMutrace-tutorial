@@ -8,9 +8,6 @@
 ```bash
 # Activate conda environment if needed
 conda activate scMutrace
-```
-
-```bash
 # setBarcode.py can be found in Meta folder
 python setBarcode.py --bam chr20.maester_scRNA.bam --outbam chr20.maester_scRNA_CB.bam --buffer_size 500000
 ```
@@ -20,13 +17,43 @@ Install scMutrace following the instructions provided at:
 
 https://github.com/QunATCG/scMutrace#installation
 
-## Step 2: Download example data and prerequisite files
+## Step 2: Download example data and run the pipeline
+
+<details>
+<summary> <b> Option 1: One-step setup (recommended) </b> </summary>
+
+### Option 1.1 Download example data
+- 1. Download scMutrace example from [here](./Data/Example3.zip)
+- 2. Download scMutrace databases from [here](https://doi.org/10.5281/zenodo.16962722). (input file format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/Meta/excludeitems.txt))
+
+### Option 1.2 Run scMutrace
+
+Replace the `scMutrace_databases_directory` with your own file locations.
+
+This example is expected to complete in about 15 minutes, using 36 GB of memory and 4 CPU cores.
+
+You can run this example in your terminal using
+
+```bash
+# Activate conda environment if needed
+conda activate scMutrace
+
+bash run.sh -d scMutrace_databases_directory
+```
+</details>
+
+<details>
+<summary> <b> Option 2: Step-by-step customizable script configuration </b> </summary>
+
+### Option 2.1 Download example data
+
 **make sure to place this in a location with plenty of space**
 1. Download BAM file from [here](./Data/). 
 2. Download meta files from [here](https://github.com/QunATCG/scMutrace-tutorial/tree/main/QuickStart/Example3/Meta)
 3. Download scMutrace databases from [here](https://doi.org/10.5281/zenodo.16962722). (format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example3/Meta/excludeitems.txt))
 
-## Step 3: Run scMutrace with one-step mode
+### Option 2.2 Run scMutrace with one-step mode
+
 **Replace the default input path and output directory with your own file locations**.
 
 *This example is expected to complete in about 15 minutes, using 36 GB of memory and 4 CPU cores.*
@@ -78,7 +105,9 @@ echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
 > awk is a powerful Unix command-line tool designed for text processing and data extraction and is often regarded as a lightweight programming language. It splits each line into fields using a delimiter (default is any whitespace) and lets you define patterns to match and actions to execute when those patterns are met:
 [sed, awk, vmstat and nestat commands](https://www.youtube.com/watch?v=4hJorSKg9E0)
 
-## Step 4: Check output files
+</details>
+
+## Step 3: Check output files
 In output folder, you can find following files.
 
 | Name | Description |
