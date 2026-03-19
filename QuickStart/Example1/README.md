@@ -17,15 +17,22 @@ https://github.com/QunATCG/scMutrace#installation
 
 ## Step 2: Download example data and prerequisite files
 <details>
-<summary>Option 1: One-step setup </summary>
+<summary> <b> Option 1: One-step setup (recommended) </b> </summary>
 
 ### Option 1.1 Download example data
+1. Download scMutrace example from [here](./Data/Example1.zip)
+2. Download scMutrace databases from [here](https://doi.org/10.5281/zenodo.16962722). (input file format: [scMutrace_databases](https://github.com/QunATCG/scMutrace-tutorial/blob/main/QuickStart/Example1/Meta/excludeitems.txt))
 
-### Option 1.1 Run scMutrace with one-step mode
+### Option 1.2 Run scMutrace with one-step mode
 </details>
+You can run this example using
+
+```{bash}
+bash run.sh -d scMutrace_databases_directory
+```
 
 <details>
-<summary>Option 2: Step-by-step script configuration </summary>
+<summary> <b> Option 2: Step-by-step script configuration </b> </summary>
 
 ### Option 2.1 Download example data
 
@@ -90,7 +97,7 @@ echo "[INFO] Done. Final variants saved to ${outDir}/${sampleID}.final.vcf"
 </details>
 
 ## Step 3: Check output files
-In output folder, you can find following files.
+In `OutPut` folder, you can find following files.
 
 | Name | Description |
 | -------- | ------- |
