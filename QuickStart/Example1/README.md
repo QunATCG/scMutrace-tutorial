@@ -25,7 +25,7 @@ https://github.com/QunATCG/scMutrace#installation
 
 ### Option 1.2 Run scMutrace
 
-Replace the `scMutrace_databases_directory` with your own file locations.
+Replace the `scMutrace_databases_directory` and `scMutrace_script_directory` with your own file locations.
 
 This example is expected to complete in about 2 minutes, using 36 GB of memory and 4 CPU cores.
 
@@ -35,7 +35,7 @@ You can run this example in your terminal using
 # Activate conda environment if needed
 conda activate scMutrace
 
-bash run.sh -d scMutrace_databases_directory
+bash run.sh -d scMutrace_databases_directory -s scMutrace_script_directory
 ```
 </details>
 
