@@ -4,8 +4,8 @@ A complete beginner’s guide to learning [scMutrace](https://github.com/QunATCG
 **Contents**
 
 - **[Preprocessing Steps](./preProcessingSteps/)** (`preProcessingSteps` folder. Reproducible workflows used in the scMutrace paper)
-- **[Example Projects](./QuickStart/)** (`QuickStart` folder. Step-by-step demonstrations to help you understand the basics)
-- **[Reproducibility Code](./ReproducibilityAnalysis/)**(`ReproducibilityAnalysis` folder. Practical use cases in our paper)
+- **[Example Projects](./QuickStart/)** (`QuickStart` folder. **Step-by-step** demonstrations to help you understand the basics)
+- **[Reproducibility Code](./ReproducibilityAnalysis/)**(`ReproducibilityAnalysis` folder. Practical use cases from our paper to **reproduce our results**)
 - **[Other Functions](./OtherFunctions/)** (`OtherFunctions` folder. Explore extended features and customization options)
 
 
