@@ -1,0 +1,1943 @@
+---
+title: "Figure 4 pAML reproducibility similarity analysis"
+author: "Qun Li"
+date: "22 Aug 2025 at 10:12:37"
+output:
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+  word_document:
+    toc: true
+    toc_depth: '3'
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Env
+```{r envs}
+rm(list = ls())
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure4/")
+```
+
+# Load libraries
+```{r loadLibs}
+library(FSA)
+library(ineq)
+library(grid)
+library(vegan)
+library(ArchR)
+library(dplyr)
+library(GO.db)
+library(tidyr)
+library(ggpubr)
+library(Seurat)
+library(ggpmisc)
+library(stringr)
+library(ggplot2)
+library(circlize)
+library(pheatmap)
+library(corrplot)
+library(bedtoolsr)
+library(tidyverse)
+library(patchwork)
+library(gridExtra)
+library(data.table)
+library(UpSetR)
+library(ComplexUpset)
+library(ggsankey)
+library(RColorBrewer)
+library(org.Hs.eg.db)
+library(GenomicRanges)
+library(ComplexHeatmap)
+library(clusterProfiler)
+library(networkD3)
+library(htmlwidgets)
+```
+
+# define functions
+```{r defineFunctions}
+cosine_similarity <- function(a, b, na.rm = TRUE) {
+  a <- as.numeric(a)
+  b <- as.numeric(b)
+  
+  if (na.rm) {
+    keep <- !(is.na(a) | is.na(b))
+    a <- a[keep]
+    b <- b[keep]
+  }
+  
+  denom <- sqrt(sum(a^2)) * sqrt(sum(b^2))
+  if (denom == 0) return(as.numeric(NA)) 
+  
+  sim <- sum(a * b) / denom
+  
+  sim <- max(min(sim, 1), -1)
+  
+  return(as.numeric(sim))
+}
+
+retriveCellsByLocation <- function(CSM, locList){
+  CSM$CellTag <- rownames(CSM)
+  CSM_tmp <- CSM[, c("CellTag",locList)]
+  data_MutPerCell_CSM_tmp <- data.frame(
+    CellTag = rownames(CSM_tmp),
+    MutNum = rowSums(CSM_tmp == "Mut"),
+    WTNum = rowSums(CSM_tmp == "WT")
+  )
+  cells_Total <- data_MutPerCell_CSM_tmp[rowSums(data_MutPerCell_CSM_tmp[,c("MutNum", "WTNum")]) > 0, ]$CellTag
+  cells_WT <-    data_MutPerCell_CSM_tmp[data_MutPerCell_CSM_tmp[,"WTNum"] > 0,]$CellTag
+  cells_Mut <-   data_MutPerCell_CSM_tmp[data_MutPerCell_CSM_tmp[,"MutNum"] > 0,]$CellTag
+  cells <- list(Total = cells_Total, Mut = cells_Mut, WT = cells_WT)
+  return(cells)
+}
+
+retriveLocsByCells <- function(CSM, cellList){
+  CSM$CellTag <- rownames(CSM)
+  CSM_tmp <- CSM[CSM$CellTag %in% cellList,]
+  data_CellPerMut_CSM_tmp <- data.frame(
+    Location = colnames(CSM_tmp),
+    CellMutNum = colSums(CSM_tmp == "Mut"),
+    CellWTNum = colSums(CSM_tmp == "WT")
+  )
+  pos_Total <- data_CellPerMut_CSM_tmp[rowSums(data_CellPerMut_CSM_tmp[, c("CellMutNum", "CellWTNum")]) > 0,]$Location
+  pos_Mut <- data_CellPerMut_CSM_tmp[data_CellPerMut_CSM_tmp[, "CellMutNum"] > 0 ,]$Location
+  pos_WT <- data_CellPerMut_CSM_tmp[data_CellPerMut_CSM_tmp[, "CellWTNum"] > 0 ,]$Location
+  pos <- list(Total = pos_Total, Mut = pos_Mut, WT = pos_WT)
+  return(pos)
+}
+
+get_mut_cols <- function(df, loc) {
+  row <- df[df$Location == loc, ]       
+  mut_cols <- names(row)[row == "Mut"] 
+  mut_cols[mut_cols != "Location"]     
+}
+```
+
+*AML_census.rds* and *AML_tiergenes.txt* were downloaded from the COSMIC database and curated for downstream analyses
+
+*AML_SSM.rds* and *AML_ATA_CSM_list.rds*, *AML_RNA_CSM_list.rds* were generated using scMutrace as described in the Methods section and `0_pipelineFunctions.Rmd`(pipelines for generating single-cell somatic mutation data list).
+
+*AML_scRNA_meta.rds* and *AML_scATA_meta.rds* contain meta data for cell type annotation similarity analysis and were generate from `0_pipelineFunctions.Rmd`(pipelines for porcessing scRNA-seq data and pipelines for processing scATAC-seq data).
+
+*sampleInfo.txt* contains sample information including cell numbers and patient clinical data for scRNA-seq and scATAC-seq data and was downloaded from original paper.
+
+*EGA_scATA.hg38_multianno.txt* and *EGA_scRNA.hg38_multianno.txt* contain mutation annotation information generated using ANNOVAR.
+
+*Mutational_Matrix_SBS.txt* and *COSMIC_SBS96_Activities.txt* were generated using SigProfiler suite as described in the Methods section.
+
+
+# load data
+```{r loadData}
+# load AML census data
+AML_census <- readRDS("../Data/HumanpAML/AML_census.rds")
+AML_genes_tiers <- read.table("../Data/HumanpAML/AML_tiergenes.txt", header = T, sep = "\t")
+
+# load SSM data
+AML_SSM <- readRDS("../Data/HumanpAML/AML_SSM.rds")
+AML_SSM_scRNA <- AML_SSM$scRNA
+AML_SSM_scATA <- AML_SSM$scATA
+
+# CSM
+AML_ATA_CSM_list <- readRDS("../Data/HumanpAML/AML_ATA_CSM_list.rds")
+AML_RNA_CSM_list <- readRDS("../Data/HumanpAML/AML_RNA_CSM_list.rds")
+
+# meta data for celltype annotation similarity
+AML_scRNA_meta_list <- readRDS("../Data/HumanpAML/AML_scRNA_meta.rds")
+# metaQun
+AML_scATA_meta_list <- readRDS("../Data/HumanpAML/AML_scATA_meta.rds")
+
+AML_scRNA_meta <- do.call(rbind, AML_scRNA_meta_list)
+rownames(AML_scRNA_meta) <- sub("\\.", "#", rownames(AML_scRNA_meta))
+
+AML_scATA_meta <- do.call(rbind, AML_scATA_meta_list)
+AML_scATA_meta$SampleID <- sub("_.*", "", AML_scATA_meta$Sample)
+
+rownames(AML_scATA_meta) <- sub("^AML[0-9]+\\.", "", rownames(AML_scATA_meta))
+
+cellTypes <- unique(union(AML_scRNA_meta$Classified_Celltype, AML_scATA_meta$predictedGroup_Un))
+
+# extract mutations and get bed format with census tag
+AML_SSM_scRNA_bed <- separate(AML_SSM_scRNA, Location, into = c("chr", "pos", "ref", "alt"), sep = "_", remove = FALSE)[,1:5]
+AML_SSM_scRNA_bed$end <- AML_SSM_scRNA_bed$pos
+AML_SSM_scRNA_bed <- AML_SSM_scRNA_bed[,c("chr", "pos", "end", "ref", "alt", "Location")]
+AML_SSM_scRNA_bed$Tag <- ifelse(AML_SSM_scRNA_bed$Location %in% AML_census$mutation$Location, "Census", "NotCensus")
+AML_scRNA_NotCensus_locs <- AML_SSM_scRNA_bed %>% dplyr::filter(Tag == "NotCensus") %>% pull(Location)
+
+AML_SSM_scATA_bed <- separate(AML_SSM_scATA, Location, into = c("chr", "pos", "ref", "alt"), sep = "_", remove = FALSE)[,1:5]
+AML_SSM_scATA_bed$end <- AML_SSM_scATA_bed$pos
+AML_SSM_scATA_bed <- AML_SSM_scATA_bed[,c("chr", "pos", "end", "ref", "alt", "Location")]
+AML_SSM_scATA_bed$Tag <- ifelse(AML_SSM_scATA_bed$Location %in% AML_census$mutation$Location, "Census", "NotCensus")
+AML_scATA_NotCensus_locs <- AML_SSM_scATA_bed %>% dplyr::filter(Tag == "NotCensus") %>% pull(Location)
+
+# load paired sample info data
+AML_sampleInfo <- read.table("../Data/HumanpAML/sampleInfo.txt", header = T, sep = "\t")
+AML_sampleInfo[is.na(AML_sampleInfo)] <- 0
+
+# AML ann
+AML_scATA_ann <- read.table("../Data/HumanpAML/EGA_scATA.hg38_multianno.txt", header = T, sep = "\t")
+AML_scRNA_ann <- read.table("../Data/HumanpAML/EGA_scRNA.hg38_multianno.txt", header = T, sep = "\t")
+
+col_freq_databases <- c("gnomad40_exome_AF", "gnomad40_exome_AF_raw", "gnomad40_exome_AF_XX", 
+                        "gnomad40_exome_AF_XY", "gnomad40_exome_AF_grpmax", "gnomad40_exome_faf95", 
+                        "gnomad40_exome_faf99", "gnomad40_exome_fafmax_faf95_max", "gnomad40_exome_fafmax_faf99_max", 
+                        "gnomad40_exome_AF_afr", "gnomad40_exome_AF_amr", "gnomad40_exome_AF_asj", 
+                        "gnomad40_exome_AF_eas", "gnomad40_exome_AF_fin", "gnomad40_exome_AF_mid", 
+                        "gnomad40_exome_AF_nfe", "gnomad40_exome_AF_remaining", "gnomad40_exome_AF_sas", 
+                        "gnomad40_genome_AF", "gnomad40_genome_AF_raw", "gnomad40_genome_AF_XX", 
+                        "gnomad40_genome_AF_XY", "gnomad40_genome_AF_grpmax", "gnomad40_genome_faf95", 
+                        "gnomad40_genome_faf99", "gnomad40_genome_fafmax_faf95_max", 
+                        "gnomad40_genome_fafmax_faf99_max", "gnomad40_genome_AF_afr",
+                        "gnomad40_genome_AF_ami", "gnomad40_genome_AF_amr", 
+                        "gnomad40_genome_AF_asj", "gnomad40_genome_AF_eas", 
+                        "gnomad40_genome_AF_fin", "gnomad40_genome_AF_mid", 
+                        "gnomad40_genome_AF_nfe", "gnomad40_genome_AF_remaining", "gnomad40_genome_AF_sas")
+
+col_freq_databases %in% colnames(AML_scATA_ann)
+col_freq_databases %in% colnames(AML_scRNA_ann)
+
+AML_scATA_ann <- AML_scATA_ann %>%
+  mutate(across(all_of(col_freq_databases), 
+                ~ as.numeric(replace(., . == ".", 0))))
+
+AML_scRNA_ann <- AML_scRNA_ann %>%
+  mutate(across(all_of(col_freq_databases), 
+                ~ as.numeric(replace(., . == ".", 0))))
+
+# Annotate bed census and nonCensus
+# scATA
+AML_SSM_scATA_bed <- AML_SSM_scATA_bed %>%
+  left_join(
+    AML_scATA_ann %>%
+      dplyr::select(Location, all_of(col_freq_databases)),
+    by = "Location"
+  ) %>%
+  mutate(
+    freq = if_else(
+      if_any(all_of(col_freq_databases), ~ . > 0.0001),
+      "high", "rare"
+    )
+  ) %>%
+  dplyr::select(names(AML_SSM_scATA_bed), freq)
+
+# scRNA
+AML_SSM_scRNA_bed <- AML_SSM_scRNA_bed %>%
+  left_join(
+    AML_scRNA_ann %>%
+      dplyr::select(Location, all_of(col_freq_databases)),
+    by = "Location"
+  ) %>%
+  mutate(
+    freq = if_else(
+      if_any(all_of(col_freq_databases), ~ . > 0.0001),
+      "high", "rare"
+    )
+  ) %>%
+  dplyr::select(names(AML_SSM_scRNA_bed), freq)
+
+# load mutation features data
+# generate using sigProfiler suite
+AML_mutation_features <- read.table("../Data/HumanpAML/Mutational_Matrix_SBS.txt", header = T, sep = "\t", row.names = 1)
+AML_mutation_features_contribution <- read.table("../Data/HumanpAML/COSMIC_SBS96_Activities.txt", header = T, sep = "\t")
+```
+# mutation Similarity DXREL for lineage switching (downsample)
+```{r mutationSimilarityDXREL_Data}
+AML_scRNA_CSM_list <- AML_RNA_CSM_list
+AML_scATA_CSM_list <- AML_ATA_CSM_list
+
+# scRNA
+# AML_CSM_DX_list
+AML_scRNA_CSM_DX_list <- lapply(AML_scRNA_CSM_list, function(df) {
+  df[grep("DX", rownames(df)), , drop = FALSE]
+})
+AML_scRNA_CSM_DX_list <- Filter(function(x) nrow(x) > 0, AML_scRNA_CSM_DX_list)
+
+# AML_CSM_REM_list
+AML_scRNA_CSM_REM_list <- lapply(AML_scRNA_CSM_list, function(df) {
+  df[grep("REM", rownames(df)), , drop = FALSE]
+})
+AML_scRNA_CSM_REM_list <- Filter(function(x) nrow(x) > 0, AML_scRNA_CSM_REM_list)
+
+# AML_CSM_REL_list
+AML_scRNA_CSM_REL_list <- lapply(AML_scRNA_CSM_list, function(df) {
+  df[grep("REL", rownames(df)), , drop = FALSE]
+})
+AML_scRNA_CSM_REL_list <- Filter(function(x) nrow(x) > 0, AML_scRNA_CSM_REL_list)
+
+# scATA
+# AML_CSM_DX_list
+AML_scATA_CSM_DX_list <- lapply(AML_scATA_CSM_list, function(df) {
+  df[grep("DX", rownames(df)), , drop = FALSE]
+})
+AML_scATA_CSM_DX_list <- Filter(function(x) nrow(x) > 0, AML_scATA_CSM_DX_list)
+
+# AML_CSM_REM_list
+AML_scATA_CSM_REM_list <- lapply(AML_scATA_CSM_list, function(df) {
+  df[grep("REM", rownames(df)), , drop = FALSE]
+})
+AML_scATA_CSM_REM_list <- Filter(function(x) nrow(x) > 0, AML_scATA_CSM_REM_list)
+
+# AML_CSM_REL_list
+AML_scATA_CSM_REL_list <- lapply(AML_scATA_CSM_list, function(df) {
+  df[grep("REL", rownames(df)), , drop = FALSE]
+})
+AML_scATA_CSM_REL_list <- Filter(function(x) nrow(x) > 0, AML_scATA_CSM_REL_list)
+
+HSPC <- c("HSC", "Progenitor")
+Myeloid <- c("GMP", "Monocytes", "CD16.Monocytes", "cDC", "pDC")
+Lymphoid <- c("CLP", "Pre.B.Cell", "B.Cell", "CD4.Naive", "CD4.Memory", "CD8.Naive", "CD8.Memory", "CD8.Effector", "NK")
+Erythroid_Basophil <- c("Early.Erythrocyte", "Late.Erythrocyte")
+Other <- c("Early.Basophil", "Plasma")
+
+AML_scRNA_meta <- AML_scRNA_meta %>%
+  dplyr::mutate(
+    maincelltype = case_when(
+      Classified_Celltype %in% HSPC ~ "HSPC",
+      Classified_Celltype %in% Myeloid ~ "Myeloid",
+      Classified_Celltype %in% Lymphoid ~ "Lymphoid",
+      Classified_Celltype %in% Erythroid_Basophil ~ "Erythroid",
+      Classified_Celltype %in% Other ~ "Other",
+      TRUE ~ NA_character_
+    )
+  )
+
+AML_scATA_meta <- AML_scATA_meta %>%
+  dplyr::mutate(
+    maincelltype = case_when(
+      predictedGroup_Un %in% HSPC ~ "HSPC",
+      predictedGroup_Un %in% Myeloid ~ "Myeloid",
+      predictedGroup_Un %in% Lymphoid ~ "Lymphoid",
+      predictedGroup_Un %in% Erythroid_Basophil ~ "Erythroid",
+      predictedGroup_Un %in% Other ~ "Other",
+      TRUE ~ NA_character_
+    )
+  )
+
+AML_scATA_meta$Classified_Celltype <- AML_scATA_meta$predictedGroup_Un
+
+maincelltypes <- c("HSPC", "Myeloid", "Lymphoid", "Erythroid", "Other")
+subcelltypes <- c(HSPC, Myeloid, Lymphoid, Erythroid_Basophil, Other)
+
+AML_scRNA_meta_DX <- AML_scRNA_meta %>%
+  dplyr::filter(grepl("DX", Library_ID))
+
+AML_scRNA_meta_REL <- AML_scRNA_meta %>%
+  dplyr::filter(grepl("REL", Library_ID))
+
+AML_scATA_meta_DX <- AML_scATA_meta %>%
+  dplyr::filter(grepl("DX", Sample))
+
+AML_scATA_meta_REL <- AML_scATA_meta %>%
+  dplyr::filter(grepl("REL", Sample))
+
+selected_samples_id <- c("AML4", "AML5", "AML6", "AML8",  "AML10", "AML12", "AML16", "AML18", "AML21")
+selected_samples_id <- c("AML2", "AML4", "AML5", "AML6", "AML8", "AML10", "AML11", "AML12",
+                         "AML13", "AML15", "AML16", "AML17", "AML18", "AML19", "AML21",
+                         "AML22", "AML24", "AML25", "AML26", "AML27")
+
+AML_scRNA_CSM_DX_select_list <- AML_scRNA_CSM_DX_list[names(AML_scRNA_CSM_DX_list) %in% selected_samples_id]
+names(AML_scRNA_CSM_DX_select_list) <- paste(selected_samples_id, "DX", sep = "_")
+AML_scRNA_CSM_REL_select_list <- AML_scRNA_CSM_REL_list[names(AML_scRNA_CSM_REL_list) %in% selected_samples_id]
+names(AML_scRNA_CSM_REL_select_list) <- paste(selected_samples_id, "REL", sep = "_")
+AML_scRNA_CSM_DX_REL_select_list <- c(AML_scRNA_CSM_DX_select_list, AML_scRNA_CSM_REL_select_list)
+
+AML_scRNA_meta_DX$Classified_CelltypeQ <- paste(AML_scRNA_meta_DX$Lambo_et_al_ID, "DX", AML_scRNA_meta_DX$Classified_Celltype, sep = "_")
+AML_scRNA_meta_REL$Classified_CelltypeQ <- paste(AML_scRNA_meta_REL$Lambo_et_al_ID, "REL", AML_scRNA_meta_REL$Classified_Celltype, sep = "_")
+AML_scRNA_meta_DX$maincelltypeQ <- paste(AML_scRNA_meta_DX$Lambo_et_al_ID, "DX", AML_scRNA_meta_DX$maincelltype, sep = "_")
+AML_scRNA_meta_REL$maincelltypeQ <- paste(AML_scRNA_meta_REL$Lambo_et_al_ID, "REL", AML_scRNA_meta_REL$maincelltype, sep = "_")
+
+AML_scATA_CSM_DX_select_list <- AML_scATA_CSM_DX_list[names(AML_scATA_CSM_DX_list) %in% selected_samples_id]
+names(AML_scATA_CSM_DX_select_list) <- paste(selected_samples_id, "DX", sep = "_")
+AML_scATA_CSM_REL_select_list <- AML_scATA_CSM_REL_list[names(AML_scATA_CSM_REL_list) %in% selected_samples_id]
+names(AML_scATA_CSM_REL_select_list) <- paste(selected_samples_id, "REL", sep = "_")
+AML_scATA_CSM_DX_REL_select_list <- c(AML_scATA_CSM_DX_select_list, AML_scATA_CSM_REL_select_list)
+AML_scATA_meta_DX$Classified_CelltypeQ <- paste(AML_scATA_meta_DX$SampleID, "DX", AML_scATA_meta_DX$Classified_Celltype, sep = "_")
+AML_scATA_meta_REL$Classified_CelltypeQ <- paste(AML_scATA_meta_REL$SampleID, "REL", AML_scATA_meta_REL$Classified_Celltype, sep = "_")
+
+AML_scRNA_meta_DX_REL <- rbind(AML_scRNA_meta_DX, AML_scRNA_meta_REL)
+AML_scATA_meta_DX_REL <- rbind(AML_scATA_meta_DX, AML_scATA_meta_REL)
+
+# samples for lineage switching
+
+AML_scRNA_meta_DX_REL <- AML_scRNA_meta_DX_REL[AML_scRNA_meta_DX_REL$Lambo_et_al_ID %in% selected_samples_id, ]
+AML_scRNA_meta_DX_REL$CellTag <- rownames(AML_scRNA_meta_DX_REL) %>%
+                                    sub("-1$", "", .) %>%
+                                    gsub("#", "_", .)
+AML_scRNA_meta$CellTag <- rownames(AML_scRNA_meta) %>%
+                                    sub("-1$", "", .) %>%
+                                    gsub("#", "_", .)
+
+AML_scRNA_meta_DX_REL$SampleID <- AML_scRNA_meta_DX_REL$Lambo_et_al_ID
+AML_scATA_meta_DX_REL <- AML_scATA_meta_DX_REL[AML_scATA_meta_DX_REL$SampleID %in% selected_samples_id,]
+AML_scATA_meta_DX_REL$CellTag <- rownames(AML_scATA_meta_DX_REL) %>%
+                                    sub("-1$", "", .) %>%
+                                    gsub("#", "_", .)
+AML_scATA_meta$CellTag <- rownames(AML_scATA_meta) %>%
+                                    sub("-1$", "", .) %>%
+                                    gsub("#", "_", .)
+
+AML_scATA_meta_DX_REL$maincelltypeQ <- paste(AML_scATA_meta_DX_REL$Sample, AML_scATA_meta_DX_REL$maincelltype, sep = "_")
+
+cells_limits <- 0
+
+celltypes_scRNA <- names(table(AML_scRNA_meta_DX_REL$Classified_CelltypeQ)[table(AML_scRNA_meta_DX_REL$Classified_CelltypeQ) >= cells_limits])
+celltypes_scATA <- names(table(AML_scATA_meta_DX_REL$Classified_CelltypeQ)[table(AML_scATA_meta_DX_REL$Classified_CelltypeQ) >= cells_limits])
+
+celltypes_scRNA_main <- names(table(AML_scRNA_meta_DX_REL$maincelltypeQ)[table(AML_scRNA_meta_DX_REL$maincelltypeQ) >= cells_limits])
+celltypes_scATA_main <- names(table(AML_scATA_meta_DX_REL$maincelltypeQ)[table(AML_scATA_meta_DX_REL$maincelltypeQ) >= cells_limits])
+```
+
+# calSimilarity downsampling
+```{r test}
+iteration_times <- 1:50
+sample_size_f <- 0.30
+sample_size <- 200
+
+set.seed(2025)
+
+#selected_samples_id <- c("AML4", "AML6", "AML8", "AML10", "AML16", "AML27")
+#selected_samples_id <- c("AML4", "AML5", "AML6", "AML8",  "AML10",  "AML12", "AML16", "AML18", "AML21")
+#selected_samples_id <- c("AML13")
+selected_samples_id <- c("AML2", "AML4", "AML5", "AML6", "AML8", "AML10", "AML11", "AML12",
+                         "AML13", "AML15", "AML16", "AML17", "AML18", "AML19", "AML21",
+                         "AML22", "AML24", "AML25", "AML26", "AML27")
+stage_dx_rel <- c("DX", "REL")
+celltypes_all <- c(HSPC, Myeloid, Lymphoid, Erythroid_Basophil)
+
+df_combination <- expand.grid(
+  sample = selected_samples_id,
+  stage  = stage_dx_rel,
+  celltype = celltypes_all,
+  stringsAsFactors = FALSE
+)
+
+result_all <- paste(df_combination$sample, df_combination$stage, df_combination$celltype, sep = "_")
+celltypes_scRNA <- result_all
+celltypes_scATA <- result_all
+
+mut_cellTypeAnn_similarity_list_RNA <- vector("list", length(selected_samples_id))
+names(mut_cellTypeAnn_similarity_list_RNA) <- selected_samples_id
+
+mut_cellTypeAnn_similarity_list_RNA_main <- vector("list", length(selected_samples_id))
+names(mut_cellTypeAnn_similarity_list_RNA_main) <- selected_samples_id
+
+mut_cellTypeAnn_similarity_list_ATA <- vector("list", length(selected_samples_id))
+names(mut_cellTypeAnn_similarity_list_ATA) <- selected_samples_id
+
+mut_cellTypeAnn_similarity_list_ATA_main <- vector("list", length(selected_samples_id))
+names(mut_cellTypeAnn_similarity_list_ATA_main) <- selected_samples_id
+
+DX_HSPC <- paste0("DX_", HSPC)
+DX_myeloid <- paste0("DX_", Myeloid)
+DX_lymphoid <- paste0("DX_", Lymphoid)
+DX_Erythroid <- paste0("DX_", Erythroid_Basophil)
+REL_HSPC <- paste0("REL_", HSPC)
+REL_myeloid <- paste0("REL_", Myeloid)
+REL_lymphoid <- paste0("REL_", Lymphoid)
+REL_Erythroid <- paste0("REL_", Erythroid_Basophil)
+
+# RNA
+for (sample_iter in selected_samples_id) {
+  message("process.. ", sample_iter)
+
+  mut_cellTypeAnn_similarity_list_sample <- vector("list", length(iteration_times))
+  names(mut_cellTypeAnn_similarity_list_sample) <- paste0("iter_", iteration_times)
+
+  celltypes_scRNA_sample <- grep(paste0("^", sample_iter, "(_|$)"), celltypes_scRNA, value = TRUE)
+
+  for (iter_i in iteration_times) {
+    message("  process.. ", iter_i)
+
+    mut_cellTypeAnn_similarity_tmp <- matrix(
+      0,
+      nrow = length(celltypes_scRNA_sample),
+      ncol = length(celltypes_scRNA_sample),
+      dimnames = list(celltypes_scRNA_sample, celltypes_scRNA_sample)
+    )
+
+    # cache mut sites per celltype (IMPORTANT SPEED UP)
+    mut_cache <- list()
+
+    for (ct in celltypes_scRNA_sample) {
+      cells_ct <- AML_scRNA_meta_DX_REL |>
+        dplyr::filter(Classified_CelltypeQ == ct) |>
+        dplyr::pull(CellTag)
+      
+      #sample_ct <- sub("_.*", "", ct)
+      
+      #cells_ct <- AML_scRNA_meta_DX_REL |>
+      #  dplyr::filter(SampleID == sample_ct) |>
+      #  dplyr::pull(CellTag)
+      
+      if (length(cells_ct) == 0) {
+        mut_cache[[ct]] <- character(0)
+        next
+      }
+      # num
+      #cells_ct <- sample(cells_ct, min(length(cells_ct), sample_size))
+      # frac
+      cells_ct <- sample(cells_ct, max(1, floor(length(cells_ct) * sample_size_f)))
+
+      sample_id <- sub("^([^_]+_[^_]+)_.*", "\\1", ct)
+      
+      # modify mapping
+      cells_csm_raw <- rownames(AML_scRNA_CSM_DX_REL_select_list[[sample_id]])
+      cells_csm <- gsub("_L[0-9]+_", "_", cells_csm_raw)
+      df_map <- data.frame(raw = cells_csm_raw, clean = cells_csm, stringsAsFactors = FALSE)
+      cells_raw_selected <- df_map$raw[df_map$clean %in% cells_ct]
+      
+      mut_cache[[ct]] <- retriveLocsByCells(
+        AML_scRNA_CSM_DX_REL_select_list[[sample_id]],
+        cells_raw_selected
+      )$Mut
+    }
+
+    # compute only upper triangle
+    for (i in seq_along(celltypes_scRNA_sample)) {
+      for (j in i:length(celltypes_scRNA_sample)) {
+
+        ct_row <- celltypes_scRNA_sample[i]
+        ct_col <- celltypes_scRNA_sample[j]
+
+        m1 <- mut_cache[[ct_row]]
+        m2 <- mut_cache[[ct_col]]
+
+        if (length(m1) == 0 || length(m2) == 0) {
+          score <- 0
+        } else {
+          u <- union(m1, m2)
+          score <- length(intersect(m1, m2)) / length(u)
+        }
+
+        mut_cellTypeAnn_similarity_tmp[i, j] <- score
+        mut_cellTypeAnn_similarity_tmp[j, i] <- score
+      }
+    }
+
+    mut_cellTypeAnn_similarity_list_sample[[paste0("iter_", iter_i)]] <-
+      mut_cellTypeAnn_similarity_tmp
+  }
+
+  mut_cellTypeAnn_similarity_list_RNA[[sample_iter]] <- mut_cellTypeAnn_similarity_list_sample
+}
+
+# RNA main
+for (sample_iter in selected_samples_id) {
+  message("process.. ", sample_iter)
+
+  mut_cellTypeAnn_similarity_list_sample <- vector("list", length(iteration_times))
+  names(mut_cellTypeAnn_similarity_list_sample) <- paste0("iter_", iteration_times)
+
+  celltypes_scRNA_sample <- grep(paste0("^", sample_iter, "(_|$)"), celltypes_scRNA_main, value = TRUE)
+
+  for (iter_i in iteration_times) {
+    message("  process.. ", iter_i)
+
+    mut_cellTypeAnn_similarity_tmp <- matrix(
+      0,
+      nrow = length(celltypes_scRNA_sample),
+      ncol = length(celltypes_scRNA_sample),
+      dimnames = list(celltypes_scRNA_sample, celltypes_scRNA_sample)
+    )
+
+    # cache mut sites per celltype (IMPORTANT SPEED UP)
+    mut_cache <- list()
+
+    for (ct in celltypes_scRNA_sample) {
+      cells_ct <- AML_scRNA_meta_DX_REL |>
+        dplyr::filter(maincelltypeQ == ct) |>
+        dplyr::pull(CellTag)
+      
+      #sample_ct <- sub("_.*", "", ct)
+      
+      #cells_ct <- AML_scRNA_meta_DX_REL |>
+      #  dplyr::filter(SampleID == sample_ct) |>
+      #  dplyr::pull(CellTag)
+      
+      if (length(cells_ct) == 0) {
+        mut_cache[[ct]] <- character(0)
+        next
+      }
+      # num
+      #cells_ct <- sample(cells_ct, min(length(cells_ct), sample_size))
+      # frac
+      cells_ct <- sample(cells_ct, max(1, floor(length(cells_ct) * sample_size_f)))
+
+      sample_id <- sub("^([^_]+_[^_]+)_.*", "\\1", ct)
+      
+      # modify mapping
+      cells_csm_raw <- rownames(AML_scRNA_CSM_DX_REL_select_list[[sample_id]])
+      cells_csm <- gsub("_L[0-9]+_", "_", cells_csm_raw)
+      df_map <- data.frame(raw = cells_csm_raw, clean = cells_csm, stringsAsFactors = FALSE)
+      cells_raw_selected <- df_map$raw[df_map$clean %in% cells_ct]
+      
+      mut_cache[[ct]] <- retriveLocsByCells(
+        AML_scRNA_CSM_DX_REL_select_list[[sample_id]],
+        cells_raw_selected
+      )$Mut
+    }
+
+    # compute only upper triangle
+    for (i in seq_along(celltypes_scRNA_sample)) {
+      for (j in i:length(celltypes_scRNA_sample)) {
+
+        ct_row <- celltypes_scRNA_sample[i]
+        ct_col <- celltypes_scRNA_sample[j]
+
+        m1 <- mut_cache[[ct_row]]
+        m2 <- mut_cache[[ct_col]]
+
+        if (length(m1) == 0 || length(m2) == 0) {
+          score <- 0
+        } else {
+          u <- union(m1, m2)
+          score <- length(intersect(m1, m2)) / length(u)
+        }
+
+        mut_cellTypeAnn_similarity_tmp[i, j] <- score
+        mut_cellTypeAnn_similarity_tmp[j, i] <- score
+      }
+    }
+
+    mut_cellTypeAnn_similarity_list_sample[[paste0("iter_", iter_i)]] <-
+      mut_cellTypeAnn_similarity_tmp
+  }
+
+  mut_cellTypeAnn_similarity_list_RNA_main[[sample_iter]] <- mut_cellTypeAnn_similarity_list_sample
+}
+
+# ATA
+for (sample_iter in selected_samples_id) {
+  message("process.. ", sample_iter)
+
+  mut_cellTypeAnn_similarity_list_sample <- vector("list", length(iteration_times))
+  names(mut_cellTypeAnn_similarity_list_sample) <- paste0("iter_", iteration_times)
+
+  celltypes_scATA_sample <- grep(paste0("^", sample_iter, "(_|$)"), celltypes_scATA, value = TRUE)
+
+  for (iter_i in iteration_times) {
+    message("  process.. ", iter_i)
+
+    mut_cellTypeAnn_similarity_tmp <- matrix(
+      0,
+      nrow = length(celltypes_scATA_sample),
+      ncol = length(celltypes_scATA_sample),
+      dimnames = list(celltypes_scATA_sample, celltypes_scATA_sample)
+    )
+
+    # cache mut sites per celltype (IMPORTANT SPEED UP)
+    mut_cache <- list()
+
+    for (ct in celltypes_scATA_sample) {
+      cells_ct <- AML_scATA_meta_DX_REL |>
+        dplyr::filter(Classified_CelltypeQ == ct) |>
+        dplyr::pull(CellTag)
+      
+      #sample_ct <- sub("_.*", "", ct)
+      
+      if (length(cells_ct) == 0) {
+        mut_cache[[ct]] <- character(0)
+        next
+      }
+
+      #cells_ct <- sample(cells_ct, min(length(cells_ct), sample_size))
+      cells_ct <- sample(cells_ct, max(1, floor(length(cells_ct) * sample_size_f)))
+
+      sample_id <- sub("^([^_]+_[^_]+)_.*", "\\1", ct)
+
+      mut_cache[[ct]] <- retriveLocsByCells(
+        AML_scATA_CSM_DX_REL_select_list[[sample_id]],
+        cells_ct
+      )$Mut
+    }
+
+    # compute only upper triangle
+    for (i in seq_along(celltypes_scATA_sample)) {
+      for (j in i:length(celltypes_scATA_sample)) {
+
+        ct_row <- celltypes_scATA_sample[i]
+        ct_col <- celltypes_scATA_sample[j]
+
+        m1 <- mut_cache[[ct_row]]
+        m2 <- mut_cache[[ct_col]]
+
+        if (length(m1) == 0 || length(m2) == 0) {
+          score <- 0
+        } else {
+          u <- union(m1, m2)
+          score <- length(intersect(m1, m2)) / length(u)
+        }
+
+        mut_cellTypeAnn_similarity_tmp[i, j] <- score
+        mut_cellTypeAnn_similarity_tmp[j, i] <- score
+      }
+    }
+
+    mut_cellTypeAnn_similarity_list_sample[[paste0("iter_", iter_i)]] <-
+      mut_cellTypeAnn_similarity_tmp
+  }
+
+  mut_cellTypeAnn_similarity_list_ATA[[sample_iter]] <- mut_cellTypeAnn_similarity_list_sample
+}
+
+# ATA main
+for (sample_iter in selected_samples_id) {
+  message("process.. ", sample_iter)
+
+  mut_cellTypeAnn_similarity_list_sample <- vector("list", length(iteration_times))
+  names(mut_cellTypeAnn_similarity_list_sample) <- paste0("iter_", iteration_times)
+
+  celltypes_scATA_sample <- grep(paste0("^", sample_iter, "(_|$)"), celltypes_scATA_main, value = TRUE)
+
+  for (iter_i in iteration_times) {
+    message("  process.. ", iter_i)
+
+    mut_cellTypeAnn_similarity_tmp <- matrix(
+      0,
+      nrow = length(celltypes_scATA_sample),
+      ncol = length(celltypes_scATA_sample),
+      dimnames = list(celltypes_scATA_sample, celltypes_scATA_sample)
+    )
+
+    # cache mut sites per celltype (IMPORTANT SPEED UP)
+    mut_cache <- list()
+
+    for (ct in celltypes_scATA_sample) {
+      cells_ct <- AML_scATA_meta_DX_REL |>
+        dplyr::filter(maincelltypeQ == ct) |>
+        dplyr::pull(CellTag)
+      
+      #sample_ct <- sub("_.*", "", ct)
+      
+      if (length(cells_ct) == 0) {
+        mut_cache[[ct]] <- character(0)
+        next
+      }
+
+      #cells_ct <- sample(cells_ct, min(length(cells_ct), sample_size))
+      cells_ct <- sample(cells_ct, max(1, floor(length(cells_ct) * sample_size_f)))
+
+      sample_id <- sub("^([^_]+_[^_]+)_.*", "\\1", ct)
+
+      mut_cache[[ct]] <- retriveLocsByCells(
+        AML_scATA_CSM_DX_REL_select_list[[sample_id]],
+        cells_ct
+      )$Mut
+    }
+
+    # compute only upper triangle
+    for (i in seq_along(celltypes_scATA_sample)) {
+      for (j in i:length(celltypes_scATA_sample)) {
+
+        ct_row <- celltypes_scATA_sample[i]
+        ct_col <- celltypes_scATA_sample[j]
+
+        m1 <- mut_cache[[ct_row]]
+        m2 <- mut_cache[[ct_col]]
+
+        if (length(m1) == 0 || length(m2) == 0) {
+          score <- 0
+        } else {
+          u <- union(m1, m2)
+          score <- length(intersect(m1, m2)) / length(u)
+        }
+
+        mut_cellTypeAnn_similarity_tmp[i, j] <- score
+        mut_cellTypeAnn_similarity_tmp[j, i] <- score
+      }
+    }
+
+    mut_cellTypeAnn_similarity_list_sample[[paste0("iter_", iter_i)]] <-
+      mut_cellTypeAnn_similarity_tmp
+  }
+
+  mut_cellTypeAnn_similarity_list_ATA_main[[sample_iter]] <- mut_cellTypeAnn_similarity_list_sample
+}
+
+mut_cellTypeAnn_similarity_mean_RNA <- lapply(mut_cellTypeAnn_similarity_list_RNA, function(sample_list) {
+  Reduce("+", sample_list) / length(sample_list)
+})
+
+mut_cellTypeAnn_similarity_mean_RNA_main <- lapply(mut_cellTypeAnn_similarity_list_RNA_main, function(sample_list) {
+  Reduce("+", sample_list) / length(sample_list)
+})
+
+mut_cellTypeAnn_similarity_mean_ATA <- lapply(mut_cellTypeAnn_similarity_list_ATA, function(sample_list) {
+  Reduce("+", sample_list) / length(sample_list)
+})
+
+mut_cellTypeAnn_similarity_mean_ATA_main <- lapply(mut_cellTypeAnn_similarity_list_ATA_main, function(sample_list) {
+  Reduce("+", sample_list) / length(sample_list)
+})
+
+sort_similarity_matrix <- function(mat,
+                                   HSPC,
+                                   Myeloid,
+                                   Lymphoid,
+                                   Erythroid_Basophil,
+                                   Other) {
+
+  ct_names <- rownames(mat)
+
+  patient  <- sub("^(AML\\d+)_.*", "\\1", ct_names)
+  stage    <- sub("^AML\\d+_(DX|REL)_.*", "\\1", ct_names)
+  celltype <- sub("^AML\\d+_(DX|REL)_", "", ct_names)
+
+  celltype2lineage <- c(
+    setNames(rep("HSPC", length(HSPC)), HSPC),
+    setNames(rep("Myeloid", length(Myeloid)), Myeloid),
+    setNames(rep("Lymphoid", length(Lymphoid)), Lymphoid),
+    setNames(rep("Erythroid_Basophil", length(Erythroid_Basophil)), Erythroid_Basophil),
+    setNames(rep("Other", length(Other)), Other)
+  )
+
+  lineage <- celltype2lineage[celltype]
+
+  stage <- factor(stage, levels = c("DX", "REL"))
+
+  lineage_order <- c("HSPC", "Myeloid", "Lymphoid", "Erythroid_Basophil", "Other")
+  lineage <- factor(lineage, levels = lineage_order)
+
+  celltype_levels <- c(HSPC, Myeloid, Lymphoid, Erythroid_Basophil, Other)
+  celltype <- factor(celltype, levels = celltype_levels)
+
+  ord <- order(patient, stage, lineage, celltype)
+
+  mat_sorted <- mat[ord, ord]
+
+  # -------- annotation --------
+  annotation <- data.frame(
+    Patient = patient,
+    Stage = stage,
+    Lineage = lineage,
+    Celltype = celltype
+  )
+  rownames(annotation) <- ct_names
+  annotation <- annotation[ord, , drop = FALSE]
+
+  return(list(
+    mat = mat_sorted,
+    annotation = annotation,
+    order = ord
+  ))
+}
+
+saveRDS(mut_cellTypeAnn_similarity_list_RNA, "../Data/HumanpAML/mut_cellTypeAnn_similarity_RNA_subcell_byfrac30.rds")
+saveRDS(mut_cellTypeAnn_similarity_list_ATA, "../Data/HumanpAML/mut_cellTypeAnn_similarity_ATA_subcell_byfrac30.rds")
+saveRDS(mut_cellTypeAnn_similarity_list_RNA_main, "../Data/HumanpAML/mut_cellTypeAnn_similarity_RNA_maincell_byfrac30.rds")
+saveRDS(mut_cellTypeAnn_similarity_list_ATA_main, "../Data/HumanpAML/mut_cellTypeAnn_similarity_ATA_maincell_byfrac30.rds")
+
+# RNA
+res_AML4_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML4,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML5_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML5,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML6_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML6,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML8_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML8,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML10_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML10,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML12_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML12,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML16_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML16,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML18_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML18,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML21_RNA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_RNA$AML21,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+# ATA
+res_AML4_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML4,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML5_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML5,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML6_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML6,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML8_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML8,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML10_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML10,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML12_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML12,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML16_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML16,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML18_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML18,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+res_AML21_ATA <- sort_similarity_matrix(
+  mat = mut_cellTypeAnn_similarity_mean_ATA$AML21,
+  HSPC = HSPC,
+  Myeloid = Myeloid,
+  Lymphoid = Lymphoid,
+  Erythroid_Basophil = Erythroid_Basophil,
+  Other = Other
+)
+
+mat_sorted_AML04_RNA <- res_AML4_RNA$mat
+mat_sorted_AML16_RNA <- res_AML16_RNA$mat
+mat_sorted_AML05_RNA <- res_AML5_RNA$mat
+mat_sorted_AML06_RNA <- res_AML6_RNA$mat
+mat_sorted_AML08_RNA <- res_AML8_RNA$mat
+mat_sorted_AML10_RNA <- res_AML10_RNA$mat
+mat_sorted_AML12_RNA <- res_AML12_RNA$mat
+mat_sorted_AML18_RNA <- res_AML18_RNA$mat
+mat_sorted_AML21_RNA <- res_AML21_RNA$mat
+
+mat_sorted_AML04_ATA <- res_AML4_ATA$mat
+mat_sorted_AML16_ATA <- res_AML16_ATA$mat
+mat_sorted_AML05_ATA <- res_AML5_ATA$mat
+mat_sorted_AML06_ATA <- res_AML6_ATA$mat
+mat_sorted_AML08_ATA <- res_AML8_ATA$mat
+mat_sorted_AML10_ATA <- res_AML10_ATA$mat
+mat_sorted_AML12_ATA <- res_AML12_ATA$mat
+mat_sorted_AML18_ATA <- res_AML18_ATA$mat
+mat_sorted_AML21_ATA <- res_AML21_ATA$mat
+
+celltype_comm_AML04 <- intersect(colnames(mat_sorted_AML04_ATA), colnames(mat_sorted_AML04_RNA))
+celltype_comm_AML05 <- intersect(colnames(mat_sorted_AML05_ATA), colnames(mat_sorted_AML05_RNA))
+celltype_comm_AML06 <- intersect(colnames(mat_sorted_AML06_ATA), colnames(mat_sorted_AML06_RNA))
+celltype_comm_AML08 <- intersect(colnames(mat_sorted_AML08_ATA), colnames(mat_sorted_AML08_RNA))
+celltype_comm_AML10 <- intersect(colnames(mat_sorted_AML10_ATA), colnames(mat_sorted_AML10_RNA))
+celltype_comm_AML12 <- intersect(colnames(mat_sorted_AML12_ATA), colnames(mat_sorted_AML12_RNA))
+celltype_comm_AML16 <- intersect(colnames(mat_sorted_AML16_ATA), colnames(mat_sorted_AML16_RNA))
+celltype_comm_AML18 <- intersect(colnames(mat_sorted_AML18_ATA), colnames(mat_sorted_AML18_RNA))
+celltype_comm_AML21 <- intersect(colnames(mat_sorted_AML21_ATA), colnames(mat_sorted_AML21_RNA))
+
+# RNA
+corrplot(mat_sorted_AML04_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML16_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML05_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML06_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML08_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML10_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML12_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML18_RNA, method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+
+# ATA
+corrplot(mat_sorted_AML04_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML16_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML05_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML06_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML08_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML10_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML12_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML18_ATA, method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+```
+
+```{r saveplot}
+# RNA
+corrplot(mat_sorted_AML04_RNA[celltype_comm_AML04, celltype_comm_AML04], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML16_RNA[celltype_comm_AML16, celltype_comm_AML16], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML05_RNA[celltype_comm_AML05, celltype_comm_AML05], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML06_RNA[celltype_comm_AML06, celltype_comm_AML06], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML08_RNA[celltype_comm_AML08, celltype_comm_AML08], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML10_RNA[celltype_comm_AML10, celltype_comm_AML10], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML18_RNA[celltype_comm_AML18, celltype_comm_AML18], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+
+# ATA
+corrplot(mat_sorted_AML04_ATA[celltype_comm_AML04, celltype_comm_AML04], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML16_ATA[celltype_comm_AML16, celltype_comm_AML16], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML05_ATA[celltype_comm_AML05, celltype_comm_AML05], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML06_ATA[celltype_comm_AML06, celltype_comm_AML06], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML08_ATA[celltype_comm_AML08, celltype_comm_AML08], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML10_ATA[celltype_comm_AML10, celltype_comm_AML10], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+corrplot(mat_sorted_AML18_ATA[celltype_comm_AML18, celltype_comm_AML18], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+
+
+# save
+pdf("../corrplot_AML04_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML04_RNA[celltype_comm_AML04, celltype_comm_AML04], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML16_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML16_RNA[celltype_comm_AML16, celltype_comm_AML16], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML05_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML05_RNA[celltype_comm_AML05, celltype_comm_AML05], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML06_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML06_RNA[celltype_comm_AML06, celltype_comm_AML06], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML08_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML08_RNA[celltype_comm_AML08, celltype_comm_AML08], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML10_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML10_RNA[celltype_comm_AML10, celltype_comm_AML10], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML12_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML12_RNA[celltype_comm_AML12, celltype_comm_AML12], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML18_RNA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML18_RNA[celltype_comm_AML18, celltype_comm_AML18], method = 'color', 
+         type = 'lower', col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100)), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML04_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML04_ATA[celltype_comm_AML04, celltype_comm_AML04], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML16_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML16_ATA[celltype_comm_AML16, celltype_comm_AML16], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML05_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML05_ATA[celltype_comm_AML05, celltype_comm_AML05], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML06_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML06_ATA[celltype_comm_AML06, celltype_comm_AML06], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML08_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML08_ATA[celltype_comm_AML08, celltype_comm_AML08], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML10_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML10_ATA[celltype_comm_AML10, celltype_comm_AML10], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML12_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML12_ATA[celltype_comm_AML12, celltype_comm_AML12], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+
+pdf("../corrplot_AML18_ATA.pdf", width = 8, height = 8)
+corrplot(mat_sorted_AML18_ATA[celltype_comm_AML18, celltype_comm_AML18], method = 'color', 
+         type = 'upper', col = colorRampPalette(brewer.pal(11, "RdBu"))(100), col.lim = c(0, 1), order = "original")
+dev.off()
+```
+
+# permutation test
+```{r pertest}
+iteration_times <- 1:50
+sample_size_f <- 0.50
+sample_size <- 400
+
+paired_perm_test_viz <- function(x, y, n_perm = 10000) {
+
+  diff <- x - y
+  obs <- mean(diff)
+
+  # permutation null
+  perm <- replicate(n_perm, {
+    mean(diff * sample(c(-1, 1), length(diff), replace = TRUE))
+  })
+
+  p <- mean(abs(perm) >= abs(obs))
+
+  # CI from null distribution
+  ci <- quantile(perm, c(0.025, 0.975))
+
+  # return structured object for plotting
+  list(
+    obs = obs,
+    p_value = p,
+    ci = ci,
+    perm_distribution = perm,
+    diff_values = diff
+  )
+}
+
+unpaired_perm_test_viz <- function(x, y, n_perm = 10000) {
+
+  obs <- mean(x) - mean(y)
+  combined <- c(x, y)
+  n_x <- length(x)
+
+  perm <- replicate(n_perm, {
+    idx <- sample(length(combined))
+    mean(combined[idx[1:n_x]]) - mean(combined[idx[-(1:n_x)]])
+  })
+
+  p <- mean(abs(perm) >= abs(obs))
+  ci <- quantile(perm, c(0.025, 0.975))
+
+  list(
+    obs = obs,
+    p_value = p,
+    ci = ci,
+    perm_distribution = perm
+  )
+}
+
+plot_perm_test <- function(res, title = "Permutation Test") {
+
+  df <- data.frame(perm = res$perm_distribution)
+
+  ggplot2::ggplot(df, ggplot2::aes(x = perm)) +
+    ggplot2::geom_histogram(bins = 50, fill = "grey80", color = "black") +
+    ggplot2::geom_vline(xintercept = res$obs, color = "red", size = 1) +
+    ggplot2::geom_vline(xintercept = res$ci, linetype = "dashed", color = "blue") +
+    ggplot2::labs(
+      title = title,
+      subtitle = paste0("p = ", signif(res$p_value, 3)),
+      x = "Permutation mean difference",
+      y = "Frequency"
+    ) +
+    ggplot2::theme_classic()
+}
+
+
+
+cal_sigValSimilarity <- function(mut_list, iteration_times, sampleid){
+  # 1
+  vals_RelLym_DxMye <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Lymphoid", sep = "_"), paste(sampleid, "DX_Myeloid", sep = "_")]
+  )
+  
+  # 2
+  vals_RelMye_DxMye <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Myeloid", sep = "_"), paste(sampleid, "DX_Myeloid", sep = "_")]
+  )
+  
+  # 3
+  vals_DxLym_RelMye <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "DX_Lymphoid", sep = "_"), paste(sampleid, "REL_Myeloid", sep = "_")]
+  )
+  
+  # 4
+  vals_DxLym_RelLym <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "DX_Lymphoid", sep = "_"), paste(sampleid, "REL_Lymphoid", sep = "_")]
+  )
+  
+  # 5
+  vals_DxMye_DxLym <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "DX_Myeloid", sep = "_"), paste(sampleid, "DX_Lymphoid", sep = "_")]
+  )
+  
+  # 6
+  vals_DxMye_DxLym <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Myeloid", sep = "_"), paste(sampleid, "REL_Lymphoid", sep = "_")]
+  )
+  
+  # permutation test
+  message(" 12")
+  pair_12 <- unpaired_perm_test_viz(c(vals_RelLym_DxMye), c(vals_RelMye_DxMye))
+  pair_12_p <- pair_12$p_value
+  pair_12_c <- pair_12$obs - median(pair_12$perm_distribution)
+  
+  message(" 13")
+  pair_13 <- unpaired_perm_test_viz(c(vals_RelLym_DxMye), c(vals_DxLym_RelMye))
+  pair_13_p <- pair_13$p_value
+  pair_13_c <- pair_13$obs - median(pair_13$perm_distribution)
+  
+  message(" 14")
+  pair_14 <- unpaired_perm_test_viz(c(vals_RelLym_DxMye), c(vals_DxLym_RelLym))
+  pair_14_p <- pair_14$p_value
+  pair_14_c <- pair_14$obs - median(pair_14$perm_distribution)
+  
+  message(" 15")
+  pair_15 <- unpaired_perm_test_viz(c(vals_RelLym_DxMye), c(vals_DxMye_DxLym))
+  pair_15_p <- pair_15$p_value
+  pair_15_c <- pair_15$obs - median(pair_15$perm_distribution)
+  
+  message(" 16")
+  pair_16 <- unpaired_perm_test_viz(c(vals_RelLym_DxMye), c(vals_DxMye_DxLym))
+  pair_16_p <- pair_16$p_value
+  pair_16_c <- pair_16$obs - median(pair_16$perm_distribution)
+  
+  result <- list(
+    pair_12_p = pair_12_p,
+    pair_12_c = pair_12_c,
+    pair_13_p = pair_13_p,
+    pair_13_c = pair_13_c,
+    pair_14_p = pair_14_p,
+    pair_14_c = pair_14_c,
+    pair_15_p = pair_15_p,
+    pair_15_c = pair_15_c,
+    pair_16_p = pair_16_p,
+    pair_16_c = pair_16_c
+  )
+  
+  return(result)
+}
+
+selected_samples_id <- c("AML2", "AML4", "AML5", "AML6", "AML8", "AML10", "AML11", "AML12",
+                         "AML13", "AML15", "AML16", "AML17", "AML18", "AML19", "AML21",
+                         "AML22", "AML24", "AML25", "AML26", "AML27")
+# RNA
+data_scRNA_sigSimilarity <- as.data.frame(matrix(data = 0, nrow = length(selected_samples_id), ncol = 10))
+rownames(data_scRNA_sigSimilarity) <- selected_samples_id
+colnames(data_scRNA_sigSimilarity) <- paste(c("pair_12_p", "pair_12_c", "pair_13_p", "pair_13_c",
+                                        "pair_14_p", "pair_14_c", "pair_15_p", "pair_15_c",
+                                        "pair_16_p", "pair_16_c"), "RNA", sep = "_")
+
+# ATA
+data_scATA_sigSimilarity <- as.data.frame(matrix(data = 0, nrow = length(selected_samples_id), ncol = 10))
+rownames(data_scATA_sigSimilarity) <- selected_samples_id
+colnames(data_scATA_sigSimilarity) <- paste(c("pair_12_p", "pair_12_c", "pair_13_p", "pair_13_c",
+                                        "pair_14_p", "pair_14_c", "pair_15_p", "pair_15_c",
+                                        "pair_16_p", "pair_16_c"), "ATA", sep = "_")
+
+for (sampleid in selected_samples_id){
+  message(paste0(sampleid, "-scRNA"))
+  r_scRNA <- cal_sigValSimilarity(mut_cellTypeAnn_similarity_list_RNA_main, iteration_times, sampleid)
+  message(paste0(sampleid, "-scATA"))
+  r_scATA <- cal_sigValSimilarity(mut_cellTypeAnn_similarity_list_ATA_main, iteration_times, sampleid)
+  data_scRNA_sigSimilarity[sampleid, "pair_12_p_RNA"] <- r_scRNA$pair_12_p
+  data_scRNA_sigSimilarity[sampleid, "pair_12_c_RNA"] <- r_scRNA$pair_12_c
+  data_scRNA_sigSimilarity[sampleid, "pair_13_p_RNA"] <- r_scRNA$pair_13_p
+  data_scRNA_sigSimilarity[sampleid, "pair_13_c_RNA"] <- r_scRNA$pair_13_c
+  data_scRNA_sigSimilarity[sampleid, "pair_14_p_RNA"] <- r_scRNA$pair_14_p
+  data_scRNA_sigSimilarity[sampleid, "pair_14_c_RNA"] <- r_scRNA$pair_14_c
+  data_scRNA_sigSimilarity[sampleid, "pair_15_p_RNA"] <- r_scRNA$pair_15_p
+  data_scRNA_sigSimilarity[sampleid, "pair_15_c_RNA"] <- r_scRNA$pair_15_c
+  data_scRNA_sigSimilarity[sampleid, "pair_16_p_RNA"] <- r_scRNA$pair_16_p
+  data_scRNA_sigSimilarity[sampleid, "pair_16_c_RNA"] <- r_scRNA$pair_16_c
+  
+  
+  data_scATA_sigSimilarity[sampleid, "pair_12_p_ATA"] <- r_scATA$pair_12_p
+  data_scATA_sigSimilarity[sampleid, "pair_12_c_ATA"] <- r_scATA$pair_12_c
+  data_scATA_sigSimilarity[sampleid, "pair_13_p_ATA"] <- r_scATA$pair_13_p
+  data_scATA_sigSimilarity[sampleid, "pair_13_c_ATA"] <- r_scATA$pair_13_c
+  data_scATA_sigSimilarity[sampleid, "pair_14_p_ATA"] <- r_scATA$pair_14_p
+  data_scATA_sigSimilarity[sampleid, "pair_14_c_ATA"] <- r_scATA$pair_14_c
+  data_scATA_sigSimilarity[sampleid, "pair_15_p_ATA"] <- r_scATA$pair_15_p
+  data_scATA_sigSimilarity[sampleid, "pair_15_c_ATA"] <- r_scATA$pair_15_c
+  data_scATA_sigSimilarity[sampleid, "pair_16_p_ATA"] <- r_scATA$pair_16_p
+  data_scATA_sigSimilarity[sampleid, "pair_16_c_ATA"] <- r_scATA$pair_16_c
+}
+
+df_RNA <- data_scRNA_sigSimilarity
+pairs_RNA <- unique(sub("_p_RNA", "", grep("_p_RNA$", colnames(df_RNA), value = TRUE)))
+for (p in pairs_RNA) {
+  p_col <- paste0(p, "_p_RNA")
+  c_col <- paste0(p, "_c_RNA")
+  df_RNA[[c_col]][df_RNA[[p_col]] > 0.0001] <- NA
+}
+
+df_ATA <- data_scATA_sigSimilarity
+pairs_ATA <- unique(sub("_p_ATA", "", grep("_p_ATA$", colnames(df_ATA), value = TRUE)))
+for (p in pairs_ATA) {
+  p_col <- paste0(p, "_p_ATA")
+  c_col <- paste0(p, "_c_ATA")
+  df_ATA[[c_col]][df_ATA[[p_col]] > 0.0001] <- NA
+}
+
+
+data_scRNA_scATA_sigSimilarity <- cbind(df_RNA[, c("pair_12_c_RNA", "pair_13_c_RNA", "pair_14_c_RNA", "pair_15_c_RNA", "pair_16_c_RNA")],
+                                        df_ATA[, c("pair_12_c_ATA", "pair_13_c_ATA", "pair_14_c_ATA", "pair_15_c_ATA", "pair_16_c_ATA")])
+
+#max_abs <- max(abs(data_scRNA_scATA_sigSimilarity), na.rm = TRUE)
+#breaks <- seq(-max_abs, max_abs, length.out = 101)
+
+#colors <- rev(colorRampPalette(brewer.pal(11, "BrBG"))(100))
+
+col_fun <- colorRamp2(
+  c(-1, 0, 1),
+  c("#762a83", "white", "#8c510a")
+)
+
+mat <- data_scRNA_scATA_sigSimilarity
+
+group <- ifelse(rownames(mat) %in% c("AML4", "AML16", "AML18"),
+                "AML4/16/18", "Others")
+group <- factor(group, levels = c("Others", "AML4/16/18"))
+
+Heatmap(
+  mat,
+  name = "effect size(obs-median)",
+  row_split = group,
+  cluster_rows = TRUE,
+  clustering_method_rows = "ward.D",
+  cluster_columns = FALSE,
+  col = col_fun,
+  show_row_names = TRUE,
+  row_gap = unit(4, "mm"),
+  na_col = "grey90"
+)
+
+Heatmap(
+  mat,
+  name = "effect size(obs-median)",
+  row_split = group,
+  cluster_rows = TRUE,
+  clustering_method_rows = "ward.D",
+  cluster_columns = FALSE,
+  col = col_fun,
+  show_row_names = TRUE,
+  row_gap = unit(4, "mm"),
+  na_col = "grey90",
+  cell_fun = function(j, i, x, y, w, h, fill) {
+    if (is.na(mat[i, j])) {
+      grid::grid.text(
+        "×", x = x, y = y,
+        gp = grid::gpar(fontsize = 10, col = "black")
+      )
+    }
+  }
+)
+
+
+
+ht <- Heatmap(
+  mat,
+  name = "effect size(obs-median)",
+  row_split = group,
+  cluster_rows = TRUE,
+  clustering_method_rows = "ward.D",
+  cluster_columns = FALSE,
+  col = col_fun,
+  show_row_names = TRUE,
+  row_gap = unit(4, "mm"),
+  na_col = "grey90"
+)
+
+pdf("heatmap_effect_size.pdf", width = 5.8, height = 6)
+
+draw(ht)
+
+dev.off()
+
+sample_selected <- "AML18"
+# 1
+vals_RelLym_DxMye_RNA <- sapply(
+  paste0("iter_", iteration_times),
+  function(x) mut_cellTypeAnn_similarity_list_RNA_main[[sample_selected]][[x]][paste(sample_selected, "REL_Lymphoid", sep = "_"), paste(sample_selected, "DX_Myeloid", sep = "_")]
+)
+
+vals_RelLym_DxMye_ATA <- sapply(
+  paste0("iter_", iteration_times),
+  function(x) mut_cellTypeAnn_similarity_list_ATA_main[[sample_selected]][[x]][paste(sample_selected, "REL_Lymphoid", sep = "_"), paste(sample_selected, "DX_Myeloid", sep = "_")]
+)
+
+# 2
+vals_RelLym_DxLym_RNA <- sapply(
+  paste0("iter_", iteration_times),
+  function(x) mut_cellTypeAnn_similarity_list_RNA_main[[sample_selected]][[x]][paste(sample_selected, "REL_Lymphoid", sep = "_"), paste(sample_selected, "DX_Lymphoid", sep = "_")]
+)
+
+vals_RelLym_DxLym_ATA <- sapply(
+  paste0("iter_", iteration_times),
+  function(x) mut_cellTypeAnn_similarity_list_ATA_main[[sample_selected]][[x]][paste(sample_selected, "REL_Lymphoid", sep = "_"), paste(sample_selected, "DX_Lymphoid", sep = "_")]
+)
+# 3
+vals_DxMye_DxLym_RNA<- sapply(
+  paste0("iter_", iteration_times),
+  function(x) mut_cellTypeAnn_similarity_list_RNA_main[[sample_selected]][[x]][paste(sample_selected, "DX_Myeloid", sep = "_"), paste(sample_selected, "DX_Lymphoid", sep = "_")]
+)
+
+vals_DxMye_DxLym_ATA<- sapply(
+  paste0("iter_", iteration_times),
+  function(x) mut_cellTypeAnn_similarity_list_ATA_main[[sample_selected]][[x]][paste(sample_selected, "DX_Myeloid", sep = "_"), paste(sample_selected, "DX_Lymphoid", sep = "_")]
+)
+# 4
+vals_RelMye_RelLym_RNA <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_cellTypeAnn_similarity_list_RNA_main[[sample_selected]][[x]][paste(sample_selected, "REL_Myeloid", sep = "_"), paste(sample_selected, "REL_Lymphoid", sep = "_")]
+  )
+vals_RelMye_RelLym_ATA <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_cellTypeAnn_similarity_list_ATA_main[[sample_selected]][[x]][paste(sample_selected, "REL_Myeloid", sep = "_"), paste(sample_selected, "REL_Lymphoid", sep = "_")]
+  )
+
+set.seed(2025)
+res_RNA12 <- unpaired_perm_test_viz(vals_RelLym_DxMye_RNA, vals_RelLym_DxLym_RNA)
+res_RNA13 <- unpaired_perm_test_viz(vals_RelLym_DxMye_RNA, vals_DxMye_DxLym_RNA) 
+res_RNA14 <- unpaired_perm_test_viz(vals_RelLym_DxMye_RNA, vals_RelMye_RelLym_RNA)  
+  
+res_ATA12 <- unpaired_perm_test_viz(vals_RelLym_DxMye_ATA, vals_RelLym_DxLym_ATA)
+res_ATA13 <- unpaired_perm_test_viz(vals_RelLym_DxMye_ATA, vals_DxMye_DxLym_ATA) 
+res_ATA14 <- unpaired_perm_test_viz(vals_RelLym_DxMye_ATA, vals_RelMye_RelLym_ATA)     
+
+
+p_res_RNA12 <- plot_perm_test(res_RNA12)
+p_res_ATA12 <- plot_perm_test(res_ATA12)
+p_res_RNA13 <- plot_perm_test(res_RNA13)
+p_res_ATA13 <- plot_perm_test(res_ATA13)
+p_res_RNA14 <- plot_perm_test(res_RNA14)
+p_res_ATA14 <- plot_perm_test(res_ATA14)
+
+p_res_RNA12
+p_res_ATA12
+
+p_res_RNA13
+p_res_ATA13
+
+p_res_RNA14
+p_res_ATA14
+
+data_value_similarity_RNA <- list(DXMy_RELLy = vals_RelLym_DxMye_RNA,
+                                  DXLy_RELLy = vals_RelLym_DxLym_RNA,
+                                  DXMy_DXLy = vals_DxMye_DxLym_RNA,
+                                  RELMy_RELLy = vals_RelMye_RelLym_RNA)
+
+data_value_similarity_ATA <- list(DXMy_RELLy = vals_RelLym_DxMye_ATA,
+                                  DXLy_RELLy = vals_RelLym_DxLym_ATA,
+                                  DXMy_DXLy = vals_DxMye_DxLym_ATA,
+                                  RELMy_RELLy = vals_RelMye_RelLym_ATA)
+
+comparisons <- list(
+  c("DXMy_RELLy", "DXLy_RELLy"),
+  c("DXMy_RELLy", "DXMy_DXLy"),
+  c("DXMy_RELLy", "RELMy_RELLy")
+)
+
+p_boxPlotdata_value_similarity_RNA <- ggplot(stack(data_value_similarity_RNA), aes(ind, values, fill = ind)) +
+  geom_boxplot() +
+  stat_compare_means(comparisons = comparisons, method = "wilcox.test") +
+  theme_classic()
+
+p_boxPlotdata_value_similarity_ATA <- ggplot(stack(data_value_similarity_ATA), aes(ind, values, fill = ind)) +
+  geom_boxplot() +
+  stat_compare_means(comparisons = comparisons, method = "wilcox.test") +
+  theme_classic()
+
+p_boxPlotdata_value_similarity_RNA
+p_boxPlotdata_value_similarity_ATA
+
+#ggsave("../p_boxPlotdata_value_similarity_RNA.pdf", p_boxPlotdata_value_similarity_RNA, width = 3.2, height = 1.9)
+#ggsave("../p_boxPlotdata_value_similarity_ATA.pdf", p_boxPlotdata_value_similarity_ATA, width = 3.2, height = 1.9)
+```
+
+# mutations shared by different lineage
+```{r sharedMutations}
+cellxmut_to_01 <- function(cellxmut,
+                           mapping = c(NoCall = 0L, WT = 0L, Mut = 1L),
+                           default_value = NA_integer_,
+                           return_matrix = TRUE) {
+  if (!(is.matrix(cellxmut) || is.data.frame(cellxmut))) {
+    stop("cellxmut must be a matrix or data.frame.")
+  }
+
+  rn <- rownames(cellxmut)
+  cn <- colnames(cellxmut)
+  if (is.null(rn) || any(rn == "")) stop("cellxmut must have non-empty rownames (cell names).")
+  if (is.null(cn) || any(cn == "")) stop("cellxmut must have non-empty colnames (mutation sites).")
+
+  # Work in character space, trim whitespace
+  x <- as.matrix(cellxmut)
+  x <- apply(x, c(1, 2), function(v) trimws(as.character(v)))
+
+  # If already numeric-ish (e.g., "0"/"1"), keep them
+  suppressWarnings(num <- matrix(as.integer(x), nrow = nrow(x), ncol = ncol(x)))
+  is_num <- !is.na(num) & x %in% c("0", "1")
+  out <- matrix(NA_integer_, nrow = nrow(x), ncol = ncol(x), dimnames = list(rn, cn))
+  out[is_num] <- num[is_num]
+
+  # Map remaining via mapping
+  map_vec <- as.integer(mapping); names(map_vec) <- names(mapping)
+  idx <- is.na(out)
+  if (any(idx)) {
+    mapped <- map_vec[x[idx]]
+    mapped[is.na(mapped)] <- default_value
+    out[idx] <- as.integer(mapped)
+  }
+
+  if (return_matrix) return(out)
+  as.data.frame(out, check.names = FALSE)
+}
+
+celltype_matrix <- function(mat, meta, method = "sum") {
+  
+  # 1. clean cell names
+  cells_format_mat <- sub("_L[0-9]+_", "_", rownames(mat))
+  
+  # 2.  mapping
+  meta_map <- setNames(meta$maincelltype, meta$CellTag)
+  
+  # 3.  cells
+  keep_idx <- cells_format_mat %in% meta$CellTag
+  
+  mat <- mat[keep_idx, , drop = FALSE]
+  cells_use <- cells_format_mat[keep_idx]
+  
+  celltype <- meta_map[cells_use]
+  
+  # 4. attach celltype
+  df <- as.data.frame(mat)
+  df$maincelltype <- celltype
+  
+  # 5. aggregation
+  if (method == "sum") {
+    agg <- aggregate(. ~ maincelltype, data = df, FUN = sum)
+  } else if (method == "mean") {
+    agg <- aggregate(. ~ maincelltype, data = df, FUN = mean)
+  } else if (method == "binary") {
+    agg <- aggregate(. ~ maincelltype, data = df, FUN = function(x) as.numeric(any(x > 0)))
+  } else {
+    stop("method must be 'sum', 'mean' or 'binary'")
+  }
+  
+  rownames(agg) <- agg$maincelltype
+  agg$maincelltype <- NULL
+  
+  return(as.matrix(agg))
+}
+
+# scRNA
+celltypes <- c("HSPC", "Myeloid", "Lymphoid", "Erythroid")
+samples_scRNA_csm <- intersect(names(AML_scRNA_CSM_list), unique(AML_scRNA_meta$Lambo_et_al_ID))
+
+mutation_ct_scRNA <- vector("list", length(samples_scRNA_csm))
+names(mutation_ct_scRNA) <- samples_scRNA_csm
+for (sample in samples_scRNA_csm){
+  message(sample)
+  csm_01 <- cellxmut_to_01(AML_scRNA_CSM_list[[sample]])
+  csm_01_ct <- celltype_matrix(mat = csm_01, meta = AML_scRNA_meta[AML_scRNA_meta$Lambo_et_al_ID == sample,])
+  csm_01_ct <- csm_01_ct[celltypes,]
+  csm_01_ct_bin <- ifelse(csm_01_ct >= 3, 1, 0)
+  df <- as.data.frame(t(csm_01_ct_bin)) 
+  df <- df %>% rownames_to_column("mutation")
+  df[celltypes] <- lapply(df[celltypes], function(x) as.logical(as.integer(x)))
+  mutation_ct_scRNA[[sample]] <- df
+}
+
+# scATA
+celltypes <- c("HSPC", "Myeloid", "Lymphoid", "Erythroid")
+samples_scATA_csm <- intersect(names(AML_scATA_CSM_list), unique(AML_scATA_meta$SampleID))
+mutation_ct_scATA <- vector("list", length(samples_scATA_csm))
+names(mutation_ct_scATA) <- samples_scATA_csm
+for (sample in samples_scATA_csm){
+  message(sample)
+  csm_01 <- cellxmut_to_01(AML_scATA_CSM_list[[sample]])
+  csm_01_ct <- celltype_matrix(mat = csm_01, meta = AML_scATA_meta[AML_scATA_meta$SampleID == sample,])
+  csm_01_ct <- csm_01_ct[celltypes,]
+  csm_01_ct_bin <- ifelse(csm_01_ct >= 3, 1, 0)
+  df <- as.data.frame(t(csm_01_ct_bin)) 
+  df <- df %>% rownames_to_column("mutation")
+  df[celltypes] <- lapply(df[celltypes], function(x) as.logical(as.integer(x)))
+  mutation_ct_scATA[[sample]] <- df
+}
+
+all_mutation_ct_scRNA <- do.call(rbind, mutation_ct_scRNA)
+all_mutation_ct_scATA <- do.call(rbind, mutation_ct_scATA)
+
+
+ComplexUpset::upset(
+  all_mutation_ct_scRNA,
+  intersect = celltypes,
+  base_annotations = list(
+    'Intersection size' = intersection_size()
+  )
+)
+
+ComplexUpset::upset(
+  all_mutation_ct_scATA,
+  intersect = celltypes,
+  base_annotations = list(
+    'Intersection size' = intersection_size()
+  )
+)
+
+p_all_mutation_ct_scRNA <- ComplexUpset::upset(
+  all_mutation_ct_scRNA,
+  intersect = celltypes,
+  base_annotations = list(
+    'Intersection size' = intersection_size()
+  )
+)
+
+p_all_mutation_ct_scATA <- ComplexUpset::upset(
+  all_mutation_ct_scATA,
+  intersect = celltypes,
+  base_annotations = list(
+    'Intersection size' = intersection_size()
+  )
+)
+
+#ggsave("../p_all_mutation_ct_scRNA.pdf", p_all_mutation_ct_scRNA, width = 4.7, height = 2.9)
+#ggsave("../p_all_mutation_ct_scATA.pdf", p_all_mutation_ct_scATA, width = 4.7, height = 2.9)
+```
+
+# SNV tree cell type
+```{r celltypeTree}
+merge_cell_mut_matrix <- function(mat1, mat2, fill = 0) {
+  all_cells <- union(rownames(mat1), rownames(mat2))
+  all_muts  <- union(colnames(mat1), colnames(mat2))
+  
+  merged_mat <- matrix(fill,
+                       nrow = length(all_cells),
+                       ncol = length(all_muts),
+                       dimnames = list(all_cells, all_muts))
+  
+  merged_mat[rownames(mat1), colnames(mat1)] <- mat1
+  
+  merged_mat[rownames(mat2), colnames(mat2)] <- 
+    merged_mat[rownames(mat2), colnames(mat2)] + mat2
+  
+  return(merged_mat)
+}
+
+cellxmut_to_01 <- function(cellxmut,
+                           mapping = c(NoCall = 0L, WT = 0L, Mut = 1L),
+                           default_value = NA_integer_,
+                           return_matrix = TRUE) {
+  if (!(is.matrix(cellxmut) || is.data.frame(cellxmut))) {
+    stop("cellxmut must be a matrix or data.frame.")
+  }
+
+  rn <- rownames(cellxmut)
+  cn <- colnames(cellxmut)
+  if (is.null(rn) || any(rn == "")) stop("cellxmut must have non-empty rownames (cell names).")
+  if (is.null(cn) || any(cn == "")) stop("cellxmut must have non-empty colnames (mutation sites).")
+
+  # Work in character space, trim whitespace
+  x <- as.matrix(cellxmut)
+  x <- apply(x, c(1, 2), function(v) trimws(as.character(v)))
+
+  # If already numeric-ish (e.g., "0"/"1"), keep them
+  suppressWarnings(num <- matrix(as.integer(x), nrow = nrow(x), ncol = ncol(x)))
+  is_num <- !is.na(num) & x %in% c("0", "1")
+  out <- matrix(NA_integer_, nrow = nrow(x), ncol = ncol(x), dimnames = list(rn, cn))
+  out[is_num] <- num[is_num]
+
+  # Map remaining via mapping
+  map_vec <- as.integer(mapping); names(map_vec) <- names(mapping)
+  idx <- is.na(out)
+  if (any(idx)) {
+    mapped <- map_vec[x[idx]]
+    mapped[is.na(mapped)] <- default_value
+    out[idx] <- as.integer(mapped)
+  }
+
+  if (return_matrix) return(out)
+  as.data.frame(out, check.names = FALSE)
+}
+
+celltype_matrix <- function(mat, meta, method = "sum") {
+  common_cells <- intersect(rownames(mat), meta$CellTag)
+  mat <- mat[common_cells, , drop = FALSE]
+  meta_sub <- meta[match(common_cells, meta$CellTag), ]
+  
+  df <- as.data.frame(mat)
+  df$Classified_CelltypeQ <- meta_sub$Classified_CelltypeQ
+  
+  if (method == "sum") {
+    agg <- aggregate(. ~ Classified_CelltypeQ, data = df, FUN = sum)
+  } else if (method == "mean") {
+    agg <- aggregate(. ~ Classified_CelltypeQ, data = df, FUN = mean)
+  } else if (method == "binary") {
+    agg <- aggregate(. ~ Classified_CelltypeQ, data = df, FUN = function(x) as.numeric(sum(x) > 0))
+  } else {
+    stop("method must be 'sum', 'mean' or 'binary'")
+  }
+  
+  rownames(agg) <- agg$Classified_CelltypeQ
+  agg$Classified_CelltypeQ <- NULL
+  
+  return(as.matrix(agg))
+}
+
+celltype_matrix_state <- function(mat, meta) {
+
+  common_cells <- intersect(rownames(mat), meta$CellTag)
+  mat <- mat[common_cells, , drop = FALSE]
+  ct <- meta$Classified_CelltypeQ[match(common_cells, meta$CellTag)]
+
+  idx_list <- split(seq_along(ct), ct)
+
+  res <- lapply(idx_list, function(idx) {
+
+    sub_mat <- mat[idx, , drop = FALSE]
+
+    apply(sub_mat, 2, function(x) {
+
+      if (any(x == 1, na.rm = TRUE)) {
+        return(1L)
+      } else if (any(x == 0, na.rm = TRUE)) {
+        return(0L)
+      } else {
+        return(3L)
+      }
+
+    })
+
+  })
+
+  res_mat <- do.call(rbind, res)
+
+  return(res_mat)
+}
+
+AML04_CSM_scRNA_DX <- cellxmut_to_01(cellxmut = AML_scRNA_CSM_DX_REL_select_list$AML4_DX, mapping = c(NoCall = 0L, WT = 0L, Mut = 1L), default_value = 0L)
+AML04_CSM_scRNA_REL <- cellxmut_to_01(cellxmut = AML_scRNA_CSM_DX_REL_select_list$AML4_REL, mapping = c(NoCall = 0L, WT = 0L, Mut = 1L), default_value = 0L)
+
+AML04_CSM_scATA_DX <- cellxmut_to_01(cellxmut = AML_scATA_CSM_DX_REL_select_list$AML4_DX, mapping = c(NoCall = 0L, WT = 0L, Mut = 1L), default_value = 0L)
+AML04_CSM_scATA_REL <- cellxmut_to_01(cellxmut = AML_scATA_CSM_DX_REL_select_list$AML4_REL, mapping = c(NoCall = 0L, WT = 0L, Mut = 1L), default_value = 0L)
+
+AML16_CSM_scATA_DX <- cellxmut_to_01(AML_scATA_CSM_DX_REL_select_list$AML16_DX, default_value = 0L)
+AML16_CSM_scATA_REL <- cellxmut_to_01(AML_scATA_CSM_DX_REL_select_list$AML16_REL, default_value = 0L)
+
+AML18_CSM_scATA_DX <- cellxmut_to_01(AML_scATA_CSM_DX_REL_select_list$AML18_DX, default_value = 0L)
+AML18_CSM_scATA_REL <- cellxmut_to_01(AML_scATA_CSM_DX_REL_select_list$AML18_REL, default_value = 0L)
+
+AML04_CSM_scRNA <- merge_cell_mut_matrix(AML04_CSM_scRNA_DX,
+                                         AML04_CSM_scRNA_REL)
+
+AML04_CSM_scATA <- merge_cell_mut_matrix(AML04_CSM_scATA_DX,
+                                         AML04_CSM_scATA_REL)
+
+AML16_CSM_scATA <- merge_cell_mut_matrix(AML16_CSM_scATA_DX,
+                                         AML16_CSM_scATA_REL)
+
+AML18_CSM_scATA <- merge_cell_mut_matrix(AML18_CSM_scATA_DX,
+                                         AML18_CSM_scATA_REL)
+
+AML04_CSM_scRNA_ct <- celltype_matrix(mat = AML04_CSM_scRNA, meta = AML_scRNA_meta_DX_REL)
+AML04_CSM_scRNA_ct_state <- celltype_matrix_state(AML04_CSM_scRNA, AML_scRNA_meta_DX_REL)
+AML04_CSM_scATA_ct <- celltype_matrix(mat = AML04_CSM_scATA, meta = AML_scATA_meta_DX_REL)
+AML04_CSM_scATA_ct_state <- celltype_matrix_state(AML04_CSM_scATA, AML_scATA_meta_DX_REL)
+AML16_CSM_scATA_ct <- celltype_matrix(mat = AML16_CSM_scATA, meta = AML_scATA_meta_DX_REL)
+AML18_CSM_scATA_ct <- celltype_matrix(mat = AML18_CSM_scATA, meta = AML_scATA_meta_DX_REL)
+
+#write.table(x = t(AML04_CSM_scRNA_ct_state), "/Users/liqun/Downloads/AML04_CSM_scRNA_ct_state.txt", sep = " ", row.names = T, quote = F)
+#write.table(x = t(AML04_CSM_scATA_ct_state), "/Users/liqun/Downloads/AML04_CSM_scATA_ct_state.txt", sep = " ", row.names = T, quote = F)
+
+binary_mat_RNA <- (AML04_CSM_scRNA_ct != 0) * 1
+binary_mat_ATA <- (AML04_CSM_scATA_ct != 0) * 1
+library(vegan)
+library(ape)
+dist_mat_RNA <- vegdist(binary_mat_RNA, method = "jaccard")
+dist_mat_ATA <- vegdist(binary_mat_ATA, method = "jaccard")
+hc_RNA <- hclust(dist_mat_RNA, method = "average")  # average = UPGMA
+hc_ATA <- hclust(dist_mat_ATA, method = "average") 
+plot(hc_RNA, main = "Celltype phylogenetic tree (UPGMA) RNA")
+plot(hc_ATA, main = "Celltype phylogenetic tree (UPGMA) ATA")
+nj_tree_RNA <- nj(dist_mat_RNA)
+nj_tree_ATA <- nj(dist_mat_ATA)
+plot(nj_tree_RNA, main = "Celltype phylogenetic tree (NJ) RNA")
+plot(nj_tree_ATA, main = "Celltype phylogenetic tree (NJ) ATA")
+```
+
+# mutratio
+```{r mutratio}
+ct_counts_scRNA <- table(
+  AML_scRNA_meta_DX_REL$Classified_CelltypeQ[
+    AML_scRNA_meta_DX_REL$SampleID == "AML4"
+  ]
+)
+
+ct_counts_scATA <- table(
+  AML_scATA_meta_DX_REL$Classified_CelltypeQ[
+    AML_scATA_meta_DX_REL$SampleID == "AML4"
+  ]
+)
+# 2. mutation counts rowSums
+mut_counts_scRNA <- rowSums(AML04_CSM_scRNA_ct)
+mut_counts_scATA <- rowSums(AML04_CSM_scATA_ct)
+
+# 3. map
+common_ct_scRNA <- intersect(names(ct_counts_scRNA), names(mut_counts_scRNA))
+ct_counts_scRNA <- ct_counts_scRNA[common_ct_scRNA]
+mut_counts_scRNA <- mut_counts_scRNA[common_ct_scRNA]
+common_ct_scATA <- intersect(names(ct_counts_scATA), names(mut_counts_scATA))
+ct_counts_scATA <- ct_counts_scATA[common_ct_scATA]
+mut_counts_scATA <- mut_counts_scATA[common_ct_scATA]
+
+# 4. ratio
+ratio_scRNA <- mut_counts_scRNA / ct_counts_scRNA
+ratio_scATA <- mut_counts_scATA / ct_counts_scATA
+
+# 5. sort
+ratio_sorted_scRNA <- sort(ratio_scRNA)
+ratio_sorted_scATA <- sort(ratio_scATA)
+
+ratio_sorted_scRNA
+ratio_sorted_scATA
+
+common_ct <- intersect(names(ratio_scRNA), names(ratio_scATA))
+
+ratio_scRNA2 <- ratio_scRNA[common_ct]
+ratio_scATA2 <- ratio_scATA[common_ct]
+cor(ratio_scRNA2, ratio_scATA2, method = "spearman")
+
+df_cor <- data.frame(
+  celltype = common_ct,
+  scRNA = ratio_scRNA2,
+  scATA = ratio_scATA2
+)
+
+ggplot(df_cor, aes(scRNA.Freq, scATA.Freq, label = celltype)) +
+  geom_point(size = 3) +
+  geom_text(size = 3, vjust = -0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_classic()
+```
+
+# sessionInfo
+```{r sessionInfo}
+sessionInfo()
+```
+
+
+

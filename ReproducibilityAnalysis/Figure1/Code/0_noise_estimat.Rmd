@@ -3,14 +3,14 @@ title: "noiseEST"
 author: "Qun Li"
 date: "20 Oct 2025 at 15:06:30"
 output:
-  pdf_document:
-    toc: true
-    toc_depth: 3
-    number_sections: true
   html_document:
     toc: true
     toc_depth: '3'
     df_print: paged
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
 ---
 
 ```{r, setup, include=FALSE}
@@ -34,6 +34,7 @@ library(fitdistrplus)
 library(goftest)
 library(VGAM)
 library(dplyr)
+library(tibble)
 library(extraDistr)
 ```
 
@@ -659,6 +660,114 @@ p_betaDis <- ggplot(df, aes(x = x)) +
   theme_bw(base_size = 14)
 
 p_betaDis
+```
+
+# pie tenx
+```{r pieTenx}
+df_tenx <- tribble(
+  ~class, ~n,
+  "stop_gained", 4,
+  "missense_variant", 68,
+  "splice_region_variant", 21,
+  "synonymous_variant", 32,
+  "5_prime_UTR_variant", 11,
+  "3_prime_UTR_variant", 89,
+  "non_coding_transcript_exon_variant", 101,
+  "intron_variant", 841,
+  "NMD_transcript_variant", 77,
+  "non_coding_transcript_variant", 197,
+  "upstream_gene_variant", 256,
+  "downstream_gene_variant", 373,
+  "regulatory_region_variant", 97,
+  "intergenic_variant", 39
+)
+
+df_tenx2 <- df_tenx %>%
+  mutate(group = case_when(
+    class %in% c("stop_gained", "missense_variant", "synonymous_variant") ~ "Coding",
+    class %in% c("splice_region_variant") ~ "Splicing",
+    class %in% c("5_prime_UTR_variant","3_prime_UTR_variant",
+                 "non_coding_transcript_exon_variant","intron_variant",
+                 "NMD_transcript_variant","non_coding_transcript_variant") ~ "Noncoding",
+    class %in% c("upstream_gene_variant","downstream_gene_variant",
+                 "regulatory_region_variant","intergenic_variant") ~ "Intergenic",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(group) %>%
+  summarise(n = sum(n), .groups = "drop") %>%
+  mutate(p = n / sum(n),
+         label = sprintf("%s\n(n=%d, %.1f%%)", group, n, 100*p))
+
+pie_color <- c("Coding" = "#33a02c", "Splicing" = "#1f78b4",
+               "Noncoding" = "#e31a1c", "Intergenic" = "#ff7f00")
+
+pie_tenx <-  ggplot(df_tenx2, aes(x = "", y = n, fill = group)) +
+  geom_col(width = 1, color = "white") +
+  scale_fill_manual(values = pie_color) +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = label), position = position_stack(vjust = 0.5), size = 3) +
+  labs(x = NULL, y = NULL) +
+  theme_void() +
+  theme(legend.position = "none")
+
+pie_tenx
+
+ggsave("../pie_tenx.pdf", pie_tenx, width = 4.2, height = 4.2)
+```
+
+# pie smart
+```{r pieSmart}
+df_smart <- tribble(
+  ~class, ~n,
+  "splice_acceptor_variant", 134,
+  "splice_donor_variant", 184,
+  "stop_gained", 39,
+  "missense_variant", 730,
+  "splice_region_variant", 405,
+  "synonymous_variant", 3218,
+  "coding_sequence_variant", 1,
+  "5_prime_UTR_variant", 104,
+  "3_prime_UTR_variant", 815,
+  "non_coding_transcript_exon_variant", 1522,
+  "intron_variant", 1441,
+  "NMD_transcript_variant", 717,
+  "non_coding_transcript_variant", 498,
+  "upstream_gene_variant", 1893,
+  "downstream_gene_variant", 3720,
+  "regulatory_region_variant", 543,
+  "intergenic_variant", 26
+)
+
+df_smart2 <- df_smart %>%
+  mutate(group = case_when(
+    class %in% c("stop_gained","missense_variant","synonymous_variant","coding_sequence_variant") ~ "Coding",
+    class %in% c("splice_acceptor_variant","splice_donor_variant","splice_region_variant") ~ "Splicing",
+    class %in% c("5_prime_UTR_variant","3_prime_UTR_variant",
+                 "non_coding_transcript_exon_variant","intron_variant",
+                 "NMD_transcript_variant","non_coding_transcript_variant") ~ "Noncoding",
+    class %in% c("upstream_gene_variant","downstream_gene_variant",
+                 "regulatory_region_variant","intergenic_variant") ~ "Intergenic",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(group) %>%
+  summarise(n = sum(n), .groups = "drop") %>%
+  mutate(p = n / sum(n),
+         label = sprintf("%s\n(n=%d, %.1f%%)", group, n, 100*p))
+
+pie_color <- c("Coding" = "#33a02c", "Splicing" = "#1f78b4",
+               "Noncoding" = "#e31a1c", "Intergenic" = "#ff7f00")
+
+pie_smart <- ggplot(df_smart2, aes(x = "", y = n, fill = group)) +
+  geom_col(width = 1, color = "white") +
+  scale_fill_manual(values = pie_color) +
+  coord_polar(theta = "y") +
+  geom_text(aes(label = label), position = position_stack(vjust = 0.5), size = 3) +
+  labs(title = "Variant consequences (4 classes)", x = NULL, y = NULL) +
+  theme_void() +
+  theme(legend.position = "none")
+
+pie_smart
+ggsave("../pie_smart.pdf", pie_smart, width = 4.2, height = 4.2)
 ```
 
 # sessionInfo

@@ -6,6 +6,9 @@ Figure4
 │   ├── 0_pAML_reproducibilityAnalysis.html     # Code for reproducibility analysis (figures)
 │   ├── 0_pAML_reproducibilityAnalysis.pdf      # Code for reproducibility analysis (figures)
 │   ├── 0_pAML_reproducibilityAnalysis.Rmd      # Code for reproducibility analysis (figures)
+│   ├── 0_pAML_reproducibilityAnalysis_mutationSimilarity.Rmd       # Code for calculating mutation similarity
+│   ├── 0_pAML_reproducibilityAnalysis_mutationSimilarity.html      # Code for calculating mutation similarity (figures)
+│   ├── 0_pAML_reproducibilityAnalysis_mutationSimilarity.pdf       # Code for calculating mutation similarity (figures)
 │   ├── 0_pipelineFunctions.html                # Code for reproducibility analysis (batch processing)
 │   ├── 0_pipelineFunctions.pdf                 # Code for reproducibility analysis (batch processing)
 │   └── 0_pipelineFunctions.Rmd                 # Code for reproducibility analysis (batch processing)
@@ -16,8 +19,8 @@ Figure4
 │       ├── AML_RNA_CSM_list.rds                # cell x mutation matrix list of scRNA - Figure 4 and Figure S4
 │       ├── AML_SSM.rds                         # mutation x sample matrix list of scATAC and scRNA - Figure 4 and Figure S4
 │       ├── AML_census.rds                      # AML census genes - Figure 4 and Figure S4
-│       ├── AML_lineageSwitching_gene_matrix.rds # lineageSwitching data of TF and marker genes - Figure 4e, 4f, 4g and Figure S4k
-│       ├── AML_lineageSwitching_gene_meta.rds # lineageSwitching data of TF and marker genes - Figure 4e, 4f, 4g and Figure S4k
+│       ├── AML_lineageSwitching_gene_matrix.rds # lineageSwitching data of TF and marker genes - Figure 4d, 4e, 4f and Figure S4L
+│       ├── AML_lineageSwitching_gene_meta.rds # lineageSwitching data of TF and marker genes - Figure 4d, 4e, 4f and Figure S4L
 │       ├── AML_scATA_meta.rds                  # scATAC meta data - Figure 4 and Figure S4
 │       ├── AML_scRNA_meta.rds                  # scATAC meta data - Figure 4 and Figure S4
 │       ├── AML_tiergenes.txt                   # tier genes from COSMIC - Figure 4 and Figure S4
@@ -32,15 +35,19 @@ Figure4
 │       ├── data_AML_scRNA_mutgeneExp.rds       # mutation exp-gene associations from scRNA-seq data - Fiugre 4c
 │       ├── data_commonBed_similarity_all.csv   # contain the sample stage mutation similarity matrices calculated based on common mutated genomic regions with Census genes - Fiugre S4d
 │       ├── data_commonBed_similarity_noCensus.csv  # contain the sample stage mutation similarity matrices calculated based on common mutated genomic regions with Census genes - Fiugre S4d
-│       ├── data_mutationCelltype_similarity_scATA.rds # celltype mutation similarity of all samples in scATAC - Figure 4b
-│       ├── data_mutationCelltype_similarity_scATA_DX.rds # celltype mutation similarity of all Dx samples in scATAC - Figure S4h
-│       ├── data_mutationCelltype_similarity_scATA_REL.rds # celltype mutation similarity of all Rel samples in scATAC - Figure S4h
-│       ├── data_mutationCelltype_similarity_scATA_REM.rds # celltype mutation similarity of all Rem samples in scATAC - Figure S4h
-│       ├── data_mutationCelltype_similarity_scRNA.rds  # celltype mutation similarity of all samples in scRNA - Figure 4b
-│       ├── data_mutationCelltype_similarity_scRNA_DX.rds # celltype mutation similarity of all Dx samples in scRNA - Figure S4h
-│       ├── data_mutationCelltype_similarity_scRNA_REL.rds  # celltype mutation similarity of all Rel samples in scRNA - Figure S4h
-│       ├── data_mutationCelltype_similarity_scRNA_REM.rds  # celltype mutation similarity of all Rem samples in scRNA - Figure S4h
-│       ├── data_mutationCelltype_similarity_scRNA_scATAC.rds   # sample mutation similarity between scRNA and scATAC - Figure S4i
+│       ├── data_mutationCelltype_similarity_scATA.rds # celltype mutation similarity of all samples in scATAC - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scATA_DX.rds # celltype mutation similarity of all Dx samples in scATAC - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scATA_REL.rds # celltype mutation similarity of all Rel samples in scATAC - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scATA_REM.rds # celltype mutation similarity of all Rem samples in scATAC -Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scRNA.rds  # celltype mutation similarity of all samples in scRNA - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scRNA_DX.rds # celltype mutation similarity of all Dx samples in scRNA - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scRNA_REL.rds  # celltype mutation similarity of all Rel samples in scRNA - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scRNA_REM.rds  # celltype mutation similarity of all Rem samples in scRNA - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── data_mutationCelltype_similarity_scRNA_scATAC.rds   # sample mutation similarity between scRNA and scATAC - Figure 4B, 4E, 4F, S4M (total mean)
+│       ├── mut_cellTypeAnn_similarity_ATA_maincell_byfrac30.rds # sample mutation similarity between scRNA and scATAC - Figure 4B, 4E, 4F, S4M (downsample)
+│       ├── mut_cellTypeAnn_similarity_ATA_subcell_byfrac30.rds # sample mutation similarity between scRNA and scATAC - Figure 4B, 4E, 4F, S4M (downsample)
+│       ├── mut_cellTypeAnn_similarity_RNA_maincell_byfrac30.rds # sample mutation similarity between scRNA and scATAC - Figure 4B, 4E, 4F, S4M (downsample)
+│       ├── mut_cellTypeAnn_similarity_RNA_subcell_byfrac30.rds # sample mutation similarity between scRNA and scATAC - Figure 4B, 4E, 4F, S4M (downsample)
 │       └── sampleInfo.txt  # sample metadata
 └── README.md
 ```

@@ -129,8 +129,8 @@ benchmarking_data <- read.csv("../Data/MergeData/0_Benchmarking_Data.csv", heade
 
 p_benchmarking_res <- ggplot(data = benchmarking_data) + 
   geom_point(mapping = aes(x = Recall, y = Precision, fill = Tag),
-    color = "black", shape = 21, size = 3, show.legend = TRUE) +
-  scale_fill_manual(values = c("#1f78b4", "#e31a1c", "#33a02c")) +
+    color = "black", shape = 21, size = 3, alpha = 0.2, show.legend = TRUE) +
+  scale_fill_manual(values = c("#1f78b4", "#ff7f00", "#33a02c")) +
   xlab("Recall") + ylab("Precision") + xlim(0, 1) + ylim(0, 1) +
   theme_classic() + 
   theme(

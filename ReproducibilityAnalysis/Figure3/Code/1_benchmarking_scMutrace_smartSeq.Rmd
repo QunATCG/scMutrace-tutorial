@@ -344,7 +344,7 @@ p_venn_TP53_P72R
 # from COSMIC database
 # TP53 from original paper
 data_cencusgenes <- c("AKT1", "ALK", "BAP1", "BRAF", "CCDC6", "CD74", "DDR2", 
-                      "DROSHA", "EGFR", "EML4", "ERBB2", "ERBB4", "EZR", 
+                      "DROSHA", "EGFR", "EML4", "ERBB4", "EZR", 
                       "FGFR2", "GOLPH3", "HIP1", "KDR", "KEAP1", "KIF5B", 
                       "LRIG3", "MAP2K1", "MAP2K2", "NFE2L2", "NKX2-1", 
                       "NRG1", "PIK3CB", "PTPN13", "RET", "ROS1", "SDC4", 
@@ -445,7 +445,7 @@ p_proportion
 # from COSMIC database
 # TP53 from original paper
 data_cencusgenes <- c("AKT1", "ALK", "BAP1", "BRAF", "CCDC6", "CD74", "DDR2", 
-                      "DROSHA", "EGFR", "EML4", "ERBB2", "ERBB4", "EZR", 
+                      "DROSHA", "EGFR", "EML4", "ERBB4", "EZR", 
                       "FGFR2", "GOLPH3", "HIP1", "KDR", "KEAP1", "KIF5B", 
                       "LRIG3", "MAP2K1", "MAP2K2", "NFE2L2", "NKX2-1", 
                       "NRG1", "PIK3CB", "PTPN13", "RET", "ROS1", "SDC4", 
