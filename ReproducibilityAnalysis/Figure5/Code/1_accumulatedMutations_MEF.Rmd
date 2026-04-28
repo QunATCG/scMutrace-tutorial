@@ -353,7 +353,7 @@ color_settings_randomCells_day <- c(d6 = "#4575b4", d9 = "#91bfdb", d12 = "#e0f3
 
 totalCells <- c(rownames(MEF_CSM_hf1), rownames(MEF_CSM_hf2))
 
-selectRandomNum <- c(1000, 2000, 3000, 4000, 5000)
+selectRandomNum <- c(1000, 1314, 2000, 2186, 3000, 4000, 5000)
 
 dataSelect <- c("hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28", 
                 "hf2.d6", "hf2.d9", "hf2.d12", "hf2.d15", "hf2.d21", "hf2.d28")
@@ -395,7 +395,7 @@ data_random_counts <- separate(data_random_counts,col = "ID",into = c("Timecours
 data_random_counts$ID <- paste(data_random_counts$Timecourse, data_random_counts$Day, sep = ".")
 data_random_counts$Day <- factor(data_random_counts$Day, levels = days)
 data_random_counts$ID <- factor(data_random_counts$ID, levels = dataSelect)
-
+data_random_counts_plot <- data_random_counts[data_random_counts$selectNum %in% c(1000, 2000, 3000, 4000, 5000),]
 
 p_random_somaticNum <- ggplot(data_random_counts,
        aes(x = Day, y = MutNum, color = factor(selectNum))) + 
@@ -648,11 +648,17 @@ corrplot(cor(res_index[,c("Gini","Tau", "Shannon", "Simpson", "Diversity", "scMu
 set.seed(2025)
 
 # 1. init
-data_check_CM <- data_cell_mut_raw_hf1
-data_check_Meta <- MEF_Meta_hf1[MEF_Meta_hf1$Cellbarcode %in% rownames(data_check_CM),]
-col_check_names <- c("hf1.d0", "hf1.d3", "hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28")
-time_types <- c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28")
+data_check_CM_hf1 <- data_cell_mut_raw_hf1
+data_check_Meta_hf1 <- MEF_Meta_hf1[MEF_Meta_hf1$Cellbarcode %in% rownames(data_check_CM_hf1),]
+col_check_names_hf1 <- c("hf1.d0", "hf1.d3", "hf1.d6", "hf1.d9", "hf1.d12", "hf1.d15", "hf1.d21", "hf1.d28")
+time_types_hf1 <- c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28")
 
+data_check_CM_hf2 <- data_cell_mut_raw_hf2
+data_check_Meta_hf2 <- MEF_Meta_hf2[MEF_Meta_hf2$Cellbarcode %in% rownames(data_check_CM_hf2),]
+col_check_names_hf2 <- c("hf2.d0", "hf2.d3", "hf2.d6", "hf2.d9", "hf2.d12", "hf2.d15", "hf2.d21", "hf2.d28")
+time_types_hf2 <- c("Day_6", "Day_9", "Day_12", "Day_15", "Day_21", "Day_28")
+
+col_check_names <- c(col_check_names_hf1, col_check_names_hf2)
 cell_num <- 1
 mut_num <- 1
 mut_loss_ratio <- 0.5
@@ -660,21 +666,49 @@ cell_loss_ratio <- 0.5
 iteration_times <- 100
 
 # list for save data
-data_scMutModel_list <- vector("list", iteration_times)
+data_scMutModel_list_hf1 <- vector("list", iteration_times)
+data_scMutModel_list_hf2 <- vector("list", iteration_times)
 
-num_cells <- nrow(data_check_CM)
-num_mutations <- ncol(data_check_CM)
-cells_all <- rownames(data_check_CM)
-muts_all <- colnames(data_check_CM)
+num_cells_hf1 <- nrow(data_check_CM_hf1)
+num_mutations_hf1 <- ncol(data_check_CM_hf1)
+cells_all_hf1 <- rownames(data_check_CM_hf1)
+muts_all_hf1 <- colnames(data_check_CM_hf1)
+
+num_cells_hf2 <- nrow(data_check_CM_hf2)
+num_mutations_hf2 <- ncol(data_check_CM_hf2)
+cells_all_hf2 <- rownames(data_check_CM_hf2)
+muts_all_hf2 <- colnames(data_check_CM_hf2)
+
+# est cell number effects
+# for hf1
+data_effect_hf1 <- data_random_counts %>% dplyr::filter(selectNum == 2186 & Timecourse == "hf1")
+data_effect_hf1_size <- data_effect_hf1 %>%
+  group_by(Timecourse, Day) %>%
+  summarise(mean_MutNum = mean(MutNum, na.rm = TRUE))
+
+mean_mut_by_day_hf1 <- data_effect_hf1 %>%
+  dplyr::group_by(Day) %>%
+  dplyr::summarise(mean_MutNum = mean(MutNum, na.rm = TRUE)) %>%
+  dplyr::arrange(match(Day, c("d6", "d9", "d12", "d15", "d21", "d28")))
+
+data_effect_hf2 <- data_random_counts %>% dplyr::filter(selectNum == 1314 & Timecourse == "hf2")
+data_effect_hf2_size <- data_effect_hf2 %>%
+  group_by(Timecourse, Day) %>%
+  summarise(mean_MutNum = mean(MutNum, na.rm = TRUE))
+
+mean_mut_by_day_hf2 <- data_effect_hf2 %>%
+  dplyr::group_by(Day) %>%
+  dplyr::summarise(mean_MutNum = mean(MutNum, na.rm = TRUE)) %>%
+  dplyr::arrange(match(Day, c("d6", "d9", "d12", "d15", "d21", "d28")))
 
 # 2. loop
 for (iter in seq_len(iteration_times)) {
   
   # 2.1 randomly loss info
-  loss_cell_indices <- sample(seq_len(num_cells), ceiling(cell_loss_ratio * num_cells))
-  loss_mut_indices <- sample(seq_len(num_mutations), ceiling(mut_loss_ratio * num_mutations))
+  loss_cell_indices <- sample(seq_len(num_cells_hf1), ceiling(cell_loss_ratio * num_cells_hf1))
+  loss_mut_indices <- sample(seq_len(num_mutations_hf1), ceiling(mut_loss_ratio * num_mutations_hf1))
   
-  C_partial_missing <- data_check_CM
+  C_partial_missing <- data_check_CM_hf1
   # new data
   if(length(loss_cell_indices) > 0 && length(loss_mut_indices) > 0){
     C_partial_missing[loss_cell_indices, loss_mut_indices] <- "NoCall"
@@ -684,8 +718,8 @@ for (iter in seq_len(iteration_times)) {
   MutPerCell <- rowSums(C_partial_missing == "Mut")
   CellPerMut <- colSums(C_partial_missing == "Mut")
   
-  cells_candidate <- cells_all[MutPerCell >= cell_num & cells_all %in% data_check_Meta$Cellbarcode]
-  muts_candidate <- muts_all[CellPerMut >= mut_num]
+  cells_candidate <- cells_all_hf1[MutPerCell >= cell_num & cells_all_hf1 %in% data_check_Meta_hf1$Cellbarcode]
+  muts_candidate <- muts_all_hf1[CellPerMut >= mut_num]
   
   message(paste0("Iteration: ", iter, " loss_cell_indices: ", length(loss_cell_indices), " loss_mut_indices: ", length(loss_mut_indices)))
   message(paste0("Iteration: ", iter, " cells_candidate: ", length(cells_candidate), " muts_candidate: ", length(muts_candidate)))
@@ -693,78 +727,136 @@ for (iter in seq_len(iteration_times)) {
   data_cell_mut_raw_check <- C_partial_missing[cells_candidate, muts_candidate, drop = TRUE]
   
   # 2.3 Mut × Time
-  cell_time_num <- sapply(col_check_names, function(i) sum(str_count(cells_candidate, i)))
+  cell_time_num <- sapply(col_check_names_hf1, function(i) sum(str_count(cells_candidate, i)))
   total_cells <- sum(cell_time_num)
-  cell_time_ratio <- cell_time_num / total_cells + 2  # +2 Avoidance 0
+  cell_time_ratio <- cell_time_num / total_cells + 2  # +2 
   
   # init Mut × Time
-  M_partial_missing <- matrix(0, nrow = length(muts_candidate), ncol = length(time_types),
-                              dimnames = list(muts_candidate, time_types))
+  M_partial_missing <- matrix(0, nrow = length(muts_candidate), ncol = length(time_types_hf1),
+                              dimnames = list(muts_candidate, time_types_hf1))
   
   # Calculate the number of each mutation at each time
-  for (t in seq_along(time_types)) {
-    time_label <- time_types[t]
+  for (t in seq_along(time_types_hf1)) {
+    time_label <- time_types_hf1[t]
     # Find out in which cells each mutation occurs
     mut_cell_list <- apply(data_cell_mut_raw_check, 2, function(x) which(x == "Mut"))
     # Count the number of times each mutation occurs at that point in time
     for (mut in muts_candidate) {
       cells_with_mut <- rownames(data_cell_mut_raw_check)[data_cell_mut_raw_check[, mut] == "Mut"]
-      selected_days <- data_check_Meta$Day[data_check_Meta$Cellbarcode %in% cells_with_mut]
+      selected_days <- data_check_Meta_hf1$Day[data_check_Meta_hf1$Cellbarcode %in% cells_with_mut]
       M_partial_missing[mut, t] <- sum(str_count(selected_days, time_label))
     }
   }
   
   # 2.4 normalized Mut × Time
   M_partial_missing_norm <- sweep(M_partial_missing, 2, log2(cell_time_ratio[3:8]), "/")
+  #M_partial_missing_norm <- sweep(M_partial_missing, 2, mean_mut_by_day_hf1$mean_MutNum, "/")
   
   # 2.5 scMutScore
-  res_index_tmp <- cal_scMutScore(data_cell_mut_raw_check, M_partial_missing_norm, data_check_Meta)$score
+  res_index_tmp <- cal_scMutScore(data_cell_mut_raw_check, M_partial_missing_norm, data_check_Meta_hf1)$score
   res_index_tmp$iteration <- paste0("iter", iter)
   res_index_tmp <- res_index_tmp[res_index_tmp$Diversity > 0, ]
+  res_index_tmp$cb <- rownames(res_index_tmp)
+  res_index_tmp$iteration <- paste0("iter", iter)
+  rownames(res_index_tmp) <- NULL
+  data_scMutModel_list_hf1[[iter]] <- res_index_tmp
+}
+
+for (iter in seq_len(iteration_times)) {
   
-  data_scMutModel_list[[iter]] <- res_index_tmp
+  # 2.1 randomly loss info
+  loss_cell_indices <- sample(seq_len(num_cells_hf2), ceiling(cell_loss_ratio * num_cells_hf2))
+  loss_mut_indices <- sample(seq_len(num_mutations_hf2), ceiling(mut_loss_ratio * num_mutations_hf2))
+  
+  C_partial_missing <- data_check_CM_hf2
+  # new data
+  if(length(loss_cell_indices) > 0 && length(loss_mut_indices) > 0){
+    C_partial_missing[loss_cell_indices, loss_mut_indices] <- "NoCall"
+  }
+  
+  # 2.2 count cell/mut number
+  MutPerCell <- rowSums(C_partial_missing == "Mut")
+  CellPerMut <- colSums(C_partial_missing == "Mut")
+  
+  cells_candidate <- cells_all_hf2[MutPerCell >= cell_num & cells_all_hf2 %in% data_check_Meta_hf2$Cellbarcode]
+  muts_candidate <- muts_all_hf2[CellPerMut >= mut_num]
+  
+  message(paste0("Iteration: ", iter, " loss_cell_indices: ", length(loss_cell_indices), " loss_mut_indices: ", length(loss_mut_indices)))
+  message(paste0("Iteration: ", iter, " cells_candidate: ", length(cells_candidate), " muts_candidate: ", length(muts_candidate)))
+  
+  data_cell_mut_raw_check <- C_partial_missing[cells_candidate, muts_candidate, drop = TRUE]
+  
+  # 2.3 Mut × Time
+  cell_time_num <- sapply(col_check_names_hf2, function(i) sum(str_count(cells_candidate, i)))
+  total_cells <- sum(cell_time_num)
+  cell_time_ratio <- cell_time_num / total_cells + 2  # +2 
+  
+  # init Mut × Time
+  M_partial_missing <- matrix(0, nrow = length(muts_candidate), ncol = length(time_types_hf2),
+                              dimnames = list(muts_candidate, time_types_hf2))
+  
+  # Calculate the number of each mutation at each time
+  for (t in seq_along(time_types_hf2)) {
+    time_label <- time_types_hf2[t]
+    # Find out in which cells each mutation occurs
+    mut_cell_list <- apply(data_cell_mut_raw_check, 2, function(x) which(x == "Mut"))
+    # Count the number of times each mutation occurs at that point in time
+    for (mut in muts_candidate) {
+      cells_with_mut <- rownames(data_cell_mut_raw_check)[data_cell_mut_raw_check[, mut] == "Mut"]
+      selected_days <- data_check_Meta_hf2$Day[data_check_Meta_hf2$Cellbarcode %in% cells_with_mut]
+      M_partial_missing[mut, t] <- sum(str_count(selected_days, time_label))
+    }
+  }
+  
+  # 2.4 normalized Mut × Time
+  M_partial_missing_norm <- sweep(M_partial_missing, 2, log2(cell_time_ratio[3:8]), "/")
+  #M_partial_missing_norm <- sweep(M_partial_missing, 2, mean_mut_by_day_hf2$mean_MutNum, "/")
+  
+  # 2.5 scMutScore
+  res_index_tmp <- cal_scMutScore(data_cell_mut_raw_check, M_partial_missing_norm, data_check_Meta_hf2)$score
+  res_index_tmp$iteration <- paste0("iter", iter)
+  res_index_tmp <- res_index_tmp[res_index_tmp$Diversity > 0, ]
+  res_index_tmp$cb <- rownames(res_index_tmp)
+  res_index_tmp$iteration <- paste0("iter", iter)
+  rownames(res_index_tmp) <- NULL
+  data_scMutModel_list_hf2[[iter]] <- res_index_tmp
 }
 
 # 3. merge res
-data_scMutModel_res <- do.call(rbind, data_scMutModel_list)
-
+data_scMutModel_res_hf1 <- do.call(rbind, data_scMutModel_list_hf1)
+data_scMutModel_res_hf2 <- do.call(rbind, data_scMutModel_list_hf2)
+data_scMutModel_res <- rbind(data_scMutModel_res_hf1, data_scMutModel_res_hf2)
 # 4. column
-data_scMutModel_res$cb <- rownames(data_scMutModel_res)
 data_scMutModel_res <- separate(data_scMutModel_res, col = "cb", into = c("celltype", "cell"), sep = "_")
 data_scMutModel_res$Tag <- data_scMutModel_res$celltype
 data_scMutModel_res <- separate(data_scMutModel_res, col = "celltype", into = c("rep", "Day"), sep = "\\.")
 
+data_scMutModel_res <- data_scMutModel_res[data_scMutModel_res$Day %in% c("d6", "d9", "d12", "d15", "d21", "d28"),]
+
 data_scMutModel_res$Tag <- factor(data_scMutModel_res$Tag, levels = col_check_names)
-data_scMutModel_res$Day <- factor(data_scMutModel_res$Day, levels = c("d0", "d3", "d6", "d9", "d12", "d15", "d21", "d28"))
+data_scMutModel_res$Day <- factor(data_scMutModel_res$Day, levels = c("d6", "d9", "d12", "d15", "d21", "d28"))
 
 # 5. plot
-p_scMutModel_randomly <- ggplot(data = data_scMutModel_res, mapping = aes(x = Day, y = scMutScore, fill = Day)) +
-  #geom_violin(trim = TRUE, alpha = 0.6) + 
-  geom_boxplot(outliers = FALSE) +
-  facet_wrap(~ iteration, nrow = 10, ncol = iteration_times / 10, scales = "free_y", labeller = label_both) +
-  labs(x = "", y = "scMutraceScore") +
-  scale_fill_manual(values = color_settings) +
-  theme_classic()
-
-p_scMutModel_randomly
-
 data_scMutModel_res_summary <- data_scMutModel_res %>%
   dplyr::group_by(iteration, Day) %>%
   dplyr::summarise(mean_scMutScore = mean(scMutScore, na.rm = TRUE)) %>%
   dplyr::ungroup()
 
-data_scMutModel_res_summary_Qun <- data_scMutModel_res %>%
-  dplyr::group_by(iteration, Day) %>%
-  dplyr::summarise(mean_scMutScore = mean(scMutScoreQun, na.rm = TRUE)) %>%
-  dplyr::ungroup()
+data_scMutModel_res_summary <- data_scMutModel_res_summary %>%
+  dplyr::mutate(
+    mean_scMutScore_scaled = scales::rescale(mean_scMutScore, to = c(0, 1))
+  )
 
-
-ggplot(data = data_scMutModel_res_summary, mapping = aes(x = Day, y = mean_scMutScore, fill = Day)) +
+p_iter_scMutraceScore <- ggplot(data = data_scMutModel_res_summary, mapping = aes(x = Day, y = mean_scMutScore_scaled, fill = Day)) +
   #geom_violin(trim = TRUE, alpha = 0.6) + 
   geom_boxplot(outliers = FALSE) +
   labs(x = "", y = "scMutraceScore") +
   scale_fill_manual(values = color_settings) +
   theme_classic()
+
+p_iter_scMutraceScore
+
+
 ```
 
 

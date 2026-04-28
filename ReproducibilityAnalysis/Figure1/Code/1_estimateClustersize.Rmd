@@ -1,0 +1,231 @@
+---
+title: "scMut cluster size estimation"
+author: "Qun Li"
+date: "20 Mar 2025 ( 09:42:46 )"
+output:
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
+  word_document:
+    toc: true
+    toc_depth: '3'
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+# How to generate data
+run 1_estimateClustersize.sh
+
+# Data source
+SomaMutDB 2.0: A comprehensive database for exploring somatic mutations and their functional impact in normal human tissues
+Dataset1
+    A body map of somatic mutagenesis in morphologically normal human tissues
+Dataset2
+    Single-cell whole-genome sequencing reveals the functional landscape of somatic mutations in B lymphocytes across the human lifespan
+Dataset3
+    Somatic genomic changes in single Alzheimer’s disease neurons
+
+
+## Env settings
+```{r envSettings}
+rm(list = ls())
+setwd("/Users/liqun/Desktop/scMutrace-tutorial/ReproducibilityAnalysis/Figure1/")
+```
+
+# libraries
+```{r libraries}
+library(ggplot2)
+library(data.table)
+```
+
+
+```{r loadData}
+meta_somatic <- readRDS("../Data/randomCluster/meta_somatic.rds")
+df_somatic <- readRDS("../Data/randomCluster/df_somatic.rds")
+
+#saveRDS(meta_somatic, "../Data/randomCluster/meta_somatic.rds")
+#saveRDS(df_somatic, "../Data/randomCluster/df_somatic.rds")
+
+colnames(df_somatic) <- c("sampleID","dist")
+df_somatic_meta <- merge(df_somatic, meta_somatic, by = "sampleID")
+df_somatic_meta_over10 <- df_somatic_meta[df_somatic_meta$dist >= 10,]
+length(df_somatic_meta_over10$sample)/length(df_somatic_meta$sample)
+ecdf(df_somatic_meta$dist)(10)
+
+df_WGS <- readRDS("../Data/randomCluster/df_WGS.rds")
+#saveRDS(df_WGS, "../Data/randomCluster/df_WGS.rds")
+colnames(df_WGS) <- c("sample","dist")
+df_WGS_over10 <- df_WGS[df_WGS$dist >= 10,]
+length(df_WGS_over10$sample)/length(df_WGS$sample)
+ecdf(df_WGS$dist)(10)
+```
+
+# plot
+```{r plot}
+threshold_somatic <- quantile(df_somatic_meta$dist, 0.005, na.rm = TRUE)
+ecdf_somatic <- ecdf(df_somatic_meta$dist)
+quantile_10 <- ecdf_somatic(10)
+
+desired_order <- c("Bronchus", "Cardia", "Colon", "Duodenum", "Liver",
+                   "Oesophagus", "Pancreas", "Rectum", "Stomach", "B",
+                   "Neuron_MDA", "Neuron_PTA")
+
+df_somatic_meta$Tissue <- factor(df_somatic_meta$Tissue, levels = desired_order)
+
+ggplot(df_somatic_meta, aes(x = dist)) +
+  geom_histogram(bins = 100, fill = "grey", alpha = 0.7) +
+  scale_x_log10() +
+  geom_vline(xintercept = 10,
+             linetype = "dashed",
+             color = "red",
+             size = 1) +
+  facet_wrap(~Tissue, scales = "free_y") +
+  theme_classic(base_size = 14)
+
+ggplot(df_somatic_meta, aes(x = dist)) +
+  geom_histogram(bins = 100, fill = "grey", alpha = 0.7) +
+  scale_x_log10() +
+  geom_vline(xintercept = 10,
+             linetype = "dashed",
+             color = "red",
+             size = 1) +
+  theme_classic(base_size = 14)
+
+my_colors <- c("#1f78b4", "#33a02c", "#e31a1c", "#ff7f00",
+               "#6a3d9a", "#b15928", "#a6cee3", "#b2df8a",
+               "#fb9a99", "#fdbf6f", "#cab2d6", "#ffff99")
+
+p_somatic_numDis <- ggplot(df_somatic_meta, aes(x = log10(dist), color = Tissue)) +
+  geom_density(aes(alpha = 0.3, size = 1, y = ..count..)) +
+  #geom_density(aes(alpha = 0.4)) +
+  geom_vline(xintercept = 1,          
+             linetype = "dashed",
+             color = "red",
+             size = 1) +
+  theme_classic(base_size = 14) +     
+  xlab("Mutation distance (bp, log scale)") +
+  ylab("Density") +
+  ggtitle("Somatic mutation distance distribution by Tissue") +
+  scale_color_manual(values = my_colors) 
+
+threshold_wgs <- quantile(df_WGS$dist, 0.005, na.rm = TRUE)
+
+threshold_wgs <- quantile(df_WGS$dist, 0.005, na.rm = TRUE)
+ecdf_wgs <- ecdf(df_WGS$dist)
+quantile_10 <- ecdf_wgs(10)
+
+ggplot(df_WGS, aes(x = log10(dist))) +
+  geom_histogram(bins = 100, fill = "grey", alpha = 0.7) +
+  geom_vline(xintercept = 1,
+             linetype = "dashed",
+             color = "red",
+             size = 1) +
+  theme_classic(base_size = 14)
+
+p_WGS_numDis <- ggplot(df_WGS, aes(x = log10(dist), color = sample)) +
+  geom_density(aes(alpha = 0.3, size = 1, y = ..count..)) +    
+  geom_vline(xintercept = 1,          
+             linetype = "dashed",
+             color = "red",
+             size = 1) +
+  theme_classic(base_size = 14) +     
+  xlab("Mutation distance (bp, log scale)") +
+  ylab("Density") +
+  ggtitle("Somatic mutation distance distribution by Tissue") +
+  scale_color_manual(values = my_colors)
+
+p_somatic_numDis
+p_WGS_numDis
+#ggsave("p_somatic_numDis.pdf", p_somatic_numDis, width = 7.21, height = 3.67)
+#ggsave("p_wgs_numDis.pdf", p_WGS_numDis, width = 7.21, height = 3.67)
+```
+
+
+# bin size
+```{r binsize}
+df_somatic_pos <- readRDS("../Data/randomCluster/df_somatic_pos.rds")
+df_wgs_pos <- readRDS("../Data/randomCluster/df_wgs_pos.rds")
+
+#saveRDS(df_somatic_pos, "../Data/randomCluster/df_somatic_pos.rds")
+#saveRDS(df_wgs_pos, "../Data/randomCluster/df_wgs_pos.rds")
+
+df_somatic_pos[, bin10 := floor(pos/10)*10]
+df_wgs_pos[, bin10 := floor(pos/10)*10]
+
+window_counts <- df_somatic_pos[, .N, by=.(sampleID, chr, bin10)]
+window_counts_wgs <- df_wgs_pos[, .N, by=.(sampleID, chr, bin10)]
+
+mutation_dist <- as.data.table(table(window_counts$N))
+setnames(mutation_dist, c("N","N_windows"))
+mutation_dist[, N := as.integer(as.character(N))] 
+
+mutation_dist$mutation_number_cat <- ifelse(mutation_dist$N >= 3, ">=3", as.character(mutation_dist$N))
+mutation_dist <- aggregate(N_windows ~ mutation_number_cat, data = mutation_dist, sum)
+mutation_dist$mutation_number_cat <- factor(mutation_dist$mutation_number_cat, levels = c("0", "1", "2", ">=3"))
+
+mutation_dist_wgs <- as.data.table(table(window_counts_wgs$N))
+setnames(mutation_dist_wgs, c("N","N_windows"))
+mutation_dist_wgs[, N := as.integer(as.character(N))] 
+
+mutation_dist_wgs$mutation_number_cat <- ifelse(mutation_dist_wgs$N >= 3, ">=3", as.character(mutation_dist_wgs$N))
+mutation_dist_wgs <- aggregate(N_windows ~ mutation_number_cat, data = mutation_dist_wgs, sum)
+mutation_dist_wgs$mutation_number_cat <- factor(mutation_dist_wgs$mutation_number_cat, levels = c("0", "1", "2", ">=3"))
+
+p_somatic_num10bp <- ggplot(mutation_dist, aes(x=mutation_number_cat, y=N_windows)) +
+  geom_bar(stat="identity", fill="grey") +
+  theme_classic() +
+  xlab("Number of mutations per 10bp window") +
+  ylab("Number of windows") +
+  ggtitle("10bp window mutation count distribution")
+
+p_wgs_num10bp <- ggplot(mutation_dist_wgs, aes(x=mutation_number_cat, y=N_windows)) +
+  geom_bar(stat="identity", fill="grey") +
+  theme_classic() +
+  xlab("Number of mutations per 10bp window") +
+  ylab("Number of windows") +
+  ggtitle("10bp window mutation count distribution")
+
+table(window_counts$N)
+table(window_counts_wgs$N)
+
+ecdf(window_counts$N)(2)
+ecdf(window_counts_wgs$N)(2)
+
+p_somatic_num10bp
+p_wgs_num10bp
+
+#ggsave("p_somatic_num10bp.pdf", p_somatic_num10bp, width = 7.21, height = 3.67)
+#ggsave("p_wgs_num10bp.pdf", p_wgs_num10bp, width = 7.21, height = 3.67)
+```
+
+
+# r estimate
+```{r estimate}
+n <- 10
+p <- 0.0075
+k <- 0:n
+prob <- dbinom(k, size = n, prob = p)
+
+df_prob <- data.frame(
+  mutation_number = k,
+  Prob = prob
+)
+
+df_prob$mutation_number_cat <- ifelse(df_prob$mutation_number >= 3, ">=3", as.character(df_prob$mutation_number))
+df_prob_plot <- aggregate(Prob ~ mutation_number_cat, data = df_prob, sum)
+
+df_prob_plot$mutation_number_cat <- factor(df_prob_plot$mutation_number_cat, levels = c("0", "1", "2", ">=3"))
+
+p_prob <- ggplot(df_prob_plot, aes(x = factor(mutation_number_cat), y = Prob)) +
+  geom_bar(stat = "identity", fill = "grey") +
+  labs(x = "Mutation number", y = "Probability",
+       title = "10 bp mutation number distribution") +
+  theme_classic()
+
+p_prob
+
+#ggsave("p_prob.pdf", p_prob, width = 7.21, height = 3.67)
+```
