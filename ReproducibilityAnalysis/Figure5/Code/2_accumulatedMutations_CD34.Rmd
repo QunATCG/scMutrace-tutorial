@@ -105,10 +105,9 @@ cal_MultiSpe <- function(matrixData) {
 
 scale01 <- function(x) (x - min(x)) / (max(x) - min(x))
 
-cal_scMutScore <- function(data_cell_mut, data_mut_time, data_meta, coefficient_gini = 0.1){
+cal_scMutScore <- function(data_cell_mut, data_mut_time){
   # data_cell_mut [cell * muts]
   # data_mut_time [muts * tissues/celltype/days]
-  # data_meta [Cellbarcode, CellMutTag(tissues/celltype/days)]
   # data_cell_time_matrix
   replacement_map <- c("NoCall" = 0, "WT" = 0, "Mut" = 1)
   
@@ -152,8 +151,8 @@ cal_scMutScore <- function(data_cell_mut, data_mut_time, data_meta, coefficient_
   res_index$GiniTau <- res_index$Gini * res_index$Tau
   
   res_index$scMutScore<- 2 / (
-    (1 / (coefficient_gini * res_index$GiniTau + 0.00001)) + 
-    (1 / ((1 - coefficient_gini) * res_diversity$Diversity + 0.00001))
+    (1 / (res_index$GiniTau + 0.00001)) + 
+    (1 / (res_diversity$Diversity + 0.00001))
   )
   
   res_index$Diversity <- res_diversity$Diversity
@@ -185,19 +184,17 @@ CD34_CellPerMut <- data.frame(
   CellMutNum = colSums(CD34_CSM == "Mut"),
   CellWTNum = colSums(CD34_CSM == "WT")
 )
-
-cells_candidate <- CD34_MutPerCell[CD34_MutPerCell$MutNum_somatic >= 1,]$CellTag
-muts_candidate <- CD34_CellPerMut[CD34_CellPerMut$CellMutNum >= 1,]$Location
-CD34_CSM <- CD34_CSM[cells_candidate, muts_candidate]
 ```
 
 # calMulti
 ```{r calMulti}
-time_types <- c("ery1", "ery2", "ery3", "ery4", "ery5", "ery6",  "my1",  "my2",  "my3",  "my4", "prog", "prog_ery", "prog_my")
+time_types <- c("CD34_800_Day08", "CD34_800_Day14", "CD34_800_Day20")
 
 # Cell_Mut
-CD34_Meta <- CD34_Meta[CD34_Meta$Cellbarcode %in% cells_candidate,]
-CD34_cell_mut_raw <- CD34_CSM
+cells_candidate <- CD34_MutPerCell[CD34_MutPerCell$MutNum_somatic >= 1,]$CellTag
+muts_candidate <- CD34_CellPerMut[CD34_CellPerMut$CellMutNum >= 1,]$Location
+
+CD34_cell_mut_raw <- CD34_CSM[cells_candidate, muts_candidate]
 
 # Mut_Time
 CD34_mut_time <- as.data.frame(matrix(nrow = length(muts_candidate), ncol = length(time_types)))
@@ -207,35 +204,17 @@ colnames(CD34_mut_time) <- time_types
 for (i in 1:nrow(CD34_mut_time)){
   mut_tmp <- rownames(CD34_mut_time)[i]
   cell_tmp <- retriveCellsByLocation(CD34_cell_mut_raw, mut_tmp)
-  selected_meta_tags <- CD34_Meta[CD34_Meta$Cellbarcode %in% cell_tmp$Mut,]$Group
+  selected_meta_tags <- CD34_Meta[CD34_Meta$Cellbarcode %in% cell_tmp$Mut,]$Cellbarcode
   
-  CD34_mut_time[i,]$ery1 <- sum(str_count(selected_meta_tags, "ery1"))
-  CD34_mut_time[i,]$ery2 <- sum(str_count(selected_meta_tags, "ery2"))
-  CD34_mut_time[i,]$ery3 <- sum(str_count(selected_meta_tags, "ery3"))
-  
-  CD34_mut_time[i,]$ery4 <- sum(str_count(selected_meta_tags, "ery4"))
-  CD34_mut_time[i,]$ery5 <- sum(str_count(selected_meta_tags, "ery5"))
-  CD34_mut_time[i,]$ery6 <- sum(str_count(selected_meta_tags, "ery6"))
-  
-  CD34_mut_time[i,]$my1 <- sum(str_count(selected_meta_tags, "my1"))
-  CD34_mut_time[i,]$my2 <- sum(str_count(selected_meta_tags, "my2"))
-  CD34_mut_time[i,]$my3 <- sum(str_count(selected_meta_tags, "my3"))
-  CD34_mut_time[i,]$my4 <- sum(str_count(selected_meta_tags, "my4"))
-  
-  CD34_mut_time[i,]$prog <- sum(str_count(selected_meta_tags, "prog"))
-  CD34_mut_time[i,]$prog_my <- sum(str_count(selected_meta_tags, "prog_my"))
-  CD34_mut_time[i,]$prog_ery <- sum(str_count(selected_meta_tags, "prog_ery"))
+  CD34_mut_time[i,]$CD34_800_Day08 <- sum(str_count(selected_meta_tags, "CD34_800_Day08"))
+  CD34_mut_time[i,]$CD34_800_Day14 <- sum(str_count(selected_meta_tags, "CD34_800_Day14"))
+  CD34_mut_time[i,]$CD34_800_Day20 <- sum(str_count(selected_meta_tags, "CD34_800_Day20"))
 }
-
-cell_time_num <- sapply(time_types, function(i) sum(str_count(CD34_Meta$Group, i)))
-total_cells <- sum(cell_time_num)
-cell_time_num_ratio <- cell_time_num/total_cells + 2
-CD34_mut_time_nor <- sweep(CD34_mut_time, 2, log2(cell_time_num_ratio), "/")
 ```
 
 # computescMutScore
 ```{r computescMutScore}
-res_index_raw_total <- cal_scMutScore(CD34_cell_mut_raw, CD34_mut_time_nor, CD34_Meta, coefficient_gini = 0.1)
+res_index_raw_total <- cal_scMutScore(CD34_cell_mut_raw, CD34_mut_time)
 
 res_index_raw <- res_index_raw_total$score
 res_index_raw$Cellbarcode <- rownames(res_index_raw)
@@ -247,9 +226,8 @@ res_index <- merge(res_index_raw, CD34_Meta, by = "Cellbarcode")
 selectedGroup <- c("prog", "prog_my", "prog_ery", "my1","my2",'my3','my4', "ery1", "ery2", "ery3", "ery4", "ery5", "ery6")
 res_index <- res_index[res_index$Group %in% selectedGroup,]
 
-#res_index$Group[grepl('prog|prog_my|prog_ery|mix',res_index$Group)] <- 'Prog'
-
 res_index$CellMutTag <- factor(res_index$CellMutTag, levels = c("D_8", "D_14", "D_20"))
+res_index <- res_index[res_index$Diversity > 0, ]
 ```
 
 # checkIndex
@@ -278,13 +256,31 @@ ggplot(data = res_index, mapping = aes(x = CellMutTag1, y = scMutScore, fill = C
 
 ggplot(data = res_index, mapping = aes(x = CellMutTag, y = sumMut, fill = CellMutTag)) +
   geom_boxplot(outliers = FALSE) +
-  labs(x = "", y = "scMutraceScore") +
+  labs(x = "", y = "sumMut") +
   scale_fill_manual(values = day_color) +
   theme_classic()
 
 ggplot(data = res_index, mapping = aes(x = CellMutTag1, y = sumMut, fill = CellMutTag1)) +
   geom_boxplot(outliers = FALSE) +
-  labs(x = "", y = "scMutraceScore") +
+  labs(x = "", y = "sumMut") +
+  scale_fill_manual(values = cluster_color) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = CellMutTag1, y = Gini, fill = CellMutTag1)) +
+  geom_boxplot(outliers = FALSE) +
+  labs(x = "", y = "Gini") +
+  scale_fill_manual(values = cluster_color) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = CellMutTag1, y = GiniTau, fill = CellMutTag1)) +
+  geom_boxplot(outliers = FALSE) +
+  labs(x = "", y = "GiniTau") +
+  scale_fill_manual(values = cluster_color) +
+  theme_classic()
+
+ggplot(data = res_index, mapping = aes(x = CellMutTag1, y = Tau, fill = CellMutTag1)) +
+  geom_boxplot(outliers = FALSE) +
+  labs(x = "", y = "Tau") +
   scale_fill_manual(values = cluster_color) +
   theme_classic()
 
@@ -295,6 +291,20 @@ ggplot(res_index_long, aes(x=value, fill=variable)) +
   theme_classic() +
   labs(x="Value", y="Density", title="Diversity Indices Distribution") +
   scale_fill_brewer(palette="Set3")
+
+ggplot(res_index, aes(x = scMutScore, y = log2(sumMut))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") + 
+  stat_cor(method = "pearson", label.x = 0.5, label.y = 1) +
+  labs(x = "scMutScore", y = "sum of matrix") + 
+  theme_classic()
+
+ggplot(res_index, aes(x = Gini, y = Tau)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") + 
+  stat_cor(method = "pearson", label.x = 0.5, label.y = 1) +
+  labs(x = "Gini", y = "Tau") + 
+  theme_classic()
 ```
 
 # scMutrce validation
@@ -303,9 +313,9 @@ set.seed(2025)
 
 # 1. init
 data_check_CM <- CD34_cell_mut_raw
-data_check_Meta <- CD34_Meta
+data_check_Meta <- CD34_Meta[CD34_Meta$Cellbarcode %in% rownames(data_check_CM),]
 col_check_names <- c("ery1", "ery2", "ery3", "ery4", "ery5", "ery6",  "my1",  "my2",  "my3",  "my4", "prog", "prog_ery", "prog_my")
-time_types <- c("ery1", "ery2", "ery3", "ery4", "ery5", "ery6",  "my1",  "my2",  "my3",  "my4", "prog", "prog_ery", "prog_my")
+time_types <- c("CD34_800_Day08", "CD34_800_Day14", "CD34_800_Day20")
 cluster_color <- c(my1 = '#6baed6', my2 = '#4292c6',  my3 = '#2171b5',  my4 = '#084594', prog = '#e0e0e0',  prog_my = '#c6dbef', 
                    ery1 = "#bfd3e6", ery2 = "#9ebcda", ery3 = "#8c96c6", ery4 = "#8c6bb1", ery5 = "#88419d", ery6 = "#6e016b", 
                    prog_ery = "#d8daeb", mix = "#66c2a4",  Prog = '#c6dbef', ery1_2 = "#8c96c6", ery3_4 = "#8c6bb1", ery5_6 = "#6e016b")
@@ -320,75 +330,166 @@ iteration_times <- 100
 
 # list for save data
 data_scMutModel_list <- vector("list", iteration_times)
+data_scMutScore_list <- vector("list", iteration_times)
 
 num_cells <- nrow(data_check_CM)
 num_mutations <- ncol(data_check_CM)
 cells_all <- rownames(data_check_CM)
 muts_all <- colnames(data_check_CM)
 
+rowname_day <- data.frame(rowname = rownames(data_check_CM), day = sub("_[^_]+$", "", rownames(data_check_CM)), stringsAsFactors = FALSE)
+num_randomSelected_forEachTime <- ceiling(min(table(rowname_day$day)) * cell_loss_ratio)
+
+cell_day_map <- setNames(rowname_day$day, rowname_day$rowname)
+
 # 2. loop
+## ---------------------------------------------------------------
+## Precompute balanced sampling plan: every cell will be sampled
+## before any cell is repeatedly sampled within each day.
+## ---------------------------------------------------------------
+cells_by_day <- split(seq_len(nrow(rowname_day)), rowname_day$day)
+
+make_sampling_plan <- function(cells_by_day, n_per_day) {
+  lapply(cells_by_day, function(idx) {
+    idx_shuffled <- sample(idx)
+    split(
+      idx_shuffled,
+      ceiling(seq_along(idx_shuffled) / n_per_day)
+    )
+  })
+}
+
+sampling_plan <- make_sampling_plan(
+  cells_by_day,
+  num_randomSelected_forEachTime
+)
+
+max_batches <- max(sapply(sampling_plan, length))
+
+# for lineage est
 for (iter in seq_len(iteration_times)) {
-  
+
   # 2.1 randomly loss info
-  loss_cell_indices <- sample(seq_len(num_cells), ceiling(cell_loss_ratio * num_cells))
-  loss_mut_indices <- sample(seq_len(num_mutations), ceiling(mut_loss_ratio * num_mutations))
+  ## Reshuffle after each full cycle
+  if (iter > 1 && (iter - 1) %% max_batches == 0) {
+    sampling_plan <- make_sampling_plan(
+      cells_by_day,
+      num_randomSelected_forEachTime
+    )
+    max_batches <- max(sapply(sampling_plan, length))
+  }
+
+  ## Balanced cell sampling across days
+  loss_cell_indices <- unlist(
+    lapply(sampling_plan, function(day_batches) {
+      batch_id <- ((iter - 1) %% length(day_batches)) + 1
+      day_batches[[batch_id]]
+    }),
+    use.names = FALSE
+  )
   
+  loss_mut_indices <- sample(seq_len(num_mutations), ceiling(mut_loss_ratio * num_mutations))
+
   C_partial_missing <- data_check_CM
   # new data
   if(length(loss_cell_indices) > 0 && length(loss_mut_indices) > 0){
     C_partial_missing[loss_cell_indices, loss_mut_indices] <- "NoCall"
   }
-  
+
   # 2.2 count cell/mut number
   MutPerCell <- rowSums(C_partial_missing == "Mut")
   CellPerMut <- colSums(C_partial_missing == "Mut")
-  
+
   cells_candidate <- cells_all[MutPerCell >= cell_num & cells_all %in% data_check_Meta$Cellbarcode]
-  cells_candidate_group <- data_check_Meta[cells_candidate, "Group"]
+  cells_candidate_group <- data_check_Meta[cells_candidate, "Cellbarcode"]
   muts_candidate <- muts_all[CellPerMut >= mut_num]
-  
+
+  data_cell_mut_raw_check <- C_partial_missing[cells_candidate, muts_candidate, drop = TRUE]
+  tab <- table(sub(".*_(Day[0-9]+)_.*", "\\1", rownames(data_cell_mut_raw_check)))
   message(paste0("Iteration: ", iter, " loss_cell_indices: ", length(loss_cell_indices), " loss_mut_indices: ", length(loss_mut_indices)))
   message(paste0("Iteration: ", iter, " cells_candidate: ", length(cells_candidate), " muts_candidate: ", length(muts_candidate)))
-  
-  data_cell_mut_raw_check <- C_partial_missing[cells_candidate, muts_candidate, drop = TRUE]
-  
+  message("Cell counts per day:")
+  message(paste(names(tab), tab, sep = ": ", collapse = " | "))
+
   # 2.3 Mut × Time
-  cell_time_num <- sapply(col_check_names, function(i) sum(str_count(cells_candidate_group, i)))
-  total_cells <- sum(cell_time_num)
-  cell_time_ratio <- cell_time_num / total_cells + 2
-  
   # init Mut × Time
   M_partial_missing <- matrix(0, nrow = length(muts_candidate), ncol = length(time_types),
                               dimnames = list(muts_candidate, time_types))
   
-  # Calculate the number of each mutation at each time
-  for (t in seq_along(time_types)) {
-    time_label <- time_types[t]
-    # Find out in which cells each mutation occurs
-    mut_cell_list <- apply(data_cell_mut_raw_check, 2, function(x) which(x == "Mut"))
-    # Count the number of times each mutation occurs at that point in time
-    for (mut in muts_candidate) {
-      cells_with_mut <- rownames(data_cell_mut_raw_check)[data_cell_mut_raw_check[, mut] == "Mut"]
-      selected_times <- data_check_Meta$Group[data_check_Meta$Cellbarcode %in% cells_with_mut]
-      M_partial_missing[mut, t] <- sum(str_count(selected_times, time_label))
-    }
+  for (mut in muts_candidate) {
+    cells_with_mut <- rownames(data_cell_mut_raw_check)[data_cell_mut_raw_check[, mut] == "Mut"]
+    cells_with_mut_clean <- sub("\\.[0-9]+$", "", cells_with_mut)
+    days <- cell_day_map[cells_with_mut_clean]
+    M_partial_missing[mut, ] <- table(factor(days, levels = time_types))
   }
-  
+
   # 2.4 normalized Mut × Time
-  M_partial_missing_norm <- sweep(M_partial_missing, 2, log2(cell_time_ratio), "/")
-  
+  M_partial_missing_norm <- M_partial_missing
+
   # 2.5 scMutScore
-  res_index_tmp <- cal_scMutScore(data_cell_mut_raw_check, M_partial_missing_norm, data_check_Meta, coefficient_gini = 0.1)$score
+  res_index_tmp <- cal_scMutScore(data_cell_mut_raw_check, M_partial_missing_norm)$score
   res_index_tmp$iteration <- paste0("iter", iter)
   res_index_tmp <- res_index_tmp[res_index_tmp$Diversity > 0, ]
   res_index_tmp$Cellbarcode <- rownames(res_index_tmp)
-  res_index_tmp$iteration <- paste0("iter", iter)
   rownames(res_index_tmp) <- NULL
   data_scMutModel_list[[iter]] <- res_index_tmp
 }
 
+# same cell number for day scMutrace est
+# at least 100 cells
+cell_day_map <- setNames(rowname_day$day, rowname_day$rowname)
+
+for (iter in seq_len(iteration_times)) {
+
+  # 1. sampling
+  sampled_cells <- rowname_day %>%
+    group_by(day) %>%
+    slice_sample(n = 100, replace = TRUE) %>%
+    ungroup() %>%
+    pull(rowname)
+  C_partial_missing <- data_check_CM[match(sampled_cells, rownames(data_check_CM)),, drop = FALSE]
+  # 2. count
+  MutPerCell <- rowSums(C_partial_missing == "Mut")
+  CellPerMut <- colSums(C_partial_missing == "Mut")
+  cells_candidate <- rownames(C_partial_missing)[MutPerCell >= cell_num]
+  muts_candidate <- colnames(C_partial_missing)[CellPerMut >= mut_num]
+  data_cell_mut_raw_check <- C_partial_missing[cells_candidate, muts_candidate, drop = FALSE]
+
+  # logging
+  tab <- table(sub(".*_(Day[0-9]+)_.*", "\\1", rownames(data_cell_mut_raw_check)))
+  message(paste0("Iteration: ", iter,
+                 " sampled_cells: ", length(sampled_cells),
+                 " cells_candidate: ", length(cells_candidate),
+                 " muts_candidate: ", length(muts_candidate)))
+  message(paste(names(tab), tab, sep = ": ", collapse = " | "))
+
+  # 3. Mut × Time
+  M_partial_missing <- matrix(0,
+                             nrow = length(muts_candidate),
+                             ncol = length(time_types),
+                             dimnames = list(muts_candidate, time_types))
+
+  # cal
+  for (mut in muts_candidate) {
+    cells_with_mut <- rownames(data_cell_mut_raw_check)[data_cell_mut_raw_check[, mut] == "Mut"]
+    cells_with_mut_clean <- sub("\\.[0-9]+$", "", cells_with_mut)
+    days <- cell_day_map[cells_with_mut_clean]
+    M_partial_missing[mut, ] <- table(factor(days, levels = time_types))
+  }
+  
+  # 4. scMutScore
+  res_index_tmp <- cal_scMutScore(data_cell_mut_raw_check, M_partial_missing)$score
+  res_index_tmp$iteration <- paste0("iter", iter)
+  res_index_tmp <- res_index_tmp[res_index_tmp$Diversity > 0, ]
+  res_index_tmp$Cellbarcode <- rownames(res_index_tmp)
+  rownames(res_index_tmp) <- NULL
+  data_scMutScore_list[[iter]] <- res_index_tmp
+}
+
 # 3. merge res
-data_scMutModel_res <- do.call(rbind, data_scMutModel_list)
+data_scMutModel_res  <- do.call(rbind, data_scMutModel_list)
+data_scMutScore_res <- do.call(rbind, data_scMutScore_list)
+data_scMutScore_res$day <- sub("^(CD34_800_Day[0-9]+)_.*", "\\1", data_scMutScore_res$Cellbarcode)
 
 # 4. column
 data_scMutModel_res <- data_scMutModel_res %>%
@@ -413,7 +514,6 @@ data_scMutModel_res$CellMutTag <- factor(data_scMutModel_res$CellMutTag, levels 
 data_scMutModel_res_summary <- data_scMutModel_res %>%
   dplyr::group_by(iteration, GroupQun) %>%
   dplyr::summarise(mean_scMutScore = mean(scMutScore, na.rm = TRUE), mean_EpiTraceAge = mean(EpiTraceAge_iterative, na.rm = TRUE)) %>%
-  #dplyr::summarise(mean_EpiTraceAge = mean(EpiTraceAge_iterative, na.rm = TRUE)) %>%
   dplyr::ungroup()
 
 data_scMutModel_res_summary <- data_scMutModel_res_summary %>%
@@ -422,8 +522,8 @@ data_scMutModel_res_summary <- data_scMutModel_res_summary %>%
     mean_EpiTraceAge_scaled = scales::rescale(mean_EpiTraceAge, to = c(0, 1))
   )
 
-data_scMutModel_res_summary_Day <- data_scMutModel_res %>%
-  dplyr::group_by(iteration, CellMutTag) %>%
+data_scMutModel_res_summary_Day <- data_scMutScore_res %>%
+  dplyr::group_by(iteration, day) %>%
   dplyr::summarise(mean_scMutScore = mean(scMutScore, na.rm = TRUE)) %>%
   dplyr::ungroup()
 
@@ -441,35 +541,29 @@ data_stability <- data_scMutModel_res %>%
   )
 
 p_scMutrace_iter_GroupQun <- ggplot(data = data_scMutModel_res_summary, mapping = aes(x = GroupQun, y = mean_scMutScore, fill = GroupQun)) +
-  #geom_violin(trim = TRUE, alpha = 0.6) + 
   geom_boxplot(outliers = FALSE) +
-  ylim(0.4, 0.9) +
   labs(x = "", y = "scMutraceScore") +
   scale_fill_manual(values = cluster_color) +
   theme_classic()
 
 p_scMutrace_iter_GroupQunScaled <- ggplot(data = data_scMutModel_res_summary, mapping = aes(x = GroupQun, y = mean_scMutScore_scaled, fill = GroupQun)) +
-  #geom_violin(trim = TRUE, alpha = 0.6) + 
   geom_boxplot(outliers = FALSE) +
   ylim(0, 1) +
   labs(x = "", y = "mean_scMutScore_scaled") +
   scale_fill_manual(values = cluster_color) +
   theme_classic()
 
- p_scMutrace_iter_Day <- ggplot(data = data_scMutModel_res_summary_Day, mapping = aes(x = CellMutTag, y = mean_scMutScore, fill = CellMutTag)) +
-  #geom_violin(trim = TRUE, alpha = 0.6) + 
+ p_scMutrace_iter_Day <- ggplot(data = data_scMutModel_res_summary_Day, mapping = aes(x = day, y = mean_scMutScore, fill = day)) +
   geom_boxplot(outliers = FALSE) +
-  ylim(0.4, 0.9) +
   labs(x = "", y = "scMutraceScore") +
-  scale_fill_manual(values = day_color) +
+  scale_fill_manual(values = c(CD34_800_Day08 = "#c7e9c0", CD34_800_Day14 = "#74c476", CD34_800_Day20 = "#005a32")) +
   theme_classic()
  
- p_scMutrace_iter_Day_scaled <- ggplot(data = data_scMutModel_res_summary_Day, mapping = aes(x = CellMutTag, y = mean_scMutScore_scaled, fill = CellMutTag)) +
-  #geom_violin(trim = TRUE, alpha = 0.6) + 
+ p_scMutrace_iter_Day_scaled <- ggplot(data = data_scMutModel_res_summary_Day, mapping = aes(x = day, y = mean_scMutScore_scaled, fill = day)) +
   geom_boxplot(outliers = FALSE) +
   ylim(0, 1) +
   labs(x = "", y = "mean_scMutScore_scaled") +
-  scale_fill_manual(values = day_color) +
+  scale_fill_manual(values = c(CD34_800_Day08 = "#c7e9c0", CD34_800_Day14 = "#74c476", CD34_800_Day20 = "#005a32")) +
   theme_classic()
 
 df_iter_frac <- data_scMutModel_res %>%
@@ -489,8 +583,14 @@ p_scMutrace_iter_Day + p_scMutrace_iter_Day_scaled + p_scMutrace_iter_GroupQun +
 
 # randomMutNum
 ```{r randomMutNum}
+set.seed(2025)
+# at least 100 cells
 sample_size <- 100
-iter_num <- 1:100
+iteration_times <- 100
+iter_num <- 1:iteration_times
+cell_num <- 1
+mut_num <- 1
+
 data_random_mutNum <- data.frame(iteration_num = iter_num, CD34_800_Day08 = 0,
                                  CD34_800_Day14 = 0, CD34_800_Day20 = 0)
 
@@ -528,6 +628,7 @@ p_randomMutNum_est <- ggplot(data_random_mutNum_long, aes(x = Sample, y = Mutati
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "none"
   )
+
 p_randomMutNum_est
 ```
 
@@ -697,12 +798,10 @@ p_pseudotimeByGroupQunMy <- ggplot(res_index, aes(x=as.factor(GroupQun), y=pseud
      scale_fill_manual(values = cluster_color) + geom_boxplot(outlier.alpha = 0) +
      theme_classic()
 
-p_UMAP_scMutrace <- ggplot(data = res_index, mapping = aes(x = x, y = y, color =  scMutScore)) +
-  geom_point(size = 1.5) +
-  #scale_color_manual(values = day_color) +
-  scale_color_viridis(option="rocket") +
-  xlab("") + ylab("") +
-  theme_classic()
+p_UMAP_scMutrace <- ggplot(res_index, aes(x = x, y = y, fill =  as.numeric(scMutScore))) + 
+  geom_point(shape = 21, size = 2, alpha = 0.3) +
+  scale_fill_gradientn(colours = c("#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026")) + 
+  theme_classic() + labs(fill = "scMutScore")
 
 df_plot <- res_index %>%
   count(CellMutTag, GroupQun) %>%
@@ -754,15 +853,18 @@ df_frac <- res_index %>%
   group_by(GroupQun) %>%
   mutate(prop = n / sum(n))
 
+df_frac_2 <- res_index %>%
+  group_by(GroupQun, CellMutTag) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(CellMutTag) %>%
+  mutate(prop = n / sum(n))
+
 p_cellfrac <- ggplot(df_frac, aes(x = GroupQun, y = prop, fill = CellMutTag)) +
   geom_bar(stat = "identity", position = "fill") +
   scale_fill_manual(values = day_color) +
   scale_y_continuous(labels = scales::percent) +
   theme_bw()
 
-p_UMAP_Days
-p_UMAP_Groups
-p_UMAP_GroupsQun
 p_scMutScorebydays
 p_scMutScorebycelltypes
 p_scMutScorebycelltypesQun
@@ -781,6 +883,9 @@ p_pseudotimeByGroupQunMy
 p_UMAP_pseudutime_my
 p_UMAP_pseudutime_ery
 p_UMAP_scMutrace
+p_UMAP_Days
+p_UMAP_Groups
+p_UMAP_GroupsQun
 p_cellfrac
 ```
 
@@ -791,16 +896,34 @@ data_scMutModel_res_summary_mean <- data_scMutModel_res_summary %>%
   dplyr::summarise(mean_scMutScoreGroup = mean(mean_scMutScore, na.rm = TRUE), mean_EpiTraceAgeGroup = mean(mean_EpiTraceAge, na.rm = TRUE)) %>%
   dplyr::ungroup()
 
-data_scMutModel_res_summary_mean_rmprog <- data_scMutModel_res_summary_mean[data_scMutModel_res_summary_mean$GroupQun != "prog", ]
+data_scMutModel_res_summary_mean <- 
+  data_scMutModel_res_summary_mean %>%
+  mutate(
+    lineage = case_when(
+      GroupQun %in% c("prog", "prog_my", "prog_ery") ~ "prog",
+      grepl("^my", GroupQun) ~ "my",
+      grepl("^ery", GroupQun) ~ "ery",
+      TRUE ~ NA_character_
+    ))
+
+data_scMutModel_res_summary_mean_rmprog <- data_scMutModel_res_summary_mean[!data_scMutModel_res_summary_mean$lineage %in% c("prog"),]
+
 plot(data_scMutModel_res_summary_mean$mean_scMutScoreGroup, data_scMutModel_res_summary_mean$mean_EpiTraceAgeGroup)
 plot(data_scMutModel_res_summary_mean_rmprog$mean_scMutScoreGroup, data_scMutModel_res_summary_mean_rmprog$mean_EpiTraceAgeGroup)
 cor.test(data_scMutModel_res_summary_mean$mean_scMutScoreGroup, data_scMutModel_res_summary_mean$mean_EpiTraceAgeGroup)
 cor.test(data_scMutModel_res_summary_mean_rmprog$mean_scMutScoreGroup, data_scMutModel_res_summary_mean_rmprog$mean_EpiTraceAgeGroup)
 
-cor.test(data_scMutModel_res_summary$mean_scMutScore, data_scMutModel_res_summary$mean_EpiTraceAge)
-data_scMutModel_res_summary_rmprog <- data_scMutModel_res_summary[data_scMutModel_res_summary$GroupQun != "prog", ]
-cor.test(data_scMutModel_res_summary_rmprog$mean_scMutScore, data_scMutModel_res_summary_rmprog$mean_EpiTraceAge)
-plot(data_scMutModel_res_summary_rmprog$mean_scMutScore, data_scMutModel_res_summary_rmprog$mean_EpiTraceAge)
+cor_results <- data_scMutModel_res_summary_mean_rmprog %>%
+  group_by(lineage) %>%
+  group_modify(~ broom::tidy(
+    cor.test(
+      .x$mean_scMutScoreGroup,
+      .x$mean_EpiTraceAgeGroup,
+      method = "pearson"
+    )
+  )) %>%
+  ungroup()
+cor_results
 ```
 
 # savePic
