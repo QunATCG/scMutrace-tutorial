@@ -22,7 +22,6 @@ editing=$path_to_scomatic/RNAediting/AllEditingSites.hg19.nochr.txt
 PON=$path_to_scomatic/PoNs/PoN.scRNAseq.hg19.nochr.lift.tsv
 nprocs=1
 
-# P2_cSCC P3_cSCC P4_cSCC P5_cSCC P6_cSCC P7_cSCC P8_cSCC P9_cSCC P10_cSCC
 for sampleID in P9_cSCC P10_cSCC
 do
 	inBam=${workingDir}/${sampleID}/scMutrace/ExcludeBG_${sampleID}.sort.rmdupicard.bam

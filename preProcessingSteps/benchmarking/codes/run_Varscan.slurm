@@ -20,7 +20,7 @@ module load samtools/1.20
 path_to_varscan=/cfs/klemming/home/q/qunli/Software/benchmarkingTools/VarScan.v2.4.6.jar
 faFile=/cfs/klemming/home/q/qunli/qunl/Qun/publicData/reference/hg19/noChr/genome.fa
 workingDir=/cfs/klemming/home/q/qunli/qunl/Qun/callVariants/cSCC/20241022/
-# P2_cSCC P2_normal P3_cSCC P3_normal P4_cSCC P4_normal P5_cSCC P5_normal P6_cSCC P6_normal P7_cSCC P7_normal P8_cSCC P8_normal P9_cSCC P9_normal P10_cSCC P10_normal
+
 for i in P4_normal P5_cSCC P5_normal P6_cSCC P6_normal P7_cSCC P7_normal P8_cSCC P8_normal P9_cSCC P9_normal P10_cSCC P10_normal
 do
 	echo $i
