@@ -3,14 +3,14 @@ title: "Figure 4 pAML reproducibility similarity analysis"
 author: "Qun Li"
 date: "22 Aug 2025 at 10:12:37"
 output:
-  html_document:
-    toc: true
-    toc_depth: '3'
-    df_print: paged
   pdf_document:
     toc: true
     toc_depth: 3
     number_sections: true
+  html_document:
+    toc: true
+    toc_depth: '3'
+    df_print: paged
   word_document:
     toc: true
     toc_depth: '3'
@@ -1186,7 +1186,10 @@ iteration_times <- 1:50
 sample_size_f <- 0.50
 sample_size <- 400
 
-paired_perm_test_viz <- function(x, y, n_perm = 10000) {
+mut_cellTypeAnn_similarity_list_RNA_main <- readRDS("../Data/HumanpAML/mut_cellTypeAnn_similarity_RNA_maincell_byfrac30.rds")
+mut_cellTypeAnn_similarity_list_ATA_main <- readRDS("../Data/HumanpAML/mut_cellTypeAnn_similarity_ATA_maincell_byfrac30.rds")
+
+paired_perm_test_viz <- function(x, y, n_perm = 1000) {
 
   diff <- x - y
   obs <- mean(diff)
@@ -1211,7 +1214,7 @@ paired_perm_test_viz <- function(x, y, n_perm = 10000) {
   )
 }
 
-unpaired_perm_test_viz <- function(x, y, n_perm = 10000) {
+unpaired_perm_test_viz <- function(x, y, n_perm = 1000) {
 
   obs <- mean(x) - mean(y)
   combined <- c(x, y)
@@ -1288,6 +1291,8 @@ cal_sigValSimilarity <- function(mut_list, iteration_times, sampleid){
     paste0("iter_", iteration_times),
     function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Myeloid", sep = "_"), paste(sampleid, "REL_Lymphoid", sep = "_")]
   )
+  
+  set.seed(2025)
   
   # permutation test
   message(" 12")
@@ -1382,7 +1387,7 @@ pairs_RNA <- unique(sub("_p_RNA", "", grep("_p_RNA$", colnames(df_RNA), value = 
 for (p in pairs_RNA) {
   p_col <- paste0(p, "_p_RNA")
   c_col <- paste0(p, "_c_RNA")
-  df_RNA[[c_col]][df_RNA[[p_col]] > 0.0001] <- NA
+  df_RNA[[c_col]][df_RNA[[p_col]] > 0.001] <- NA
 }
 
 df_ATA <- data_scATA_sigSimilarity
@@ -1390,7 +1395,7 @@ pairs_ATA <- unique(sub("_p_ATA", "", grep("_p_ATA$", colnames(df_ATA), value = 
 for (p in pairs_ATA) {
   p_col <- paste0(p, "_p_ATA")
   c_col <- paste0(p, "_c_ATA")
-  df_ATA[[c_col]][df_ATA[[p_col]] > 0.0001] <- NA
+  df_ATA[[c_col]][df_ATA[[p_col]] > 0.001] <- NA
 }
 
 
@@ -1446,8 +1451,6 @@ Heatmap(
     }
   }
 )
-
-
 
 ht <- Heatmap(
   mat,
