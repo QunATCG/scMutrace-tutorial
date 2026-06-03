@@ -1287,7 +1287,7 @@ cal_sigValSimilarity <- function(mut_list, iteration_times, sampleid){
   )
   
   # 6
-  vals_DxMye_DxLym <- sapply(
+  vals_RelMye_RelLym <- sapply(
     paste0("iter_", iteration_times),
     function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Myeloid", sep = "_"), paste(sampleid, "REL_Lymphoid", sep = "_")]
   )
@@ -1316,7 +1316,7 @@ cal_sigValSimilarity <- function(mut_list, iteration_times, sampleid){
   pair_15_c <- pair_15$obs - median(pair_15$perm_distribution)
   
   message(" 16")
-  pair_16 <- unpaired_perm_test_viz(c(vals_RelLym_DxMye), c(vals_DxMye_DxLym))
+  pair_16 <- unpaired_perm_test_viz(c(vals_RelLym_DxMye), c(vals_RelMye_RelLym))
   pair_16_p <- pair_16$p_value
   pair_16_c <- pair_16$obs - median(pair_16$perm_distribution)
   
@@ -1465,7 +1465,7 @@ ht <- Heatmap(
   na_col = "grey90"
 )
 
-pdf("heatmap_effect_size.pdf", width = 5.8, height = 6)
+pdf("heatmap_effect_size_1vsother.pdf", width = 5.8, height = 6)
 
 draw(ht)
 
@@ -1570,6 +1570,298 @@ p_boxPlotdata_value_similarity_ATA
 
 #ggsave("../p_boxPlotdata_value_similarity_RNA.pdf", p_boxPlotdata_value_similarity_RNA, width = 3.2, height = 1.9)
 #ggsave("../p_boxPlotdata_value_similarity_ATA.pdf", p_boxPlotdata_value_similarity_ATA, width = 3.2, height = 1.9)
+```
+
+# permutation test (3vsother)
+```{r pt3vsother}
+iteration_times <- 1:50
+sample_size_f <- 0.50
+sample_size <- 400
+
+mut_cellTypeAnn_similarity_list_RNA_main <- readRDS("../Data/HumanpAML/mut_cellTypeAnn_similarity_RNA_maincell_byfrac30.rds")
+mut_cellTypeAnn_similarity_list_ATA_main <- readRDS("../Data/HumanpAML/mut_cellTypeAnn_similarity_ATA_maincell_byfrac30.rds")
+
+paired_perm_test_viz <- function(x, y, n_perm = 1000) {
+
+  diff <- x - y
+  obs <- mean(diff)
+
+  # permutation null
+  perm <- replicate(n_perm, {
+    mean(diff * sample(c(-1, 1), length(diff), replace = TRUE))
+  })
+
+  p <- mean(abs(perm) >= abs(obs))
+
+  # CI from null distribution
+  ci <- quantile(perm, c(0.025, 0.975))
+
+  # return structured object for plotting
+  list(
+    obs = obs,
+    p_value = p,
+    ci = ci,
+    perm_distribution = perm,
+    diff_values = diff
+  )
+}
+
+unpaired_perm_test_viz <- function(x, y, n_perm = 1000) {
+
+  obs <- mean(x) - mean(y)
+  combined <- c(x, y)
+  n_x <- length(x)
+
+  perm <- replicate(n_perm, {
+    idx <- sample(length(combined))
+    mean(combined[idx[1:n_x]]) - mean(combined[idx[-(1:n_x)]])
+  })
+
+  p <- mean(abs(perm) >= abs(obs))
+  ci <- quantile(perm, c(0.025, 0.975))
+
+  list(
+    obs = obs,
+    p_value = p,
+    ci = ci,
+    perm_distribution = perm
+  )
+}
+
+plot_perm_test <- function(res, title = "Permutation Test") {
+
+  df <- data.frame(perm = res$perm_distribution)
+
+  ggplot2::ggplot(df, ggplot2::aes(x = perm)) +
+    ggplot2::geom_histogram(bins = 50, fill = "grey80", color = "black") +
+    ggplot2::geom_vline(xintercept = res$obs, color = "red", size = 1) +
+    ggplot2::geom_vline(xintercept = res$ci, linetype = "dashed", color = "blue") +
+    ggplot2::labs(
+      title = title,
+      subtitle = paste0("p = ", signif(res$p_value, 3)),
+      x = "Permutation mean difference",
+      y = "Frequency"
+    ) +
+    ggplot2::theme_classic()
+}
+
+
+
+cal_sigValSimilarity <- function(mut_list, iteration_times, sampleid){
+  # 1
+  vals_RelLym_DxMye <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Lymphoid", sep = "_"), paste(sampleid, "DX_Myeloid", sep = "_")]
+  )
+  
+  # 2
+  vals_RelMye_DxMye <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Myeloid", sep = "_"), paste(sampleid, "DX_Myeloid", sep = "_")]
+  )
+  
+  # 3
+  vals_DxLym_RelMye <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "DX_Lymphoid", sep = "_"), paste(sampleid, "REL_Myeloid", sep = "_")]
+  )
+  
+  # 4
+  vals_DxLym_RelLym <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "DX_Lymphoid", sep = "_"), paste(sampleid, "REL_Lymphoid", sep = "_")]
+  )
+  
+  # 5
+  vals_DxMye_DxLym <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "DX_Myeloid", sep = "_"), paste(sampleid, "DX_Lymphoid", sep = "_")]
+  )
+  
+  # 6
+  vals_RelMye_RelLym <- sapply(
+    paste0("iter_", iteration_times),
+    function(x) mut_list[[sampleid]][[x]][paste(sampleid, "REL_Myeloid", sep = "_"), paste(sampleid, "REL_Lymphoid", sep = "_")]
+  )
+  
+  set.seed(2025)
+  
+  # permutation test
+  message(" 31")
+  pair_31 <- unpaired_perm_test_viz(c(vals_DxLym_RelMye), c(vals_RelLym_DxMye))
+  pair_31_p <- pair_31$p_value
+  pair_31_c <- pair_31$obs - median(pair_31$perm_distribution)
+  
+  message(" 32")
+  pair_32 <- unpaired_perm_test_viz(c(vals_DxLym_RelMye), c(vals_RelMye_DxMye))
+  pair_32_p <- pair_32$p_value
+  pair_32_c <- pair_32$obs - median(pair_32$perm_distribution)
+  
+  message(" 34")
+  pair_34 <- unpaired_perm_test_viz(c(vals_DxLym_RelMye), c(vals_DxLym_RelLym))
+  pair_34_p <- pair_34$p_value
+  pair_34_c <- pair_34$obs - median(pair_34$perm_distribution)
+  
+  message(" 35")
+  pair_35 <- unpaired_perm_test_viz(c(vals_DxLym_RelMye), c(vals_DxMye_DxLym))
+  pair_35_p <- pair_35$p_value
+  pair_35_c <- pair_35$obs - median(pair_35$perm_distribution)
+  
+  message(" 36")
+  pair_36 <- unpaired_perm_test_viz(c(vals_DxLym_RelMye), c(vals_RelMye_RelLym))
+  pair_36_p <- pair_36$p_value
+  pair_36_c <- pair_36$obs - median(pair_36$perm_distribution)
+  
+  result <- list(
+    pair_31_p = pair_31_p,
+    pair_31_c = pair_31_c,
+    pair_32_p = pair_32_p,
+    pair_32_c = pair_32_c,
+    pair_34_p = pair_34_p,
+    pair_34_c = pair_34_c,
+    pair_35_p = pair_35_p,
+    pair_35_c = pair_35_c,
+    pair_36_p = pair_36_p,
+    pair_36_c = pair_36_c
+  )
+  
+  return(result)
+}
+
+selected_samples_id <- c("AML2", "AML4", "AML5", "AML6", "AML8", "AML10", "AML11", "AML12",
+                         "AML13", "AML15", "AML16", "AML17", "AML18", "AML19", "AML21",
+                         "AML22", "AML24", "AML25", "AML26", "AML27")
+# RNA
+data_scRNA_sigSimilarity <- as.data.frame(matrix(data = 0, nrow = length(selected_samples_id), ncol = 10))
+rownames(data_scRNA_sigSimilarity) <- selected_samples_id
+colnames(data_scRNA_sigSimilarity) <- paste(c("pair_31_p", "pair_31_c", "pair_32_p", "pair_32_c",
+                                        "pair_34_p", "pair_34_c", "pair_35_p", "pair_35_c",
+                                        "pair_36_p", "pair_36_c"), "RNA", sep = "_")
+
+# ATA
+data_scATA_sigSimilarity <- as.data.frame(matrix(data = 0, nrow = length(selected_samples_id), ncol = 10))
+rownames(data_scATA_sigSimilarity) <- selected_samples_id
+colnames(data_scATA_sigSimilarity) <- paste(c("pair_31_p", "pair_31_c", "pair_32_p", "pair_32_c",
+                                        "pair_34_p", "pair_34_c", "pair_35_p", "pair_35_c",
+                                        "pair_36_p", "pair_36_c"), "ATA", sep = "_")
+
+for (sampleid in selected_samples_id){
+  message(paste0(sampleid, "-scRNA"))
+  r_scRNA <- cal_sigValSimilarity(mut_cellTypeAnn_similarity_list_RNA_main, iteration_times, sampleid)
+  message(paste0(sampleid, "-scATA"))
+  r_scATA <- cal_sigValSimilarity(mut_cellTypeAnn_similarity_list_ATA_main, iteration_times, sampleid)
+  data_scRNA_sigSimilarity[sampleid, "pair_31_p_RNA"] <- r_scRNA$pair_31_p
+  data_scRNA_sigSimilarity[sampleid, "pair_31_c_RNA"] <- r_scRNA$pair_31_c
+  data_scRNA_sigSimilarity[sampleid, "pair_32_p_RNA"] <- r_scRNA$pair_32_p
+  data_scRNA_sigSimilarity[sampleid, "pair_32_c_RNA"] <- r_scRNA$pair_32_c
+  data_scRNA_sigSimilarity[sampleid, "pair_34_p_RNA"] <- r_scRNA$pair_34_p
+  data_scRNA_sigSimilarity[sampleid, "pair_34_c_RNA"] <- r_scRNA$pair_34_c
+  data_scRNA_sigSimilarity[sampleid, "pair_35_p_RNA"] <- r_scRNA$pair_35_p
+  data_scRNA_sigSimilarity[sampleid, "pair_35_c_RNA"] <- r_scRNA$pair_35_c
+  data_scRNA_sigSimilarity[sampleid, "pair_36_p_RNA"] <- r_scRNA$pair_36_p
+  data_scRNA_sigSimilarity[sampleid, "pair_36_c_RNA"] <- r_scRNA$pair_36_c
+  
+  
+  data_scATA_sigSimilarity[sampleid, "pair_31_p_ATA"] <- r_scATA$pair_31_p
+  data_scATA_sigSimilarity[sampleid, "pair_31_c_ATA"] <- r_scATA$pair_31_c
+  data_scATA_sigSimilarity[sampleid, "pair_32_p_ATA"] <- r_scATA$pair_32_p
+  data_scATA_sigSimilarity[sampleid, "pair_32_c_ATA"] <- r_scATA$pair_32_c
+  data_scATA_sigSimilarity[sampleid, "pair_34_p_ATA"] <- r_scATA$pair_34_p
+  data_scATA_sigSimilarity[sampleid, "pair_34_c_ATA"] <- r_scATA$pair_34_c
+  data_scATA_sigSimilarity[sampleid, "pair_35_p_ATA"] <- r_scATA$pair_35_p
+  data_scATA_sigSimilarity[sampleid, "pair_35_c_ATA"] <- r_scATA$pair_35_c
+  data_scATA_sigSimilarity[sampleid, "pair_36_p_ATA"] <- r_scATA$pair_36_p
+  data_scATA_sigSimilarity[sampleid, "pair_36_c_ATA"] <- r_scATA$pair_36_c
+}
+
+df_RNA <- data_scRNA_sigSimilarity
+pairs_RNA <- unique(sub("_p_RNA", "", grep("_p_RNA$", colnames(df_RNA), value = TRUE)))
+for (p in pairs_RNA) {
+  p_col <- paste0(p, "_p_RNA")
+  c_col <- paste0(p, "_c_RNA")
+  df_RNA[[c_col]][df_RNA[[p_col]] > 0.001] <- NA
+}
+
+df_ATA <- data_scATA_sigSimilarity
+pairs_ATA <- unique(sub("_p_ATA", "", grep("_p_ATA$", colnames(df_ATA), value = TRUE)))
+for (p in pairs_ATA) {
+  p_col <- paste0(p, "_p_ATA")
+  c_col <- paste0(p, "_c_ATA")
+  df_ATA[[c_col]][df_ATA[[p_col]] > 0.001] <- NA
+}
+
+
+data_scRNA_scATA_sigSimilarity <- cbind(df_RNA[, c("pair_31_c_RNA", "pair_32_c_RNA", "pair_34_c_RNA", "pair_35_c_RNA", "pair_36_c_RNA")],
+                                        df_ATA[, c("pair_31_c_ATA", "pair_32_c_ATA", "pair_34_c_ATA", "pair_35_c_ATA", "pair_36_c_ATA")])
+
+#max_abs <- max(abs(data_scRNA_scATA_sigSimilarity), na.rm = TRUE)
+#breaks <- seq(-max_abs, max_abs, length.out = 101)
+
+#colors <- rev(colorRampPalette(brewer.pal(11, "BrBG"))(100))
+
+col_fun <- colorRamp2(
+  c(-1, 0, 1),
+  c("#762a83", "white", "#8c510a")
+)
+
+mat <- data_scRNA_scATA_sigSimilarity
+
+group <- ifelse(rownames(mat) %in% c("AML4", "AML16", "AML18"),
+                "AML4/16/18", "Others")
+group <- factor(group, levels = c("Others", "AML4/16/18"))
+
+Heatmap(
+  mat,
+  name = "effect size(obs-median)",
+  #row_split = group,
+  cluster_rows = TRUE,
+  clustering_method_rows = "ward.D",
+  cluster_columns = FALSE,
+  col = col_fun,
+  show_row_names = TRUE,
+  row_gap = unit(4, "mm"),
+  na_col = "grey90"
+)
+
+Heatmap(
+  mat,
+  name = "effect size(obs-median)",
+  #row_split = group,
+  cluster_rows = TRUE,
+  clustering_method_rows = "ward.D",
+  cluster_columns = FALSE,
+  col = col_fun,
+  show_row_names = TRUE,
+  row_gap = unit(4, "mm"),
+  na_col = "grey90",
+  cell_fun = function(j, i, x, y, w, h, fill) {
+    if (is.na(mat[i, j])) {
+      grid::grid.text(
+        "×", x = x, y = y,
+        gp = grid::gpar(fontsize = 10, col = "black")
+      )
+    }
+  }
+)
+
+ht <- Heatmap(
+  mat,
+  name = "effect size(obs-median)",
+  #row_split = group,
+  cluster_rows = TRUE,
+  clustering_method_rows = "ward.D",
+  cluster_columns = FALSE,
+  col = col_fun,
+  show_row_names = TRUE,
+  row_gap = unit(4, "mm"),
+  na_col = "grey90"
+)
+
+pdf("heatmap_effect_size_3vsother.pdf", width = 5.8, height = 6)
+
+draw(ht)
+
+dev.off()
 ```
 
 # mutations shared by different lineage
