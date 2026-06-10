@@ -101,14 +101,20 @@ Heatmap(
   rect_gp = gpar(col = "white", lwd = 1)
 )
 
-
-p_correlation_scMut_OtherMethods <- ggplot(Mutation_fraction, aes(x = scMutrace, y = OtherMethod)) +
-  geom_point(size = 1.5, color = "#202020") +
+p_correlation_scMut_OtherMethods <- ggplot(Mutation_fraction, aes(x = scMutrace, y = OtherMethod, color = Tag)) +
+  geom_point(size = 1.5) +
   geom_smooth(method = "lm", se = TRUE, color = "#ca0020", linetype = "dashed", lwd = 1.2) +
+  scale_color_manual(
+    values = c(
+      "GoTSeq" = "#FABD6C",
+      "SMART" = "#2079B5",
+      "XVSeq" = "#6C3E98"
+    )
+  ) +
   theme_classic(base_size = 16) +
   xlab("scMutrace") +
   ylab("OtherMethod") +
-  xlim(0, 1) + ylim(0, 0.6) +
+  xlim(0, 1) + ylim(0, 1) +
   annotate("text",
            x = max(Mutation_fraction$scMutrace) * 0.7,
            y = max(Mutation_fraction$OtherMethod) * 0.15,

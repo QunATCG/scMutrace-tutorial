@@ -4,6 +4,7 @@ author: "Qun Li"
 date: "22 Aug 2025 at 10:12:37"
 output:
   pdf_document:
+    highlight: tango
     toc: true
     toc_depth: 3
     number_sections: true
@@ -17,7 +18,18 @@ output:
 ---
 
 ```{r, setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  results = "hide",
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "100%"
+)
+
+options(width = 80)
 ```
 
 # Env
@@ -2162,6 +2174,8 @@ cor.test(merged_percentage_data$percentage_ATA, merged_percentage_data$percentag
 
 *p8_RDS_GIM2_sampleID_M.rds* and *p8_RDS_MM2_sampleID_M.rds* contain the GeneIntegrationMatrix and MotifMatrix data for transcrption factor lineage analysis respectively and were generated using `0_pipelineFunctions.Rmd` > # pipelines for processing scATAC-seq data and # pipelines for trajectory analysis of scATAC-seq data
 
+GIM, Motif and geneExp data can be accessed at zenodo ()
+
 # transcrption factor lineage analysis
 ```{r TFlineageAnalysis, eval=FALSE}
 plot_list_lineageSwitching <- function(GIMPath, MMPath, colOrder = NA){
@@ -2228,7 +2242,7 @@ rowMeans_no_outlier <- function(mat) {
 }
 
 
-generate_marker_matrix <- function(marker_gene, matMatrix, iteration_times = 100, iteration_size  = 50, dx_pattern  = "DX", rel_pattern = "REL"){
+generate_marker_matrix <- function(marker_gene, matMatrix, iteration_times = 1000, iteration_sizef  = 0.5, dx_pattern  = "DX", rel_pattern = "REL"){
   matMatrix_marker <- matMatrix[marker_gene, ]
   cells_DX  <- grep(dx_pattern,  colnames(matMatrix_marker), value = TRUE)
   cells_REL <- grep(rel_pattern, colnames(matMatrix_marker), value = TRUE)
@@ -2237,9 +2251,9 @@ generate_marker_matrix <- function(marker_gene, matMatrix, iteration_times = 100
   iteration_DX <- list()
   iteration_REL <- list()
   for (i in 1:iteration_times) {
-    sampled_cells_DX <- sample(cells_DX, size = iteration_size, replace = FALSE)
+    sampled_cells_DX <- sample(cells_DX, size = round(length(cells_DX) * iteration_sizef), replace = TRUE)
     iteration_DX[[i]] <- rowMeans_no_outlier(matMatrix_marker[,sampled_cells_DX, drop = FALSE])
-    sampled_cells_REL <- sample(cells_REL, size = iteration_size, replace = FALSE)
+    sampled_cells_REL <- sample(cells_REL, size = round(length(cells_REL) * iteration_sizef), replace = TRUE)
     iteration_REL[[i]] <- rowMeans_no_outlier(matMatrix_marker[,sampled_cells_REL, drop = FALSE])
   }
   
@@ -2356,30 +2370,38 @@ include_genes <- c(lineageSwitching_genes_H, "NR4A1", "CEBPA", "KLF13", "NFIL3",
 
 lineageSwitching_genes <- lineageSwitching_genes[which(lineageSwitching_genes %in% include_genes)]
 
-sample_names_lineage <- c("AML4", "AML16", "AML11", "AML17", "AML18", "AML24")
+sample_names_lineage <- c("AML8", "AML6", "AML5", "AML2", "AML27", "AML26", 
+                          "AML25", "AML22", "AML21", "AML19", "AML15", "AML13", 
+                          "AML12", "AML10", "AML24", "AML18", "AML17", "AML11", 
+                          "AML16", "AML4")
+
 modality_names_lineage <- c("RNA", "ATA")
 stage_names_lineage <- c("DX", "REL")
-iteration_times <- 10
+iteration_times <- 100
 # lineage switching gene matrix
-lineageSwitching_gene_matrix <- as.data.frame(matrix(NA, nrow = length(lineageSwitching_genes),
-                                                  ncol = iteration_times * length(sample_names_lineage) * length(modality_names_lineage) * length(stage_names_lineage)))
+colnames_lineageSwitching_matrix <- unlist(
+  lapply(sample_names_lineage, function(sample) {
+    unlist(
+      lapply(modality_names_lineage, function(modality) {
+        unlist(
+          lapply(stage_names_lineage, function(stage) {
+            paste(sample, stage, 1:iteration_times, modality, sep = "_")
+          })
+        )
+      })
+    )
+  })
+)
+
+lineageSwitching_gene_matrix <- as.data.frame(
+  matrix(
+    NA,
+    nrow = length(lineageSwitching_genes),
+    ncol = length(colnames_lineageSwitching_matrix)
+  )
+)
+
 rownames(lineageSwitching_gene_matrix) <- lineageSwitching_genes
-
-colnames_lineageSwitching_matrix <- c(paste("AML4", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "RNA", sep = "_"),
-                                      paste("AML4", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "ATA", sep = "_"),
-                                      paste("AML16", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "RNA", sep = "_"),
-                                      paste("AML16", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "ATA", sep = "_"),
-                                      paste("AML11", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "RNA", sep = "_"),
-                                      paste("AML11", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2],
- iteration_times), 1:iteration_times, sep = "_")), "ATA", sep = "_"),
-                                      paste("AML17", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "RNA", sep = "_"),
-                                      paste("AML17", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "ATA", sep = "_"),
-                                      paste("AML18", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "RNA", sep = "_"),
-                                      paste("AML18", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2],
- iteration_times), 1:iteration_times, sep = "_")), "ATA", sep = "_"),
-                                      paste("AML24", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "RNA", sep = "_"),
-                                      paste("AML24", c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "ATA", sep = "_"))
-
 colnames(lineageSwitching_gene_matrix) <- colnames_lineageSwitching_matrix
 
 for (sample in sample_names_lineage) {
@@ -2392,7 +2414,7 @@ for (sample in sample_names_lineage) {
     message("Processing gene: ", gene, " in sample: ", sample)
     # ATA
     message("  Processing ATA data...")
-    res_ATA <- generate_marker_matrix(gene, ATA_motif, iteration_times = iteration_times, iteration_size  = 1000, dx_pattern  = "DX", rel_pattern = "REL")
+    res_ATA <- generate_marker_matrix(gene, ATA_motif, iteration_times = iteration_times, iteration_sizef  = 0.5, dx_pattern  = "DX", rel_pattern = "REL")
     col_ATA <- paste(sample, c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "ATA", sep = "_")
     col_ATA_DX <- grep("DX", col_ATA, value = TRUE)
     col_ATA_REL <- grep("REL", col_ATA, value = TRUE)
@@ -2402,7 +2424,7 @@ for (sample in sample_names_lineage) {
     lineageSwitching_gene_matrix[gene, col_ATA_REL] <- ATA_value_scaled[(iteration_times + 1):(2 * iteration_times)]
     # RNA
     message("  Processing RNA data...")
-    res_RNA <- generate_marker_matrix(gene, RNA_exp, iteration_times = iteration_times, iteration_size  = 1000, dx_pattern  = "DX", rel_pattern = "REL")
+    res_RNA <- generate_marker_matrix(gene, RNA_exp, iteration_times = iteration_times, iteration_sizef  = 0.5, dx_pattern  = "DX", rel_pattern = "REL")
     col_RNA <- paste(sample, c(paste(rep(stage_names_lineage[1], iteration_times), 1:iteration_times, sep = "_"), paste(rep(stage_names_lineage[2], iteration_times), 1:iteration_times, sep = "_")), "RNA", sep = "_")
     col_RNA_DX <- grep("DX", col_RNA, value = TRUE)
     col_RNA_REL <- grep("REL", col_RNA, value = TRUE)
@@ -2466,6 +2488,170 @@ lineageSwitching_gene_matrix_tf_ATA <- lineageSwitching_gene_matrix_tf[, grep("A
 
 lineageSwitching_gene_matrix_marker <- lineageSwitching_gene_matrix[rownames(lineageSwitching_gene_matrix) %in% gene_marker, ]
 lineageSwitching_gene_matrix_marker_RNA <- lineageSwitching_gene_matrix_marker[, grep("RNA", colnames(lineageSwitching_gene_matrix_marker))]
+
+ha_row_tf <- rowAnnotation(
+  Lineage = gene_lineage_tf$Lineage,
+  col = list(
+    Lineage = c(
+      Myeloid_TF  = "#053061",
+      Lymphoid_TF = "#00441b"
+    )
+  )
+)
+
+ha_row_marker <- rowAnnotation(
+  Lineage = gene_lineage_marker$Lineage,
+  col = list(
+    Lineage = c(
+      HSC_Marker = "#7f2704",
+      Progenitor_Marker = "#d94801",
+      Myeloid_Marker_GMP = "#2166AC",
+      Myeloid_Marker_Monocyte = "#4393C3",
+      Lymphoid_Marker_B = "#238b45",
+      Lymphoid_Marker_T = "#66c2a4"
+    )
+  )
+)
+
+TF_motif_order_byletter <- c("CEBPA", "KLF13", "NFIL3", "NR4A1", "EBF1", "IRF3",
+                             "LEF1", "MEF2C", "PAX5", "POU2F1", "TCF3", "TCF4", "TCFL5")
+
+marker_gene_order_byletter <- c("C1QTNF4", "CD34", "CDK6", "HOPX", "IGFBP7", "NUCB2", "SPINK2", 
+                                "AZU1", "CTSG", "ELANE", "FCN1", "MPO", "PRTN3", "TYROBP", "VCAN", 
+                                "CD19", "CD79A", "DNTT", "IL7R", "LTB", "VPREB3", "CD7")
+
+# TF_EXP
+Heatmap(lineageSwitching_gene_matrix_tf_RNA[TF_motif_order_byletter,],
+        cluster_rows = FALSE,
+        cluster_columns = FALSE,
+        left_annotation = ha_row_tf,
+        col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100))[50:100])
+
+# TF_ATA
+Heatmap(lineageSwitching_gene_matrix_tf_ATA[TF_motif_order_byletter, ],
+        cluster_rows = FALSE,
+        cluster_columns = FALSE,
+        left_annotation = ha_row_tf,
+        col = colorRampPalette(brewer.pal(11, "RdBu"))(100)[50:100])
+
+
+# Marker_EXP
+Heatmap(lineageSwitching_gene_matrix_marker_RNA[marker_gene_order_byletter, ],
+        cluster_rows = FALSE,
+        cluster_columns = FALSE,
+        left_annotation = ha_row_marker,
+        col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100))[50:100])
+```
+# merge figures for TF lineage switching
+```{r mergeTFLineageSwitching}
+iteration_times <- 100
+lineageSwitching_gene_matrix <- readRDS("../Data/HumanpAML/AML_lineageSwitching_gene_matrix.rds")
+gene_lineage <- readRDS("../Data/HumanpAML/AML_lineageSwitching_gene_meta.rds")
+gene_lineage_tf <- gene_lineage[gene_lineage$Lineage %in% c("Myeloid_TF", "Lymphoid_TF"),]
+gene_lineage_marker <- gene_lineage[gene_lineage$Lineage %in% c("HSC_Marker", "Progenitor_Marker",
+                                                            "Myeloid_Marker_GMP", "Myeloid_Marker_Monocyte",
+                                                            "Lymphoid_Marker_B", "Lymphoid_Marker_T"),]
+
+gene_tf <- gene_lineage$Gene[gene_lineage$Lineage %in% c("Myeloid_TF", "Lymphoid_TF")]
+gene_marker <- gene_lineage$Gene[gene_lineage$Lineage %in% c("HSC_Marker", "Progenitor_Marker",
+                                                            "Myeloid_Marker_GMP", "Myeloid_Marker_Monocyte",
+                                                            "Lymphoid_Marker_B", "Lymphoid_Marker_T")]
+
+lineageSwitching_gene_matrix_tf <- lineageSwitching_gene_matrix[rownames(lineageSwitching_gene_matrix) %in% gene_tf, ]
+lineageSwitching_gene_matrix_tf_RNA <- lineageSwitching_gene_matrix_tf[, grep("RNA", colnames(lineageSwitching_gene_matrix_tf))]
+lineageSwitching_gene_matrix_tf_ATA <- lineageSwitching_gene_matrix_tf[, grep("ATA", colnames(lineageSwitching_gene_matrix_tf))]
+
+lineageSwitching_gene_matrix_marker <- lineageSwitching_gene_matrix[rownames(lineageSwitching_gene_matrix) %in% gene_marker, ]
+lineageSwitching_gene_matrix_marker_RNA <- lineageSwitching_gene_matrix_marker[, grep("RNA", colnames(lineageSwitching_gene_matrix_marker))]
+
+# --------
+lineageSwitching_gene_matrix_MEF2C_CEBPA <- lineageSwitching_gene_matrix[rownames(lineageSwitching_gene_matrix) %in% c("MEF2C", "CEBPA"),]
+col_info <- data.frame(col = colnames(lineageSwitching_gene_matrix_MEF2C_CEBPA))
+
+col_info$sample <- sub("_(DX|REL)_.*", "", col_info$col)
+col_info$stage  <- sub(".*_(DX|REL)_.*", "\\1", col_info$col)
+
+col_info$stage <- factor(col_info$stage, levels = c("DX", "REL"))
+col_info <- col_info[order(col_info$sample, col_info$stage), ]
+lineageSwitching_gene_matrix_MEF2C_CEBPA_sorted <- lineageSwitching_gene_matrix_MEF2C_CEBPA[, col_info$col]
+
+colnames_df <- data.frame(col = colnames(lineageSwitching_gene_matrix_MEF2C_CEBPA_sorted))
+
+colnames_df$sample <- sub("_(DX|REL)_.*", "", colnames_df$col)
+colnames_df$stage  <- sub(".*_(DX|REL)_.*", "\\1", colnames_df$col)
+colnames_df$mod    <- sub(".*_(RNA|ATA)$", "\\1", colnames_df$col)
+colnames_df$iter   <- as.numeric(sub(".*_(DX|REL)_([0-9]+)_.*", "\\2", colnames_df$col))
+
+rownames(colnames_df) <- colnames_df$col
+ann_colors <- list(
+  stage = c(DX = "#1f78b4", REL = "#e31a1c"),
+  mod   = c(RNA = "#33a02c", ATA = "#ff7f00")
+)
+
+pheatmap(
+  lineageSwitching_gene_matrix_MEF2C_CEBPA_sorted,
+  cluster_cols = FALSE,
+  cluster_rows = TRUE,
+  annotation_col = colnames_df[, c("sample", "stage", "mod")],
+  annotation_colors = ann_colors,
+  show_colnames = FALSE,
+  scale = "row"
+)
+
+samples_unique <- unique(colnames_df$sample)
+gene_mef2c_cebpa <- c("MEF2C", "CEBPA")
+allStages <- c("DX", "REL")
+colnames_sample_gene_dxrel <- c(paste0("MEF2C", "_DX_", 1:iteration_times, "_RNA"), paste0("MEF2C", "_REL_", 1:iteration_times, "_RNA"),
+                                paste0("MEF2C", "_DX_", 1:iteration_times, "_ATA"), paste0("MEF2C", "_REL_", 1:iteration_times, "_ATA"),
+                                paste0("CEBPA", "_DX_", 1:iteration_times, "_RNA"), paste0("CEBPA", "_REL_", 1:iteration_times, "_RNA"),
+                                paste0("CEBPA", "_DX_", 1:iteration_times, "_ATA"), paste0("CEBPA", "_REL_", 1:iteration_times, "_ATA"))
+sample_gene_dxrel <- as.data.frame(matrix(data = 0, nrow = length(samples_unique), ncol = length(colnames_sample_gene_dxrel)))
+rownames(sample_gene_dxrel) <- samples_unique 
+colnames(sample_gene_dxrel) <- colnames_sample_gene_dxrel
+
+for (stage in allStages){
+  for (sample in samples_unique){
+    for (gene in gene_mef2c_cebpa){
+      for (iter_n in 1:iteration_times){
+        # ori
+        col_ori_RNA <- paste(sample, stage, iter_n, "RNA", sep = "_")
+        col_ori_ATA <- paste(sample, stage, iter_n, "ATA", sep = "_")
+        print(col_ori_RNA)
+        item_ori_RNA <- lineageSwitching_gene_matrix_MEF2C_CEBPA_sorted[gene, col_ori_RNA]
+        item_ori_ATA <- lineageSwitching_gene_matrix_MEF2C_CEBPA_sorted[gene, col_ori_ATA]
+        # new
+        col_new_RNA <- paste(gene, stage, iter_n, "RNA", sep = "_")
+        col_new_ATA <- paste(gene, stage, iter_n, "ATA", sep = "_")
+        sample_gene_dxrel[sample, col_new_RNA] <- item_ori_RNA
+        sample_gene_dxrel[sample, col_new_ATA] <- item_ori_ATA
+      }
+    }
+  }
+}
+
+sample_gene_dxrel_RNA <- sample_gene_dxrel[,grep("RNA", colnames(sample_gene_dxrel), value = T)]
+sample_gene_dxrel_ATA <- sample_gene_dxrel[,grep("ATA", colnames(sample_gene_dxrel), value = T)]
+samples_order <- c("AML24", "AML19", "AML11", "AML17", "AML18", "AML2", "AML15",
+                   "AML5", "AML10", "AML12", "AML27", "AML6", "AML4", "AML8",
+                   "AML16", "AML21", "AML22", "AML25", "AML26", "AML13")
+
+Heatmap(sample_gene_dxrel,
+        cluster_columns = FALSE,
+        col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100))[50:100])
+
+
+Heatmap(sample_gene_dxrel_RNA[samples_order,],
+        cluster_rows = FALSE,
+        cluster_columns = FALSE,
+        #left_annotation = ha_row_tf,
+        col = rev(colorRampPalette(brewer.pal(11, "RdBu"))(100))[50:100])
+
+Heatmap(sample_gene_dxrel_ATA[samples_order,],
+        cluster_rows = FALSE,
+        cluster_columns = FALSE,
+        #left_annotation = ha_row_tf,
+        col = colorRampPalette(brewer.pal(11, "RdBu"))(100)[50:100])
+# --------
 
 ha_row_tf <- rowAnnotation(
   Lineage = gene_lineage_tf$Lineage,
